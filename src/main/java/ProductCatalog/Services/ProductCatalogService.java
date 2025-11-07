@@ -43,4 +43,13 @@ public class ProductCatalogService {
     public void updateProduct(Product oldProduct, Product newProduct) {
         unitOfWork.updateProduct(oldProduct, newProduct);
     }
+
+    public void createCatalog(Catalog catalog) {
+        unitOfWork.createCatalog(catalog);
+    }
+
+    public void createProduct(Product product, int catalogIndex){
+        unitOfWork.createProduct(product, catalogIndex);
+    }
+
 }

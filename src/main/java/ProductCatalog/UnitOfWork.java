@@ -75,6 +75,20 @@ public class UnitOfWork {
         return false;
     }
 
+    public boolean createProduct(Product product, int catalogIndex) {
+        if (product == null || catalogIndex < 0 || catalogIndex >= catalogs.size()) return false;
+        Catalog catalog = catalogs.get(catalogIndex);
+        catalog.getProducts().add(product);
+        return true;
+    }
+
+    public boolean createCatalog(Catalog catalog) {
+        if (catalog == null) return false;
+        catalogs.add(catalog);
+        return true;
+    }
+
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder("Список каталогов:\n");

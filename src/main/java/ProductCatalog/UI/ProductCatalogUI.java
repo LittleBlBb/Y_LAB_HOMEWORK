@@ -72,28 +72,52 @@ public class ProductCatalogUI {
 
     private void displayProductsMenu(int catalogIndex, Scanner console) {
         List<Product> products = service.getProductsByCatalog(catalogIndex);
-        int choice;
+        int choice = -1;
         do {
             System.out.println("\n\t" + service.getCatalogByIndex(catalogIndex).getName());
             for (int i = 0; i < products.size(); i++) {
                 System.out.printf("%-5d %-25s%n", i + 1, products.get(i).getName());
             }
+            System.out.println("a. Добавить новый товар");
             System.out.println("0. Назад");
             System.out.print("Выберите товар: ");
 
-            try {
-                choice = console.nextInt();
-                if (choice > 0 && choice <= products.size()) {
-                    displayProductMenu(products.get(choice - 1), console);
-                } else if (choice != 0) {
-                    System.out.println("Некорректный выбор.");
+            String input = console.next();
+            if (input.equalsIgnoreCase("a")) {
+                createProduct(catalogIndex, console);
+                products = service.getProductsByCatalog(catalogIndex); // обновляем список
+                choice = -1; // продолжаем цикл
+            } else { // если не "a", парсим число
+                try {
+                    choice = Integer.parseInt(input);
+                    if (choice > 0 && choice <= products.size()) {
+                        displayProductMenu(products.get(choice - 1), console);
+                    } else if (choice != 0) {
+                        System.out.println("Некорректный выбор.");
+                    }
+                } catch (Exception e) {
+                    pauseForInput(console);
+                    choice = -1;
                 }
-            } catch (Exception e) {
-                pauseForInput(console);
-                choice = -1;
             }
         } while (choice != 0);
     }
+
+    private void createProduct(int catalogIndex, Scanner console) {
+        console.nextLine();
+        System.out.print("Название товара: ");
+        String name = console.nextLine();
+        System.out.print("Цена товара: ");
+        double price = console.nextDouble();
+        console.nextLine();
+        System.out.print("Описание товара: ");
+        String description = console.nextLine();
+
+        service.createProduct(new Product(name, price, description), catalogIndex);
+        System.out.println("Товар успешно добавлен.");
+    }
+
+
 
     private void displayProductMenu(Product product, Scanner console) {
         int choice;
