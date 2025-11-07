@@ -52,4 +52,49 @@ public class ProductCatalogService {
         unitOfWork.createProduct(product, catalogIndex);
     }
 
+    public List<Product> filterProductsByCategory(int catalogIndex, String category) {
+        List<Product> filtered = new ArrayList<>();
+        List<Product> products = getProductsByCatalog(catalogIndex);
+        for (Product p : products) {
+            if (p.getCategory() != null && p.getCategory().equalsIgnoreCase(category)) {
+                filtered.add(p);
+            }
+        }
+        return filtered;
+    }
+
+    public List<Product> filterProductsByName(int catalogIndex, String name) {
+        List<Product> filtered = new ArrayList<>();
+        List<Product> products = getProductsByCatalog(catalogIndex);
+        for (Product p : products) {
+            if (p.getName().toLowerCase().contains(name.toLowerCase())) {
+                filtered.add(p);
+            }
+        }
+        return filtered;
+    }
+
+    public List<Product> filterProductsByPriceRange(int catalogIndex, double minPrice, double maxPrice) {
+        List<Product> filtered = new ArrayList<>();
+        List<Product> products = getProductsByCatalog(catalogIndex);
+        for (Product p : products) {
+            if (p.getPrice() >= minPrice && p.getPrice() <= maxPrice) {
+                filtered.add(p);
+            }
+        }
+        return filtered;
+    }
+
+    public List<Product> filterProductsByBrand(int catalogIndex, String brand) {
+        List<Product> filtered = new ArrayList<>();
+        List<Product> products = getProductsByCatalog(catalogIndex);
+        for (Product p : products) {
+            if (p.getBrand() != null && p.getBrand().equalsIgnoreCase(brand)) {
+                filtered.add(p);
+            }
+        }
+        return filtered;
+    }
+
+
 }

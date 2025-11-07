@@ -76,9 +76,10 @@ public class ProductCatalogUI {
         do {
             System.out.println("\n\t" + service.getCatalogByIndex(catalogIndex).getName());
             for (int i = 0; i < products.size(); i++) {
-                System.out.printf("%-5d %-25s%n", i + 1, products.get(i).getName());
+                System.out.printf("%-5d %-50s%n", i + 1, products.get(i).toShortString());
             }
             System.out.println("a. Добавить новый товар");
+            System.out.println("f. Фильтровать товары");
             System.out.println("0. Назад");
             System.out.print("Выберите товар: ");
 
@@ -86,8 +87,9 @@ public class ProductCatalogUI {
             if (input.equalsIgnoreCase("a")) {
                 createProduct(catalogIndex, console);
                 products = service.getProductsByCatalog(catalogIndex); // обновляем список
-                choice = -1; // продолжаем цикл
-            } else { // если не "a", парсим число
+            } else if (input.equalsIgnoreCase("f")) {
+                products = filterProductsMenu(catalogIndex, console);
+            } else {
                 try {
                     choice = Integer.parseInt(input);
                     if (choice > 0 && choice <= products.size()) {
@@ -104,7 +106,7 @@ public class ProductCatalogUI {
     }
 
     private void createProduct(int catalogIndex, Scanner console) {
-        console.nextLine();
+        console.nextLine(); // очистка буфера
         System.out.print("Название товара: ");
         String name = console.nextLine();
         System.out.print("Цена товара: ");
@@ -112,10 +114,15 @@ public class ProductCatalogUI {
         console.nextLine();
         System.out.print("Описание товара: ");
         String description = console.nextLine();
+        System.out.print("Бренд: ");
+        String brand = console.nextLine();
+        System.out.print("Категория: ");
+        String category = console.nextLine();
 
-        service.createProduct(new Product(name, price, description), catalogIndex);
+        service.createProduct(new Product(name, price, description, brand, category), catalogIndex);
         System.out.println("Товар успешно добавлен.");
     }
+
 
 
 
@@ -147,20 +154,22 @@ public class ProductCatalogUI {
     }
 
     private void editProduct(Product product, Scanner console) {
-        Product temp = new Product(product.getName(), product.getPrice(), product.getDescription());
+        Product temp = new Product(product.getName(), product.getPrice(), product.getDescription(), product.getBrand(), product.getCategory());
         int choice;
         do {
             System.out.println("\n" + temp);
             System.out.println("1. Изменить название");
             System.out.println("2. Изменить цену");
             System.out.println("3. Изменить описание");
-            System.out.println("4. Сохранить");
+            System.out.println("4. Изменить бренд");
+            System.out.println("5. Изменить категорию");
+            System.out.println("6. Сохранить");
             System.out.println("0. Отмена");
             System.out.print("Ваш выбор: ");
 
             try {
                 choice = console.nextInt();
-                console.nextLine();
+                console.nextLine(); // очистка буфера
                 switch (choice) {
                     case 1 -> {
                         System.out.print("Новое название: ");
@@ -176,6 +185,14 @@ public class ProductCatalogUI {
                         temp.setDescription(console.nextLine());
                     }
                     case 4 -> {
+                        System.out.print("Новый бренд: ");
+                        temp.setBrand(console.nextLine());
+                    }
+                    case 5 -> {
+                        System.out.print("Новая категория: ");
+                        temp.setCategory(console.nextLine());
+                    }
+                    case 6 -> {
                         service.updateProduct(product, temp);
                         System.out.println("Изменения сохранены.");
                         return;
@@ -190,8 +207,57 @@ public class ProductCatalogUI {
         } while (choice != 0);
     }
 
+
     private void pauseForInput(Scanner console) {
         System.out.println("Нажмите Enter для продолжения...");
         console.nextLine();
+    }
+
+    private List<Product> filterProductsMenu(int catalogIndex, Scanner console) {
+        console.nextLine();
+        System.out.println("\nФильтры:");
+        System.out.println("1. По имени");
+        System.out.println("2. По диапазону цены");
+        System.out.println("3. По бренду");
+        System.out.println("4. По категории");
+        System.out.println("0. Назад");
+        System.out.print("Выберите фильтр: ");
+        int choice = console.nextInt();
+        console.nextLine();
+
+        List<Product> filtered = service.getProductsByCatalog(catalogIndex);
+
+        switch (choice) {
+            case 1 -> {
+                System.out.print("Введите часть названия: ");
+                String name = console.nextLine();
+                filtered = service.filterProductsByName(catalogIndex, name);
+            }
+            case 2 -> {
+                System.out.print("Минимальная цена: ");
+                double min = console.nextDouble();
+                System.out.print("Максимальная цена: ");
+                double max = console.nextDouble();
+                console.nextLine();
+                filtered = service.filterProductsByPriceRange(catalogIndex, min, max);
+            }
+            case 3 -> {
+                System.out.print("Бренд: ");
+                String brand = console.nextLine();
+                filtered = service.filterProductsByBrand(catalogIndex, brand);
+            }
+            case 4 -> {
+                System.out.print("Категория: ");
+                String category = console.nextLine();
+                filtered = service.filterProductsByCategory(catalogIndex, category); // метод добавляем в сервис
+            }
+            case 0 -> System.out.println("Возврат к списку товаров.");
+        }
+
+        System.out.println("\nОтфильтрованные товары:");
+        for (int i = 0; i < filtered.size(); i++) {
+            System.out.printf("%-5d %-25s%n", i + 1, filtered.get(i).getName());
+        }
+        return filtered;
     }
 }

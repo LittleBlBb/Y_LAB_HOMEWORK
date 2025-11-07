@@ -2,17 +2,19 @@ package ProductCatalog.Models;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class Catalog {
-    private static final AtomicInteger dynamicCatalogId = new AtomicInteger(1);
+    private static int nextId = 1;
+    private static synchronized int getNextId() {
+        return nextId++;
+    }
 
     private final int id;
     private String name;
     private final List<Product> products;
 
     public Catalog(String name) {
-        this.id = dynamicCatalogId.getAndIncrement();
+        this.id = getNextId();
         this.name = name;
         this.products = initializeProducts(name);
     }
@@ -44,20 +46,13 @@ public class Catalog {
         return list;
     }
 
-    // --- Методы доступа ---
     public int getId() { return id; }
     public String getName() { return name; }
     public List<Product> getProducts() { return products; }
+    public void setName(String name) { this.name = name; }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    // --- Управление товарами ---
     public void addProduct(Product product) {
-        if (product != null) {
-            products.add(product);
-        }
+        if (product != null) products.add(product);
     }
 
     public boolean removeProduct(Product product) {
@@ -65,10 +60,7 @@ public class Catalog {
     }
 
     public Product findProductById(int id) {
-        return products.stream()
-                .filter(p -> p.getId() == id)
-                .findFirst()
-                .orElse(null);
+        return products.stream().filter(p -> p.getId() == id).findFirst().orElse(null);
     }
 
     @Override
