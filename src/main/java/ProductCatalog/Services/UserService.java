@@ -26,6 +26,7 @@ public class UserService {
 
         User newUser = new User(username, password, "user");
         unitOfWork.addUser(newUser);
+        unitOfWork.logAction(username, "REGISTER", "Регистрация нового пользователя");
         return true;
     }
 
@@ -33,12 +34,15 @@ public class UserService {
         User user = unitOfWork.findUserByUsername(username);
         if (user != null && user.getPassword().equals(password)){
             currentUser = user;
+            unitOfWork.logAction(username, "LOGIN", "Успешный вход");
             return true;
         }
+        unitOfWork.logAction(username, "LOGIN_FAILED", "Неудачная попытка входа");
         return false;
     }
 
     public void logout(){
+        unitOfWork.logAction(currentUser.getUsername(), "LOGOUT", "Выход из системы");
         currentUser = null;
     }
 

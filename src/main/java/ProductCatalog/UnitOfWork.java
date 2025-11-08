@@ -1,5 +1,6 @@
 package ProductCatalog;
 
+import ProductCatalog.Models.AuditEntry;
 import ProductCatalog.Models.Catalog;
 import ProductCatalog.Models.Product;
 import ProductCatalog.Models.User;
@@ -10,9 +11,12 @@ public class UnitOfWork {
     private static UnitOfWork instance;
     private final List<Catalog> catalogs;
     private final List<User> users;
+    private final List<AuditEntry> auditLog;
+
     private UnitOfWork() {
         catalogs = new ArrayList<>();
         users = new ArrayList<>();
+        auditLog = new ArrayList<>();
         initializeCatalogs();
         initializeUsers();
     }
@@ -35,6 +39,7 @@ public class UnitOfWork {
         users.add(new User("admin", "admin", "admin"));
     }
 
+    // ======= Работа с пользователями =========
     public void addUser(User user){
         if (user != null) users.add(user);
     }
@@ -52,9 +57,9 @@ public class UnitOfWork {
         return new ArrayList<>(users);
     }
 
-    // --- Управление каталогами ---
+    // ====== Управление каталогами ==========
     public List<Catalog> getCatalogs() {
-        return new ArrayList<>(catalogs); // возвращаем копию, чтобы избежать внешних изменений
+        return new ArrayList<>(catalogs);
     }
 
     public void addCatalog(Catalog catalog) {
@@ -68,13 +73,15 @@ public class UnitOfWork {
     }
 
     public Catalog findCatalogByName(String name) {
-        return catalogs.stream()
-                .filter(c -> c.getName().equalsIgnoreCase(name))
-                .findFirst()
-                .orElse(null);
+        for (Catalog catalog : catalogs) {
+            if (catalog.getName().equalsIgnoreCase(name)) {
+                return catalog;
+            }
+        }
+        return null;
     }
 
-    // --- Управление товарами ---
+    // ====== Управление товарами ========
     public boolean deleteProduct(Product product) {
         for (Catalog catalog : catalogs) {
             List<Product> products = catalog.getProducts();
@@ -111,6 +118,14 @@ public class UnitOfWork {
         return true;
     }
 
+    // ===== Аудит =======
+    public void logAction(String username, String action, String details){
+        auditLog.add(new AuditEntry(username, action, details));
+    }
+
+    public List<AuditEntry> getAuditLog() {
+        return new ArrayList<>(auditLog);
+    }
 
     @Override
     public String toString() {

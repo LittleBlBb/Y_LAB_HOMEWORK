@@ -2,13 +2,18 @@ package ProductCatalog.Services;
 
 import ProductCatalog.Models.Catalog;
 import ProductCatalog.Models.Product;
+import ProductCatalog.Models.User;
 import ProductCatalog.UnitOfWork;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ProductCatalogService {
     private static ProductCatalogService instance;
     private final UnitOfWork unitOfWork;
+
+    private final Map<Integer, List<Product>> productsCache = new HashMap<>();
 
     private ProductCatalogService() {
         this.unitOfWork = UnitOfWork.getInstance();
@@ -32,24 +37,64 @@ public class ProductCatalogService {
     }
 
     public List<Product> getProductsByCatalog(int catalogIndex) {
+        if (productsCache.containsKey(catalogIndex)){
+            return productsCache.get(catalogIndex);
+        }
         Catalog catalog = getCatalogByIndex(catalogIndex);
+        List<Product> result = catalog != null ? catalog.getProducts() : new ArrayList<>();
+        productsCache.put(catalogIndex, result);
         return catalog != null ? catalog.getProducts() : new ArrayList<>();
     }
 
-    public void deleteProduct(Product product) {
-        unitOfWork.deleteProduct(product);
+    private void invalidateAllCaches() {
+        productsCache.clear();
     }
 
-    public void updateProduct(Product oldProduct, Product newProduct) {
-        unitOfWork.updateProduct(oldProduct, newProduct);
+    public boolean deleteProduct(Product product) {
+        boolean success = unitOfWork.deleteProduct(product);
+        if (success){
+            invalidateAllCaches();
+            String username = (UserService.getInstance().getCurrentUser() != null)
+                    ? UserService.getInstance().getCurrentUser().getUsername()
+                    : null;
+            unitOfWork.getInstance().logAction(username, "DELETE_PRODUCT",
+                    "Удален товар: id= " + product.getId() + ", name=" + product.getName());
+        }
+        return success;
     }
 
-    public void createCatalog(Catalog catalog) {
-        unitOfWork.createCatalog(catalog);
+    public boolean updateProduct(Product oldProduct, Product newProduct) {
+        boolean success = unitOfWork.updateProduct(oldProduct, newProduct);
+        if (success) {
+            invalidateAllCaches();
+            String username = (UserService.getInstance().getCurrentUser() != null)
+                    ? UserService.getInstance().getCurrentUser().getUsername()
+                    : null;
+            UnitOfWork.getInstance().logAction(username, "UPDATE_PRODUCT",
+                    "Изменен товар: oldId=" + oldProduct.getId() + ", newName=" + newProduct.getName());
+        }
+        return success;
     }
 
-    public void createProduct(Product product, int catalogIndex){
-        unitOfWork.createProduct(product, catalogIndex);
+    public boolean createCatalog(Catalog catalog) {
+        boolean success = unitOfWork.createCatalog(catalog);
+        if (success) invalidateAllCaches();
+        return success;
+    }
+
+    public boolean createProduct(Product product, int catalogIndex){
+        boolean success = unitOfWork.createProduct(product, catalogIndex);
+        if (success){
+            invalidateAllCaches();
+            String username = (UserService.getInstance().getCurrentUser() != null)
+                    ? UserService.getInstance().getCurrentUser().getUsername()
+                    : null;
+            UnitOfWork.getInstance().logAction(username, "CREATE_PRODUCT",
+                    "Создан товар: id=" + product.getId() + ", name=" + product.getName() +
+                    ", catalogIndex=" + catalogIndex);
+
+        }
+        return success;
     }
 
     public List<Product> filterProductsByCategory(int catalogIndex, String category) {

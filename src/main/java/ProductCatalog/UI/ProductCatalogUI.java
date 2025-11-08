@@ -1,8 +1,10 @@
 package ProductCatalog.UI;
 
+import ProductCatalog.Models.AuditEntry;
 import ProductCatalog.Models.Product;
 import ProductCatalog.Services.ProductCatalogService;
 import ProductCatalog.Services.UserService;
+import ProductCatalog.UnitOfWork;
 
 import java.util.List;
 import java.util.Scanner;
@@ -10,6 +12,7 @@ import java.util.Scanner;
 public class ProductCatalogUI {
     private final ProductCatalogService service;
     private final UserService userService;
+
     public ProductCatalogUI() {
         this.service = ProductCatalogService.getInstance();
         this.userService = UserService.getInstance();
@@ -23,17 +26,21 @@ public class ProductCatalogUI {
     private void displayMainMenu(Scanner console) {
         int choice;
         do {
+            System.out.println("\n\t\tMENU");
             if (userService.isAuthenticated()){
                 System.out.println("Вы вошли как: " + userService.getCurrentUser().getUsername() +
                         " (" + userService.getCurrentUser().getRole() + ")");
+                System.out.println("4. Выйти из аккаунта");
+                if(userService.isAdmin()){
+                    System.out.println("5. Просмотр аудита (admin)");
+                }
             } else {
                 System.out.println("Вы не авторизованы");
             }
-            System.out.println("\n\t\tMENU");
             System.out.println("1. Просмотреть каталоги");
             System.out.println("2. Войти");
             System.out.println("3. Зарегистрироваться");
-            System.out.println("0. Выход");
+            System.out.println("0. Выход из программы");
             System.out.print("Ваш выбор: ");
 
             try {
@@ -42,6 +49,21 @@ public class ProductCatalogUI {
                     case 1 -> displayCatalogsMenu(console);
                     case 2 -> loginMenu(console);
                     case 3 -> registerMenu(console);
+                    case 4 -> {
+                        if (userService.isAuthenticated()){
+                            userService.logout();
+                            System.out.println("Вы вышли из аккаунта.");
+                        } else {
+                            System.out.println("Вы не вошли в систему.");
+                        }
+                    }
+                    case 5 -> {
+                        if (userService.isAdmin()){
+                            displayAuditLog();
+                        } else {
+                            System.out.println("недостаточно прав.");
+                        }
+                    }
                     case 0 -> {
                         System.out.println("До свидания!");
                         return;
@@ -164,8 +186,19 @@ public class ProductCatalogUI {
         System.out.print("Категория: ");
         String category = console.nextLine();
 
-        service.createProduct(new Product(name, price, description, brand, category), catalogIndex);
+        if(!userService.isAdmin()){
+            System.out.println("Только администратор может добавлять товары!");
+            return;
+        }
+
+        boolean ok = service.createProduct(new Product(name, price, description, brand, category), catalogIndex);
         System.out.println("Товар успешно добавлен.");
+
+        if(ok){
+            System.out.println("товар успешно добавлен.");
+        } else{
+            System.out.println("Ошибка при добавлении товара.");
+        }
     }
 
 
@@ -189,8 +222,12 @@ public class ProductCatalogUI {
                             System.out.println("Только администратор может удалять товары!");
                             break;
                         }
-                        service.deleteProduct(product);
-                        System.out.println("Товар удалён.");
+                        boolean deleted = service.deleteProduct(product);
+                        if (deleted) {
+                            System.out.println("Товар удалён.");
+                        } else {
+                            System.out.println("Ошибка при удалении.");
+                        }
                         return;
                     }
                     case 2 -> {
@@ -250,8 +287,12 @@ public class ProductCatalogUI {
                         temp.setCategory(console.nextLine());
                     }
                     case 6 -> {
-                        service.updateProduct(product, temp);
-                        System.out.println("Изменения сохранены.");
+                        boolean edited = service.updateProduct(product, temp);
+                        if (edited){
+                            System.out.println("Изменения сохранены.");
+                        } else {
+                            System.out.println("Ошибка при сохранении изменений.");
+                        }
                         return;
                     }
                     case 0 -> System.out.println("Изменения отменены.");
@@ -316,5 +357,18 @@ public class ProductCatalogUI {
             System.out.printf("%-5d %-25s%n", i + 1, filtered.get(i).getName());
         }
         return filtered;
+    }
+
+    private void displayAuditLog(){
+        List<AuditEntry> log = UnitOfWork.getInstance().getAuditLog();
+        if(log.isEmpty()){
+            System.out.println("Журнал аудита пуст.");
+            return;
+        }
+        System.out.println("\n ==== Журнал аудита ====");
+        for (AuditEntry entry : log){
+            System.out.println(entry);
+        }
+        System.out.println("==== Конец журнала ====");
     }
 }
