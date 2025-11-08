@@ -2,15 +2,17 @@ package ProductCatalog.UI;
 
 import ProductCatalog.Models.Product;
 import ProductCatalog.Services.ProductCatalogService;
+import ProductCatalog.Services.UserService;
 
 import java.util.List;
 import java.util.Scanner;
 
 public class ProductCatalogUI {
     private final ProductCatalogService service;
-
+    private final UserService userService;
     public ProductCatalogUI() {
         this.service = ProductCatalogService.getInstance();
+        this.userService = UserService.getInstance();
     }
 
     public void run() {
@@ -32,17 +34,49 @@ public class ProductCatalogUI {
                 choice = console.nextInt();
                 switch (choice) {
                     case 1 -> displayCatalogsMenu(console);
+                    case 2 -> loginMenu(console);
+                    case 3 -> registerMenu(console);
                     case 0 -> {
                         System.out.println("До свидания!");
                         return;
                     }
-                    default -> System.out.println("Функция в разработке.");
+                    default -> System.out.println("Некорректный выбор.");
                 }
             } catch (Exception e) {
                 pauseForInput(console);
                 choice = -1;
             }
         } while (choice != 0);
+    }
+
+    private void loginMenu(Scanner console){
+        console.nextLine();
+        System.out.println("Введите логин: ");
+        String username = console.nextLine();
+        System.out.println("Введите пароль: ");
+        String password = console.nextLine();
+
+        if (userService.login(username, password)){
+            System.out.println("Добро пожаловать, " + username + "!");
+        } else {
+            System.out.println("Неверный логин или пароль.");
+        }
+    }
+
+    private void registerMenu(Scanner console){
+        console.nextLine();
+        System.out.println("Придумайте логин: ");
+        String username = console.nextLine();
+        System.out.println("придумайте пароль: ");
+        String password = console.nextLine();
+
+        if (userService.register(username, password))
+        {
+            System.out.println("Регистрация успешна! Теперь вы можете войти.");
+        } else {
+            System.out.println("Пользователь с таким логином уже существует.");
+        }
+
     }
 
     private void displayCatalogsMenu(Scanner console) {

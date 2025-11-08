@@ -95,6 +95,4 @@ public class ProductCatalogService {
         }
         return filtered;
     }
-
-
 }

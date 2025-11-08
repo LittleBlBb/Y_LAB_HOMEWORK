@@ -2,17 +2,19 @@ package ProductCatalog;
 
 import ProductCatalog.Models.Catalog;
 import ProductCatalog.Models.Product;
-
+import ProductCatalog.Models.User;
 import java.util.ArrayList;
 import java.util.List;
 
 public class UnitOfWork {
     private static UnitOfWork instance;
     private final List<Catalog> catalogs;
-
+    private final List<User> users;
     private UnitOfWork() {
         catalogs = new ArrayList<>();
+        users = new ArrayList<>();
         initializeCatalogs();
+        initializeUsers();
     }
 
     public static UnitOfWork getInstance() {
@@ -27,6 +29,27 @@ public class UnitOfWork {
         catalogs.add(new Catalog("Комплектующие для ПК"));
         catalogs.add(new Catalog("Бытовая техника"));
         catalogs.add(new Catalog("Офис и мебель"));
+    }
+
+    private void initializeUsers(){
+        users.add(new User("admin", "admin", "admin"));
+    }
+
+    public void addUser(User user){
+        if (user != null) users.add(user);
+    }
+
+    public User findUserByUsername(String username){
+        for (User u : users){
+            if (u.getUsername().equalsIgnoreCase(username)){
+                return u;
+            }
+        }
+        return null;
+    }
+
+    public List<User> getUsers(){
+        return new ArrayList<>(users);
     }
 
     // --- Управление каталогами ---
