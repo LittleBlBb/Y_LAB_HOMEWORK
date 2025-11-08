@@ -1,0 +1,22 @@
+# IntelliJ IDEA
+.idea/
+*.iml
+.idea/workspace.xml
+.idea/tasks.xml
+.idea/usage.statistics.xml
+.idea/dictionaries
+.idea/shelf
+.idea/contentModel.xml
+.idea/compiler.xml
+.idea/misc.xml
+.idea/inspectConfigurations.xml
+.idea/modules.xml
+.idea/vcs.xml
+
+# Maven/Gradle build
+target/
+out/
+*.jar
+*.war
+*.ear
+*.class
