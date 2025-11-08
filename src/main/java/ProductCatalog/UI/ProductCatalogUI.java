@@ -23,6 +23,12 @@ public class ProductCatalogUI {
     private void displayMainMenu(Scanner console) {
         int choice;
         do {
+            if (userService.isAuthenticated()){
+                System.out.println("Вы вошли как: " + userService.getCurrentUser().getUsername() +
+                        " (" + userService.getCurrentUser().getRole() + ")");
+            } else {
+                System.out.println("Вы не авторизованы");
+            }
             System.out.println("\n\t\tMENU");
             System.out.println("1. Просмотреть каталоги");
             System.out.println("2. Войти");
@@ -111,16 +117,21 @@ public class ProductCatalogUI {
             System.out.println("\n\t" + service.getCatalogByIndex(catalogIndex).getName());
             for (int i = 0; i < products.size(); i++) {
                 System.out.printf("%-5d %-50s%n", i + 1, products.get(i).toShortString());
+            } if(userService.isAdmin()) {
+                System.out.println("a. Добавить новый товар");
             }
-            System.out.println("a. Добавить новый товар");
             System.out.println("f. Фильтровать товары");
             System.out.println("0. Назад");
             System.out.print("Выберите товар: ");
 
             String input = console.next();
             if (input.equalsIgnoreCase("a")) {
-                createProduct(catalogIndex, console);
-                products = service.getProductsByCatalog(catalogIndex); // обновляем список
+                if(userService.isAdmin()) {
+                    createProduct(catalogIndex, console);
+                    products = service.getProductsByCatalog(catalogIndex); // обновляем список
+                } else {
+                    System.out.println("Только администратор может добавлять товары!");
+                }
             } else if (input.equalsIgnoreCase("f")) {
                 products = filterProductsMenu(catalogIndex, console);
             } else {
@@ -164,19 +175,31 @@ public class ProductCatalogUI {
         int choice;
         do {
             System.out.println("\n" + product);
-            System.out.println("1. Удалить");
-            System.out.println("2. Изменить");
+            if(userService.isAdmin()) {
+                System.out.println("1. Удалить");
+                System.out.println("2. Изменить");
+            }
             System.out.println("0. Назад");
             System.out.print("Ваш выбор: ");
             try {
                 choice = console.nextInt();
                 switch (choice) {
                     case 1 -> {
+                        if(!userService.isAdmin()){
+                            System.out.println("Только администратор может удалять товары!");
+                            break;
+                        }
                         service.deleteProduct(product);
                         System.out.println("Товар удалён.");
                         return;
                     }
-                    case 2 -> editProduct(product, console);
+                    case 2 -> {
+                        if (!userService.isAdmin()) {
+                            System.out.println("Только администратор может изменять товары!");
+                            break;
+                        }
+                        editProduct(product, console);
+                    }
                     case 0 -> { return; }
                     default -> System.out.println("Некорректный выбор.");
                 }

@@ -49,4 +49,8 @@ public class UserService {
     public boolean isAuthenticated(){
         return currentUser != null;
     }
+
+    public boolean isAdmin(){
+        return currentUser != null && "admin".equalsIgnoreCase(currentUser.getRole());
+    }
 }
