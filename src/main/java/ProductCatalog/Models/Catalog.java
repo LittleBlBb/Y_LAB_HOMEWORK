@@ -1,9 +1,10 @@
 package ProductCatalog.Models;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Catalog {
+public class Catalog implements Serializable {
     private static int nextId = 1;
     private static synchronized int getNextId() {
         return nextId++;

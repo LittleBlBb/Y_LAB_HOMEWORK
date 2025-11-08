@@ -1,6 +1,8 @@
 package ProductCatalog.Models;
 
-public class Product implements Cloneable {
+import java.io.Serializable;
+
+public class Product implements Cloneable, Serializable {
     private static int nextId = 1; // статическое поле для генерации ID
     private static synchronized int getNextId() { // синхронизированный метод
         return nextId++;

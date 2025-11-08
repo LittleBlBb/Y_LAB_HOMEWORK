@@ -21,6 +21,7 @@ public class ProductCatalogUI {
     public void run() {
         Scanner console = new Scanner(System.in);
         displayMainMenu(console);
+        UnitOfWork.saveData();
     }
 
     private void displayMainMenu(Scanner console) {

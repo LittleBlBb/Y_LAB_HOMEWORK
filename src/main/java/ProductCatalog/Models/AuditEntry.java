@@ -1,8 +1,9 @@
 package ProductCatalog.Models;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
-public class AuditEntry {
+public class AuditEntry implements Serializable {
     private final LocalDateTime timestamp;
     private final String username;
     private final String action;

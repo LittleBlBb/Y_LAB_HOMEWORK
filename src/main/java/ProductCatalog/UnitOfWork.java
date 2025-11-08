@@ -4,10 +4,15 @@ import ProductCatalog.Models.AuditEntry;
 import ProductCatalog.Models.Catalog;
 import ProductCatalog.Models.Product;
 import ProductCatalog.Models.User;
+
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class UnitOfWork {
+public class UnitOfWork implements Serializable {
+    private static final long serialVersionUID = 1L;
+    private static final String DATA_FILE = "data.ser";
+
     private static UnitOfWork instance;
     private final List<Catalog> catalogs;
     private final List<User> users;
@@ -23,11 +28,15 @@ public class UnitOfWork {
 
     public static UnitOfWork getInstance() {
         if (instance == null) {
-            instance = new UnitOfWork();
+            instance = loadData();
+            if (instance == null) {
+                instance = new UnitOfWork();
+            }
         }
         return instance;
     }
 
+    // ==== Инициализация по умолчанию ====
     private void initializeCatalogs() {
         catalogs.add(new Catalog("Смартфоны"));
         catalogs.add(new Catalog("Комплектующие для ПК"));
@@ -125,6 +134,30 @@ public class UnitOfWork {
 
     public List<AuditEntry> getAuditLog() {
         return new ArrayList<>(auditLog);
+    }
+
+    // ==== Сериализация ====
+    public static void saveData() {
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(DATA_FILE))) {
+            oos.writeObject(instance);
+            System.out.println("Данные успешно сохранены.");
+        } catch (IOException e){
+            System.err.println("Ошибка при сохранении данных: " + e.getMessage());
+        }
+    }
+
+    private static UnitOfWork loadData() {
+        File file = new File(DATA_FILE);
+        if (!file.exists()) return null;
+
+        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file))) {
+            UnitOfWork loaded = (UnitOfWork) ois.readObject();
+            System.out.println("Данные успешно загружены из файла.");
+            return loaded;
+        } catch (Exception e) {
+            System.err.println("Ошибка при загрузке данных: " + e.getMessage());
+            return null;
+        }
     }
 
     @Override
