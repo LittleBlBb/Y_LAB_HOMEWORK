@@ -3,7 +3,7 @@ package ProductCatalog.Models;
 import java.io.Serializable;
 
 public class Product implements Cloneable, Serializable {
-    private static int nextId = 1; // статическое поле для генерации ID
+    private static int nextId = 1;
     private static synchronized int getNextId() { // синхронизированный метод
         return nextId++;
     }

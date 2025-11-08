@@ -96,7 +96,7 @@ public class ProductCatalogUI {
         console.nextLine();
         System.out.println("Придумайте логин: ");
         String username = console.nextLine();
-        System.out.println("придумайте пароль: ");
+        System.out.println("Придумайте пароль: ");
         String password = console.nextLine();
 
         if (userService.register(username, password))
@@ -193,10 +193,9 @@ public class ProductCatalogUI {
         }
 
         boolean ok = service.createProduct(new Product(name, price, description, brand, category), catalogIndex);
-        System.out.println("Товар успешно добавлен.");
 
         if(ok){
-            System.out.println("товар успешно добавлен.");
+            System.out.println("Товар успешно добавлен.");
         } else{
             System.out.println("Ошибка при добавлении товара.");
         }

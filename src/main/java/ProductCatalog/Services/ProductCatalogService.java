@@ -51,6 +51,7 @@ public class ProductCatalogService {
     }
 
     public boolean deleteProduct(Product product) {
+        long start = System.currentTimeMillis();
         boolean success = unitOfWork.deleteProduct(product);
         if (success){
             invalidateAllCaches();
@@ -60,10 +61,12 @@ public class ProductCatalogService {
             unitOfWork.getInstance().logAction(username, "DELETE_PRODUCT",
                     "Удален товар: id= " + product.getId() + ", name=" + product.getName());
         }
+        MetricsService.getInstance().displayMetrics("Удаление товара", start);
         return success;
     }
 
     public boolean updateProduct(Product oldProduct, Product newProduct) {
+        long start = System.currentTimeMillis();
         boolean success = unitOfWork.updateProduct(oldProduct, newProduct);
         if (success) {
             invalidateAllCaches();
@@ -73,6 +76,7 @@ public class ProductCatalogService {
             UnitOfWork.getInstance().logAction(username, "UPDATE_PRODUCT",
                     "Изменен товар: oldId=" + oldProduct.getId() + ", newName=" + newProduct.getName());
         }
+        MetricsService.getInstance().displayMetrics("Изменение товара", start);
         return success;
     }
 
@@ -83,6 +87,7 @@ public class ProductCatalogService {
     }
 
     public boolean createProduct(Product product, int catalogIndex){
+        long start = System.currentTimeMillis();
         boolean success = unitOfWork.createProduct(product, catalogIndex);
         if (success){
             invalidateAllCaches();
@@ -92,12 +97,13 @@ public class ProductCatalogService {
             UnitOfWork.getInstance().logAction(username, "CREATE_PRODUCT",
                     "Создан товар: id=" + product.getId() + ", name=" + product.getName() +
                     ", catalogIndex=" + catalogIndex);
-
         }
+        MetricsService.getInstance().displayMetrics("Добавление нового товара", start);
         return success;
     }
 
     public List<Product> filterProductsByCategory(int catalogIndex, String category) {
+        long start = System.currentTimeMillis();
         List<Product> filtered = new ArrayList<>();
         List<Product> products = getProductsByCatalog(catalogIndex);
         for (Product p : products) {
@@ -105,10 +111,12 @@ public class ProductCatalogService {
                 filtered.add(p);
             }
         }
+        MetricsService.getInstance().displayMetrics("Фильтрация по категории", start);
         return filtered;
     }
 
     public List<Product> filterProductsByName(int catalogIndex, String name) {
+        long start = System.currentTimeMillis();
         List<Product> filtered = new ArrayList<>();
         List<Product> products = getProductsByCatalog(catalogIndex);
         for (Product p : products) {
@@ -116,10 +124,12 @@ public class ProductCatalogService {
                 filtered.add(p);
             }
         }
+        MetricsService.getInstance().displayMetrics("Фильтрация по имени", start);
         return filtered;
     }
 
     public List<Product> filterProductsByPriceRange(int catalogIndex, double minPrice, double maxPrice) {
+        long start = System.currentTimeMillis();
         List<Product> filtered = new ArrayList<>();
         List<Product> products = getProductsByCatalog(catalogIndex);
         for (Product p : products) {
@@ -127,10 +137,12 @@ public class ProductCatalogService {
                 filtered.add(p);
             }
         }
+        MetricsService.getInstance().displayMetrics("Фильтрация по ценовому диапазону", start);
         return filtered;
     }
 
     public List<Product> filterProductsByBrand(int catalogIndex, String brand) {
+        long start = System.currentTimeMillis();
         List<Product> filtered = new ArrayList<>();
         List<Product> products = getProductsByCatalog(catalogIndex);
         for (Product p : products) {
@@ -138,6 +150,7 @@ public class ProductCatalogService {
                 filtered.add(p);
             }
         }
+        MetricsService.getInstance().displayMetrics("Фильтрация по бренду", start);
         return filtered;
     }
 }
