@@ -5,14 +5,20 @@ import ProductCatalog.Models.Catalog;
 import ProductCatalog.Models.Product;
 import ProductCatalog.Models.User;
 
-import java.io.*;
+import java.io.Serializable;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class UnitOfWork implements Serializable {
     private static final long serialVersionUID = 1L;
     private static final String DATA_FILE = "data.ser";
-
     private static UnitOfWork instance;
     private final List<Catalog> catalogs;
     private final List<User> users;

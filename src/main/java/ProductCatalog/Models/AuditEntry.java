@@ -1,9 +1,12 @@
 package ProductCatalog.Models;
 
+import lombok.Data;
+
 import java.io.Serializable;
 import java.time.LocalDateTime;
-
+@Data
 public class AuditEntry implements Serializable {
+    private static final long serialVersionUID = 1L;
     private final LocalDateTime timestamp;
     private final String username;
     private final String action;
@@ -14,27 +17,5 @@ public class AuditEntry implements Serializable {
         this.username = username;
         this.action = action;
         this.details = details;
-    }
-
-    public LocalDateTime getTimestamp() {
-        return timestamp;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public String getAction() {
-        return action;
-    }
-
-    public String getDetails() {
-        return details;
-    }
-
-    @Override
-    public String toString(){
-        return "[" + timestamp + "] " + (username != null ? username :"ANONYMOUS") +
-                " -> " + action + " : " + details;
     }
 }

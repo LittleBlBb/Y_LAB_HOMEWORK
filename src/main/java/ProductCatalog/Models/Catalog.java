@@ -1,21 +1,21 @@
 package ProductCatalog.Models;
 
+import lombok.Data;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+@Data
 public class Catalog implements Serializable {
+    private static final long serialVersionUID = 1L;
     private static int nextId = 1;
-    private static synchronized int getNextId() {
-        return nextId++;
-    }
-
     private final int id;
     private String name;
     private final List<Product> products;
 
     public Catalog(String name) {
-        this.id = getNextId();
+        this.id = nextId++;
         this.name = name;
         this.products = initializeProducts(name);
     }
@@ -47,11 +47,6 @@ public class Catalog implements Serializable {
         return list;
     }
 
-    public int getId() { return id; }
-    public String getName() { return name; }
-    public List<Product> getProducts() { return products; }
-    public void setName(String name) { this.name = name; }
-
     public void addProduct(Product product) {
         if (product != null) products.add(product);
     }
@@ -62,10 +57,5 @@ public class Catalog implements Serializable {
 
     public Product findProductById(int id) {
         return products.stream().filter(p -> p.getId() == id).findFirst().orElse(null);
-    }
-
-    @Override
-    public String toString() {
-        return id + ". " + name + " (" + products.size() + " товаров)";
     }
 }
