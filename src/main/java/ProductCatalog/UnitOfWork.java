@@ -1,9 +1,11 @@
 package ProductCatalog;
 
+import ProductCatalog.Config.AppConfig;
 import ProductCatalog.Models.AuditEntry;
 import ProductCatalog.Models.Catalog;
 import ProductCatalog.Models.Product;
 import ProductCatalog.Models.User;
+import ProductCatalog.Services.CatalogInitializer;
 
 import java.io.Serializable;
 import java.io.File;
@@ -18,18 +20,23 @@ import java.util.List;
 
 public class UnitOfWork implements Serializable {
     private static final long serialVersionUID = 1L;
-    private static final String DATA_FILE = "data.ser";
+    private static final String DATA_FILE = AppConfig.getDataFile();
     private static UnitOfWork instance;
     private final List<Catalog> catalogs;
     private final List<User> users;
     private final List<AuditEntry> auditLog;
 
     private UnitOfWork() {
-        catalogs = new ArrayList<>();
-        users = new ArrayList<>();
+        catalogs = new ArrayList<>(){{
+            add(new Catalog("Смартфоны", CatalogInitializer.getDefaultProducts("Смартфоны")));
+            add(new Catalog("Комплектующие для ПК", CatalogInitializer.getDefaultProducts("Комплектующие для ПК")));
+            add(new Catalog("Бытовая техника", CatalogInitializer.getDefaultProducts("Бытовая техника")));
+            add(new Catalog("Офис и мебель", CatalogInitializer.getDefaultProducts("Офис и мебель")));
+        }};
+        users = new ArrayList<>(){{
+            add(new User("admin", "admin", "admin"));
+        }};
         auditLog = new ArrayList<>();
-        initializeCatalogs();
-        initializeUsers();
     }
 
     public static UnitOfWork getInstance() {
@@ -40,18 +47,6 @@ public class UnitOfWork implements Serializable {
             }
         }
         return instance;
-    }
-
-    // ==== Инициализация по умолчанию ====
-    private void initializeCatalogs() {
-        catalogs.add(new Catalog("Смартфоны"));
-        catalogs.add(new Catalog("Комплектующие для ПК"));
-        catalogs.add(new Catalog("Бытовая техника"));
-        catalogs.add(new Catalog("Офис и мебель"));
-    }
-
-    private void initializeUsers(){
-        users.add(new User("admin", "admin", "admin"));
     }
 
     // ======= Работа с пользователями =========

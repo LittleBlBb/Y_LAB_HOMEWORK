@@ -2,7 +2,9 @@ package ProductCatalog.UI;
 
 import ProductCatalog.Models.AuditEntry;
 import ProductCatalog.Models.Product;
-import ProductCatalog.Services.ProductCatalogService;
+import ProductCatalog.Services.CatalogService;
+import ProductCatalog.Services.ProductFilterService;
+import ProductCatalog.Services.ProductService;
 import ProductCatalog.Services.UserService;
 import ProductCatalog.UnitOfWork;
 
@@ -10,12 +12,16 @@ import java.util.List;
 import java.util.Scanner;
 
 public class ProductCatalogUI {
-    private final ProductCatalogService service;
     private final UserService userService;
+    private final CatalogService catalogService;
+    private final ProductService productService;
+    private final ProductFilterService filterService;
 
     public ProductCatalogUI() {
-        this.service = ProductCatalogService.getInstance();
+        this.catalogService = CatalogService.getInstance();
         this.userService = UserService.getInstance();
+        this.productService = ProductService.getInstance();
+        this.filterService = ProductFilterService.getInstance();
     }
 
     public void run() {
@@ -111,7 +117,7 @@ public class ProductCatalogUI {
     }
 
     private void displayCatalogsMenu(Scanner console) {
-        var catalogs = service.getAllCatalogs();
+        var catalogs = catalogService.getAllCatalogs();
         int choice;
         do {
             System.out.println("\n\t\tCATALOGS");
@@ -136,10 +142,10 @@ public class ProductCatalogUI {
     }
 
     private void displayProductsMenu(int catalogIndex, Scanner console) {
-        List<Product> products = service.getProductsByCatalog(catalogIndex);
+        List<Product> products = productService.getProductsByCatalog(catalogIndex);
         int choice = -1;
         do {
-            System.out.println("\n\t" + service.getCatalogByIndex(catalogIndex).getName());
+            System.out.println("\n\t" + catalogService.getCatalogByIndex(catalogIndex).getName());
             for (int i = 0; i < products.size(); i++) {
                 System.out.printf("%-5d %-50s%n", i + 1, products.get(i).toShortString());
             } if(userService.isAdmin()) {
@@ -155,7 +161,7 @@ public class ProductCatalogUI {
             if (input.equalsIgnoreCase("a")) {
                 if(userService.isAdmin()) {
                     createProduct(catalogIndex, console);
-                    products = service.getProductsByCatalog(catalogIndex);
+                    products = productService.getProductsByCatalog(catalogIndex);
                 } else {
                     System.out.println("Только администратор может добавлять товары!");
                 }
@@ -196,7 +202,7 @@ public class ProductCatalogUI {
             return;
         }
 
-        boolean ok = service.createProduct(new Product(name, price, description, brand, category), catalogIndex);
+        boolean ok = productService.createProduct(new Product(name, price, description, brand, category), catalogIndex);
 
         if(ok){
             System.out.println("Товар успешно добавлен.");
@@ -228,7 +234,7 @@ public class ProductCatalogUI {
                             System.out.println("Только администратор может удалять товары!");
                             break;
                         }
-                        boolean deleted = service.deleteProduct(product);
+                        boolean deleted = productService.deleteProduct(product);
                         if (deleted) {
                             System.out.println("Товар удалён.");
                         } else {
@@ -271,7 +277,7 @@ public class ProductCatalogUI {
 
             try {
                 choice = console.nextInt();
-                console.nextLine(); // очистка буфера
+                console.nextLine();
                 switch (choice) {
                     case 1 -> {
                         System.out.print("Новое название: ");
@@ -295,7 +301,7 @@ public class ProductCatalogUI {
                         temp.setCategory(console.nextLine());
                     }
                     case 6 -> {
-                        boolean edited = service.updateProduct(product, temp);
+                        boolean edited = productService.updateProduct(product, temp);
                         if (edited){
                             System.out.println("Изменения сохранены.");
                         } else {
@@ -333,13 +339,13 @@ public class ProductCatalogUI {
         int choice = console.nextInt();
         console.nextLine();
 
-        List<Product> filtered = service.getProductsByCatalog(catalogIndex);
+        List<Product> filtered = productService.getProductsByCatalog(catalogIndex);
 
         switch (choice) {
             case 1 -> {
                 System.out.print("Введите часть названия: ");
                 String name = console.nextLine();
-                filtered = service.filterProductsByName(catalogIndex, name);
+                filtered = filterService.filterProductsByName(filtered, name);
             }
             case 2 -> {
                 System.out.print("Минимальная цена: ");
@@ -347,17 +353,17 @@ public class ProductCatalogUI {
                 System.out.print("Максимальная цена: ");
                 double max = console.nextDouble();
                 console.nextLine();
-                filtered = service.filterProductsByPriceRange(catalogIndex, min, max);
+                filtered = filterService.filterProductsByPriceRange(filtered, min, max);
             }
             case 3 -> {
                 System.out.print("Бренд: ");
                 String brand = console.nextLine();
-                filtered = service.filterProductsByBrand(catalogIndex, brand);
+                filtered = filterService.filterProductsByBrand(filtered, brand);
             }
             case 4 -> {
                 System.out.print("Категория: ");
                 String category = console.nextLine();
-                filtered = service.filterProductsByCategory(catalogIndex, category);
+                filtered = filterService.filterProductsByCategory(filtered, category);
             }
             case 0 -> System.out.println("Возврат к списку товаров.");
         }
