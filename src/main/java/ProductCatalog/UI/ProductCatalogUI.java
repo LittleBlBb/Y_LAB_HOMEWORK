@@ -4,6 +4,7 @@ import ProductCatalog.Models.AuditEntry;
 import ProductCatalog.Models.Product;
 import ProductCatalog.Services.AuditService;
 import ProductCatalog.Services.CatalogService;
+import ProductCatalog.Services.MetricsService;
 import ProductCatalog.Services.ProductFilterService;
 import ProductCatalog.Services.ProductService;
 import ProductCatalog.Services.UserService;
@@ -35,6 +36,7 @@ public class ProductCatalogUI {
         this.userService = userService;
         this.productService = productService;
         this.auditService = auditService;
+        MetricsService.getInstance(catalogService);
         this.filterService = ProductFilterService.getInstance();
     }
 

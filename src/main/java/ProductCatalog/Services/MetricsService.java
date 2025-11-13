@@ -18,9 +18,8 @@ public class MetricsService {
      * Приватный конструктор для инициализации метрик.
      *
      * @param catalogService сервис каталогов
-     * @param productService сервис товаров
      */
-    private MetricsService(CatalogService catalogService, ProductService productService) {
+    private MetricsService(CatalogService catalogService) {
         this.catalogService = catalogService;
     }
 
@@ -28,12 +27,29 @@ public class MetricsService {
      * Возвращает единственный экземпляр {@code MetricsService}.
      *
      * @param catalogService сервис каталогов
-     * @param productService сервис товаров
      * @return экземпляр {@code MetricsService}
      */
-    public static MetricsService getInstance(CatalogService catalogService, ProductService productService) {
+    public static MetricsService getInstance(CatalogService catalogService) {
         if (instance == null) {
-            instance = new MetricsService(catalogService, productService);
+            instance = new MetricsService(catalogService);
+        }
+        return instance;
+    }
+
+    /**
+     * Возвращает единственный экземпляр {@link MetricsService}.
+     * <p>
+     * Этот метод используется для получения уже инициализированного экземпляра
+     * сервиса метрик (реализует паттерн Singleton).
+     * Если экземпляр ещё не был создан через вызов {@code getInstance(CatalogService, ProductService)},
+     * будет выброшено исключение {@link IllegalStateException}.
+     *
+     * @return экземпляр {@link MetricsService}
+     * @throws IllegalStateException если сервис не был инициализирован ранее
+     */
+    public static MetricsService getInstance(){
+        if (instance == null){
+            throw new IllegalStateException("MetricsService not initialized.");
         }
         return instance;
     }
@@ -43,7 +59,7 @@ public class MetricsService {
      *
      * @return количество продуктов
      */
-    public int getTotalProductCount() {
+    public int getTotalCatalogCount() {
         List<Catalog> catalogs = catalogService.getAllCatalogs();
         return catalogs != null ? catalogs.size() : 0;
     }
@@ -53,7 +69,7 @@ public class MetricsService {
      *
      * @return количество каталогов
      */
-    public int getTotalCatalogCount() {
+    public int getTotalProductCount() {
         int count = 0;
         List<Catalog> catalogs = catalogService.getAllCatalogs();
         if (catalogs != null) {
