@@ -5,7 +5,17 @@ import ProductCatalog.Models.Product;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Класс, инициализирующий каталоги с набором стандартных товаров.
+ */
 public class CatalogInitializer {
+
+    /**
+     * Возвращает список стандартных товаров по названию категории.
+     *
+     * @param name название категории (например, "Смартфоны")
+     * @return список товаров для указанной категории
+     */
     public static List<Product> getDefaultProducts(String name) {
         List<Product> list = new ArrayList<>();
         switch (name) {

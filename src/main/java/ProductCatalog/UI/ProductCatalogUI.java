@@ -11,6 +11,10 @@ import ProductCatalog.Services.UserService;
 import java.util.List;
 import java.util.Scanner;
 
+/**
+ * Консольный пользовательский интерфейс для работы с системой каталога товаров.
+ * Поддерживает навигацию по каталогам, управление товарами и пользователями.
+ */
 public class ProductCatalogUI {
     private final UserService userService;
     private final CatalogService catalogService;
@@ -18,6 +22,14 @@ public class ProductCatalogUI {
     private final ProductFilterService filterService;
     private final AuditService auditService;
 
+    /**
+     * Создает экземпляр {@code ProductCatalogUI}.
+     *
+     * @param catalogService сервис каталогов
+     * @param productService сервис товаров
+     * @param userService сервис пользователей
+     * @param auditService сервис аудита
+     */
     public ProductCatalogUI(CatalogService catalogService, ProductService productService, UserService userService, AuditService auditService) {
         this.catalogService = catalogService;
         this.userService = userService;
@@ -26,6 +38,9 @@ public class ProductCatalogUI {
         this.filterService = ProductFilterService.getInstance();
     }
 
+    /**
+     * Запускает главное меню программы.
+     */
     public void run() {
         Scanner console = new Scanner(System.in);
         displayMainMenu(console);
