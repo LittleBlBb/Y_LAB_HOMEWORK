@@ -2,11 +2,11 @@ package ProductCatalog.UI;
 
 import ProductCatalog.Models.AuditEntry;
 import ProductCatalog.Models.Product;
+import ProductCatalog.Services.AuditService;
 import ProductCatalog.Services.CatalogService;
 import ProductCatalog.Services.ProductFilterService;
 import ProductCatalog.Services.ProductService;
 import ProductCatalog.Services.UserService;
-import ProductCatalog.UnitOfWork;
 
 import java.util.List;
 import java.util.Scanner;
@@ -16,18 +16,19 @@ public class ProductCatalogUI {
     private final CatalogService catalogService;
     private final ProductService productService;
     private final ProductFilterService filterService;
+    private final AuditService auditService;
 
-    public ProductCatalogUI() {
-        this.catalogService = CatalogService.getInstance();
-        this.userService = UserService.getInstance();
-        this.productService = ProductService.getInstance();
+    public ProductCatalogUI(CatalogService catalogService, ProductService productService, UserService userService, AuditService auditService) {
+        this.catalogService = catalogService;
+        this.userService = userService;
+        this.productService = productService;
+        this.auditService = auditService;
         this.filterService = ProductFilterService.getInstance();
     }
 
     public void run() {
         Scanner console = new Scanner(System.in);
         displayMainMenu(console);
-        UnitOfWork.saveData();
     }
 
     private void displayMainMenu(Scanner console) {
@@ -376,7 +377,7 @@ public class ProductCatalogUI {
     }
 
     private void displayAuditLog(){
-        List<AuditEntry> log = UnitOfWork.getInstance().getAuditLog();
+        List<AuditEntry> log = auditService.getAuditLog();
         if(log.isEmpty()){
             System.out.println("Журнал аудита пуст.");
             return;

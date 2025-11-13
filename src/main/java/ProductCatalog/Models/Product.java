@@ -1,12 +1,15 @@
 package ProductCatalog.Models;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.io.Serializable;
 
-@Data
+@Getter
+@Setter
 public class Product implements Serializable {
     private static final long serialVersionUID = 1L;
+
     private static int nextId = 1;
     private final int id;
     private double price;
@@ -37,6 +40,22 @@ public class Product implements Serializable {
         StringBuilder sb = new StringBuilder();
         sb.append(name).append("\t").append(price);
         if (brand != null && !brand.isEmpty()) sb.append("\tБренд: ").append(brand);
+        return sb.toString();
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Товар: ").append(name).append("\n")
+                .append("Цена: ").append(String.format("%.2f", price)).append(" ₽");
+
+        if (brand != null && !brand.isEmpty())
+            sb.append("\nБренд: ").append(brand);
+        if (category != null && !category.isEmpty())
+            sb.append("\nКатегория: ").append(category);
+        if (description != null && !description.isEmpty())
+            sb.append("\nОписание: ").append(description);
+
         return sb.toString();
     }
 }

@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 @Data
 public class AuditEntry implements Serializable {
     private static final long serialVersionUID = 1L;
+
     private final LocalDateTime timestamp;
     private final String username;
     private final String action;

@@ -11,7 +11,7 @@ public class AppConfig {
         try (FileInputStream input = new FileInputStream("config.properties")) {
             props.load(input);
         } catch (IOException e){
-            System.err.println("Не удалось загрузить config.properties.");
+            System.err.println("Не удалось загрузить config.properties. " + e.getMessage());
         }
     }
 

@@ -9,6 +9,7 @@ import java.util.List;
 @Data
 public class Catalog implements Serializable {
     private static final long serialVersionUID = 1L;
+
     private static int nextId = 1;
     private final int id;
     private String name;

@@ -2,87 +2,99 @@ package ProductCatalog.Services;
 
 import ProductCatalog.Models.Catalog;
 import ProductCatalog.Models.Product;
+import ProductCatalog.Models.User;
 import ProductCatalog.UnitOfWork;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class ProductService
 {
-    private static ProductService instance;
     private final UnitOfWork unitOfWork;
+    private final AuditService auditService;
+    private final UserService userService;
     private final Map<Integer, List<Product>> productsCache = new HashMap<>();
 
-    private ProductService(){
-        unitOfWork = UnitOfWork.getInstance();
-    }
-
-    public static ProductService getInstance(){
-        if (instance == null){
-            instance = new ProductService();
-        }
-        return instance;
+    public ProductService(UnitOfWork unitOfWork, AuditService auditService, UserService userService){
+        this.unitOfWork = unitOfWork;
+        this.userService = userService;
+        this.auditService = auditService;
     }
 
     public List<Product> getProductsByCatalog(int catalogIndex) {
         if (productsCache.containsKey(catalogIndex)){
             return productsCache.get(catalogIndex);
         }
-        Catalog catalog = CatalogService.getInstance().getCatalogByIndex(catalogIndex);
-        List<Product> result = catalog != null ? catalog.getProducts() : new ArrayList<>();
+        List<Catalog> catalogs = unitOfWork.getCatalogs();
+        if (catalogIndex < 0 || catalogIndex >= catalogs.size()) return Collections.emptyList();
+        List<Product> result = catalogs.get(catalogIndex).getProducts();
         productsCache.put(catalogIndex, result);
-        return catalog != null ? catalog.getProducts() : new ArrayList<>();
+        return result;
     }
 
-    private void invalidateAllCaches() {
+    private void invalidateCache() {
         productsCache.clear();
     }
 
     public boolean deleteProduct(Product product) {
         long start = System.currentTimeMillis();
-        boolean success = unitOfWork.deleteProduct(product);
-        if (success){
-            invalidateAllCaches();
-            String username = (UserService.getInstance().getCurrentUser() != null)
-                    ? UserService.getInstance().getCurrentUser().getUsername()
-                    : null;
-            unitOfWork.getInstance().logAction(username, "DELETE_PRODUCT",
-                    "Удален товар: id= " + product.getId() + ", name=" + product.getName());
+        for (Catalog catalog : unitOfWork.getCatalogs()){
+            if (catalog.getProducts().remove(product)){
+                invalidateCache();
+                auditService.logAction(
+                        userService.getCurrentUser() != null
+                        ? userService.getCurrentUser().getUsername()
+                                : "system",
+                        "DELETE_PRODUCT",
+                        "Удалён товар: " + product.getName()
+                );
+                MetricsService.getInstance().displayMetrics("Удаление товара", start);
+                return true;
+            }
         }
-        MetricsService.getInstance().displayMetrics("Удаление товара", start);
-        return success;
+        return false;
     }
 
     public boolean updateProduct(Product oldProduct, Product newProduct) {
         long start = System.currentTimeMillis();
-        boolean success = unitOfWork.updateProduct(oldProduct, newProduct);
-        if (success) {
-            invalidateAllCaches();
-            String username = (UserService.getInstance().getCurrentUser() != null)
-                    ? UserService.getInstance().getCurrentUser().getUsername()
-                    : null;
-            UnitOfWork.getInstance().logAction(username, "UPDATE_PRODUCT",
-                    "Изменен товар: oldId=" + oldProduct.getId() + ", newName=" + newProduct.getName());
+
+        for (Catalog catalog : unitOfWork.getCatalogs()){
+            List<Product> products = catalog.getProducts();
+            int index = products.indexOf(oldProduct);
+            if (index >= 0){
+                products.set(index, newProduct);
+                invalidateCache();
+                auditService.logAction(
+                        userService.getCurrentUser() != null
+                        ? userService.getCurrentUser().getUsername()
+                                : "system",
+                        "UPDATE_PRODUCT",
+                        "Изменён товар: " + oldProduct.getName() + " -> " + newProduct.getName()
+                );
+                MetricsService.getInstance().displayMetrics("Изменение товара", start);
+                return true;
+            }
         }
-        MetricsService.getInstance().displayMetrics("Изменение товара", start);
-        return success;
+        return false;
     }
 
     public boolean createProduct(Product product, int catalogIndex){
         long start = System.currentTimeMillis();
-        boolean success = unitOfWork.createProduct(product, catalogIndex);
-        if (success){
-            invalidateAllCaches();
-            String username = (UserService.getInstance().getCurrentUser() != null)
-                    ? UserService.getInstance().getCurrentUser().getUsername()
-                    : null;
-            UnitOfWork.getInstance().logAction(username, "CREATE_PRODUCT",
-                    "Создан товар: id=" + product.getId() + ", name=" + product.getName() +
-                            ", catalogIndex=" + catalogIndex);
-        }
-        MetricsService.getInstance().displayMetrics("Добавление нового товара", start);
-        return success;
+        List<Catalog> catalogs = unitOfWork.getCatalogs();
+        if (product == null || catalogIndex < 0 || catalogIndex >= catalogs.size()) return false;
+        catalogs.get(catalogIndex).getProducts().add(product);
+        invalidateCache();
+
+        auditService.logAction(
+                userService.getCurrentUser() != null
+                ? userService.getCurrentUser().getUsername()
+                        : "system",
+                "CREATE_PRODUCT",
+                "Добавлен товар: " + product.getName()
+        );
+        MetricsService.getInstance().displayMetrics("Добавление товара", start);
+        return true;
     }
 }

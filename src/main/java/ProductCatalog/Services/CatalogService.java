@@ -1,31 +1,22 @@
 package ProductCatalog.Services;
 
 import ProductCatalog.Models.Catalog;
-import ProductCatalog.Models.Product;
 import ProductCatalog.UnitOfWork;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class CatalogService {
-    private static CatalogService instance;
+    private final AuditService auditService;
     private final UnitOfWork unitOfWork;
+    private final UserService userService;
 
-    private final Map<Integer, List<Product>> productsCache = new HashMap<>();
-
-    private CatalogService() {
-        this.unitOfWork = UnitOfWork.getInstance();
+    public CatalogService(UnitOfWork unitOfWork, AuditService auditService, UserService userService) {
+        this.unitOfWork = unitOfWork;
+        this.auditService = auditService;
+        this.userService = userService;
     }
 
-    public static CatalogService getInstance() {
-        if (instance == null) {
-            instance = new CatalogService();
-        }
-        return instance;
-    }
-
-    public List<Catalog> getAllCatalogs() {
+    public List<Catalog> getAllCatalogs(){
         return unitOfWork.getCatalogs();
     }
 
@@ -36,6 +27,30 @@ public class CatalogService {
     }
 
     public boolean createCatalog(Catalog catalog) {
-        return unitOfWork.createCatalog(catalog);
+        if (catalog == null) return false;
+        unitOfWork.getCatalogs().add(catalog);
+        auditService.logAction(
+                userService.getCurrentUser() != null
+                ? userService.getCurrentUser().getUsername()
+                        : "system",
+                "CREATE_CATALOG",
+                "Создан новый каталог: " + catalog.getName()
+        );
+        return true;
+    }
+
+    public boolean removeCatalog(Catalog catalog){
+        if (catalog == null) return false;
+        boolean removed = unitOfWork.getCatalogs().remove(catalog);
+        if (removed) {
+            auditService.logAction(
+                    userService.getCurrentUser() != null
+                    ? userService.getCurrentUser().getUsername()
+                            : "system",
+                    "DELETE_CATALOG",
+                    "Удалён каталог: " + catalog.getName()
+            );
+        }
+        return removed;
     }
 }
