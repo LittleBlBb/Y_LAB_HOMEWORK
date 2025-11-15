@@ -2,136 +2,88 @@ package ProductCatalog.Services;
 
 import ProductCatalog.Models.Catalog;
 import ProductCatalog.Models.Product;
-import ProductCatalog.UnitOfWork;
+import ProductCatalog.Repositories.ProductRepository;
 
-import java.util.*;
+import java.util.List;
 
 /**
  * Сервис для управления товарами.
  * Позволяет создавать, изменять, удалять и получать товары из каталогов.
- * Использует кеш для ускорения повторных запросов.
  */
 public class ProductService {
-    private final UnitOfWork unitOfWork;
+    private final ProductRepository productRepository;
     private final AuditService auditService;
     private final UserService userService;
-    private final Map<Integer, List<Product>> productsCache = new HashMap<>();
 
     /**
      * Создает экземпляр {@code ProductService}.
      *
-     * @param unitOfWork объект, управляющий данными приложения
+     * @param productRepository объект, управляющий товарами из БД
      * @param auditService сервис аудита
      * @param userService сервис пользователей
      */
-    public ProductService(UnitOfWork unitOfWork, AuditService auditService, UserService userService) {
-        this.unitOfWork = unitOfWork;
+    public ProductService(ProductRepository productRepository, AuditService auditService, UserService userService) {
+        this.productRepository = productRepository;
         this.userService = userService;
         this.auditService = auditService;
     }
 
     /**
-     * Возвращает список товаров для указанного каталога.
-     * Результаты кешируются для оптимизации производительности.
      *
-     * @param catalogIndex индекс каталога
-     * @return список товаров каталога
+     * @param catalogId id каталога, продукты которого ищем
+     * @return
      */
-    public List<Product> getProductsByCatalog(int catalogIndex) {
-        if (productsCache.containsKey(catalogIndex)) {
-            return productsCache.get(catalogIndex);
-        }
-        List<Catalog> catalogs = unitOfWork.getCatalogs();
-        if (catalogIndex < 0 || catalogIndex >= catalogs.size()) return Collections.emptyList();
-        List<Product> result = catalogs.get(catalogIndex).getProducts();
-        productsCache.put(catalogIndex, result);
-        return result;
+    public List<Product> getProducts(long catalogId){
+        return productRepository.findByCatalog(catalogId);
     }
 
     /**
-     * Очищает кеш товаров.
-     */
-    private void invalidateCache() {
-        productsCache.clear();
-    }
-
-    /**
-     * Удаляет указанный товар.
-     * Записывает действие в журнал аудита.
      *
-     * @param product товар для удаления
-     * @return {@code true}, если товар успешно удалён
+     * @param id id товара, который удаляем
+     * @param name название товара
+     * @return
      */
-    public boolean deleteProduct(Product product) {
+    public boolean deleteProduct(long id, String name) {
         long start = System.currentTimeMillis();
-        for (Catalog catalog : unitOfWork.getCatalogs()) {
-            if (catalog.getProducts().remove(product)) {
-                invalidateCache();
-                auditService.logAction(
-                        userService.getCurrentUser() != null
-                                ? userService.getCurrentUser().getUsername()
-                                : "system",
-                        "DELETE_PRODUCT",
-                        "Удалён товар: " + product.getName()
-                );
-                MetricsService.getInstance().displayMetrics("Удаление товара", start);
-                return true;
-            }
+        boolean deleted = productRepository.delete(id);
+        if (deleted) {
+            auditService.log(userService.getCurrentUser().getUsername(),
+                    "DELETE_PRODUCT", "Удалён товар: " + name);
+            MetricsService.getInstance().displayMetrics("Удаление товара", start);
         }
-        return false;
+        return deleted;
     }
 
     /**
      * Обновляет информацию о товаре.
      *
-     * @param oldProduct старый товар
      * @param newProduct новый товар
      * @return {@code true}, если обновление успешно
      */
-    public boolean updateProduct(Product oldProduct, Product newProduct) {
+    public boolean updateProduct(Product newProduct) {
         long start = System.currentTimeMillis();
-
-        for (Catalog catalog : unitOfWork.getCatalogs()) {
-            List<Product> products = catalog.getProducts();
-            int index = products.indexOf(oldProduct);
-            if (index >= 0) {
-                products.set(index, newProduct);
-                invalidateCache();
-                auditService.logAction(
-                        userService.getCurrentUser() != null
-                                ? userService.getCurrentUser().getUsername()
-                                : "system",
-                        "UPDATE_PRODUCT",
-                        "Изменён товар: " + oldProduct.getName() + " -> " + newProduct.getName()
-                );
-                MetricsService.getInstance().displayMetrics("Изменение товара", start);
-                return true;
-            }
+        boolean updated = productRepository.update(newProduct);
+        if (updated){
+            auditService.log(userService.getCurrentUser().getUsername(),
+                    "UPDATE_PRODUCT", "Изменён товар: " + newProduct.getName());
+            MetricsService.getInstance().displayMetrics("Изменение товара", start);
         }
-        return false;
+        return updated;
     }
 
     /**
      * Создает новый товар в указанном каталоге.
      *
      * @param product товар для добавления
-     * @param catalogIndex индекс каталога
      * @return {@code true}, если товар успешно добавлен
      */
-    public boolean createProduct(Product product, int catalogIndex) {
+    public boolean createProduct(Product product) {
         long start = System.currentTimeMillis();
-        List<Catalog> catalogs = unitOfWork.getCatalogs();
-        if (product == null || catalogIndex < 0 || catalogIndex >= catalogs.size()) return false;
-        catalogs.get(catalogIndex).getProducts().add(product);
-        invalidateCache();
-
-        auditService.logAction(
-                userService.getCurrentUser() != null
-                        ? userService.getCurrentUser().getUsername()
-                        : "system",
-                "CREATE_PRODUCT",
-                "Добавлен товар: " + product.getName()
-        );
+        productRepository.save(product);
+        String username = userService.getCurrentUser() != null
+                ? userService.getCurrentUser().getUsername()
+                : "system";
+        auditService.log(username, "CREATE_PRODUCT", "Добавлен товар: " + product.getName());
         MetricsService.getInstance().displayMetrics("Добавление товара", start);
         return true;
     }

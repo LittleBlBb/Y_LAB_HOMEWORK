@@ -1,7 +1,7 @@
 package ProductCatalog.Services;
 
 import ProductCatalog.Models.Catalog;
-import ProductCatalog.UnitOfWork;
+import ProductCatalog.Repositories.CatalogRepository;
 
 import java.util.List;
 
@@ -12,18 +12,18 @@ import java.util.List;
  */
 public class CatalogService {
     private final AuditService auditService;
-    private final UnitOfWork unitOfWork;
+    private final CatalogRepository catalogRepository;
     private final UserService userService;
 
     /**
      * Создает экземпляр {@code CatalogService}.
      *
-     * @param unitOfWork  объект, управляющий данными приложения
+     * @param catalogRepository  объект, управляющий каталогами из БД
      * @param auditService сервис аудита
      * @param userService  сервис пользователей
      */
-    public CatalogService(UnitOfWork unitOfWork, AuditService auditService, UserService userService) {
-        this.unitOfWork = unitOfWork;
+    public CatalogService(CatalogRepository catalogRepository, AuditService auditService, UserService userService) {
+        this.catalogRepository = catalogRepository;
         this.auditService = auditService;
         this.userService = userService;
     }
@@ -34,19 +34,7 @@ public class CatalogService {
      * @return список каталогов
      */
     public List<Catalog> getAllCatalogs() {
-        return unitOfWork.getCatalogs();
-    }
-
-    /**
-     * Возвращает каталог по индексу.
-     *
-     * @param index индекс каталога в списке
-     * @return каталог или {@code null}, если индекс некорректен
-     */
-    public Catalog getCatalogByIndex(int index) {
-        List<Catalog> catalogs = unitOfWork.getCatalogs();
-        if (index < 0 || index >= catalogs.size()) return null;
-        return catalogs.get(index);
+        return catalogRepository.findAll();
     }
 
     /**
@@ -56,9 +44,8 @@ public class CatalogService {
      * @return {@code true}, если каталог успешно создан
      */
     public boolean createCatalog(Catalog catalog) {
-        if (catalog == null) return false;
-        unitOfWork.getCatalogs().add(catalog);
-        auditService.logAction(
+        catalogRepository.save(catalog);
+        auditService.log(
                 userService.getCurrentUser() != null
                         ? userService.getCurrentUser().getUsername()
                         : "system",
@@ -71,21 +58,21 @@ public class CatalogService {
     /**
      * Удаляет указанный каталог и записывает действие в журнал аудита.
      *
-     * @param catalog каталог для удаления
+     * @param id id каталога для удаления
+     * @param name название каталога
      * @return {@code true}, если каталог успешно удалён
      */
-    public boolean removeCatalog(Catalog catalog) {
-        if (catalog == null) return false;
-        boolean removed = unitOfWork.getCatalogs().remove(catalog);
-        if (removed) {
-            auditService.logAction(
+    public boolean deleteCatalog(long id, String name) {
+        boolean deleted = catalogRepository.delete(id);
+        if (deleted) {
+            auditService.log(
                     userService.getCurrentUser() != null
                             ? userService.getCurrentUser().getUsername()
                             : "system",
                     "DELETE_CATALOG",
-                    "Удалён каталог: " + catalog.getName()
+                    "Удалён каталог: " + name
             );
         }
-        return removed;
+        return deleted;
     }
 }

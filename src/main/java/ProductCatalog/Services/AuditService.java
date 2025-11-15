@@ -1,28 +1,24 @@
 package ProductCatalog.Services;
 
 import ProductCatalog.Models.AuditEntry;
-import ProductCatalog.UnitOfWork;
+import ProductCatalog.Repositories.AuditRepository;
 
-import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Сервис для управления журналом аудита.
- * Отвечает за запись, получение и очистку логов действий пользователей.
+ * Отвечает за запись логов действий пользователей.
  */
-public class AuditService implements Serializable {
-    private static final long serialVersionUID = 1L;
-
-    private final UnitOfWork unitOfWork;
+public class AuditService {
+    private final AuditRepository auditRepository;
 
     /**
      * Создает экземпляр {@code AuditService}.
      *
-     * @param unitOfWork объект, управляющий данными приложения
+     * @param auditRepository объект, управляющий журналом аудита из БД
      */
-    public AuditService(UnitOfWork unitOfWork) {
-        this.unitOfWork = unitOfWork;
+    public AuditService(AuditRepository auditRepository) {
+        this.auditRepository = auditRepository;
     }
 
     /**
@@ -32,23 +28,11 @@ public class AuditService implements Serializable {
      * @param action   название действия
      * @param details  дополнительные детали действия
      */
-    public void logAction(String username, String action, String details) {
-        unitOfWork.getAuditLog().add(new AuditEntry(username, action, details));
+    public void log(String username, String action, String details) {
+        auditRepository.save(new AuditEntry(username, action, details));
     }
 
-    /**
-     * Возвращает список всех записей аудита.
-     *
-     * @return список записей {@link AuditEntry}
-     */
-    public List<AuditEntry> getAuditLog() {
-        return new ArrayList<>(unitOfWork.getAuditLog());
-    }
-
-    /**
-     * Очищает журнал аудита.
-     */
-    public void clearLog() {
-        unitOfWork.getAuditLog().clear();
+    public List<AuditEntry> getAll() {
+        return auditRepository.findAll();
     }
 }
