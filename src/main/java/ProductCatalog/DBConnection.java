@@ -32,14 +32,4 @@ public class DBConnection {
         }
         return dataSource;
     }
-
-    // Тест подключения
-    public static void main(String[] args) {
-        try (Connection conn = getDataSource().getConnection()) {
-            System.out.println("Connected to PostgreSQL successfully!");
-        } catch (SQLException e) {
-            System.err.println("Failed to connect to PostgreSQL:");
-            e.printStackTrace();
-        }
-    }
 }
