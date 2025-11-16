@@ -1,17 +1,15 @@
 package ProductCatalog.Services;
 
 import ProductCatalog.Models.User;
-import ProductCatalog.UnitOfWork;
+import ProductCatalog.Repositories.UserRepository;
 import lombok.Getter;
-
-import java.util.List;
 
 /**
  * Сервис для управления пользователями.
  * Поддерживает регистрацию, вход, выход и проверку ролей.
  */
 public class UserService {
-    private final UnitOfWork unitOfWork;
+    private final UserRepository userRepository;
     private final AuditService auditService;
     @Getter
     private User currentUser;
@@ -19,11 +17,11 @@ public class UserService {
     /**
      * Создает экземпляр {@code UserService}.
      *
-     * @param unitOfWork объект, управляющий данными приложения
+     * @param userRepository объект, управляющий пользователями из БД
      * @param auditService сервис аудита
      */
-    public UserService(UnitOfWork unitOfWork, AuditService auditService) {
-        this.unitOfWork = unitOfWork;
+    public UserService(UserRepository userRepository, AuditService auditService) {
+        this.userRepository = userRepository;
         this.auditService = auditService;
     }
 
@@ -35,12 +33,14 @@ public class UserService {
      * @return {@code true}, если регистрация успешна
      */
     public boolean register(String username, String password) {
-        if (findUserByUsername(username) != null) {
+        if (userRepository.findByUsername(username) != null) {
             return false;
         }
-        User newUser = new User(username, password, "user");
-        unitOfWork.getUsers().add(newUser);
-        auditService.logAction(username, "REGISTER", "Регистрация нового пользователя");
+        User newUser = new User(username, password, "User");
+        userRepository.save(newUser);
+
+        auditService.log(username, "REGISTER", "Регистрация нового пользователя");
+
         return true;
     }
 
@@ -52,13 +52,14 @@ public class UserService {
      * @return {@code true}, если вход успешен
      */
     public boolean login(String username, String password) {
-        User user = findUserByUsername(username);
+        User user = userRepository.findByUsername(username);
         if (user != null && user.getPassword().equals(password)) {
             currentUser = user;
-            auditService.logAction(username, "LOGIN", "Успешный вход");
+            auditService.log(username, "LOGIN", "Успешный вход");
             return true;
         }
-        auditService.logAction(username, "LOGIN_FAILED", "Неудачная попытка входа");
+
+        auditService.log(username, "LOGIN_FAILED", "Неудачная попытка входа");
         return false;
     }
 
@@ -67,7 +68,7 @@ public class UserService {
      */
     public void logout() {
         if (currentUser != null) {
-            auditService.logAction(currentUser.getUsername(), "LOGOUT", "Выход из системы");
+            auditService.log(currentUser.getUsername(), "LOGOUT", "Выход из системы");
         }
         currentUser = null;
     }
@@ -88,20 +89,5 @@ public class UserService {
      */
     public boolean isAdmin() {
         return currentUser != null && "admin".equalsIgnoreCase(currentUser.getRole());
-    }
-
-    /**
-     * Находит пользователя по имени.
-     *
-     * @param username имя пользователя
-     * @return объект {@link User} или {@code null}, если пользователь не найден
-     */
-    private User findUserByUsername(String username) {
-        for (User u : unitOfWork.getUsers()) {
-            if (u.getUsername().equalsIgnoreCase(username)) {
-                return u;
-            }
-        }
-        return null;
     }
 }

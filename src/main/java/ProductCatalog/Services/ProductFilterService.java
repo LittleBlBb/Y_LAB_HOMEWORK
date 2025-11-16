@@ -36,16 +36,17 @@ public class ProductFilterService {
      * @param category категория для фильтрации
      * @return список товаров выбранной категории
      */
-    public List<Product> filterProductsByCategory(List<Product> products, String category) {
+    public List<Product> filterByCategory(List<Product> products, String category) {
         long start = System.currentTimeMillis();
-        List<Product> filtered = new ArrayList<>();
+        List<Product> out = new ArrayList<>();
         for (Product p : products) {
-            if (p.getCategory() != null && p.getCategory().equalsIgnoreCase(category)) {
-                filtered.add(p);
+            if (p.getCategory() != null &&
+                    p.getCategory().equalsIgnoreCase(category)) {
+                out.add(p);
             }
         }
-        MetricsService.getInstance().displayMetrics("Фильтрация по категории", start);
-        return filtered;
+        MetricsService.getInstance().displayMetrics("Фильтр по категории", start);
+        return out;
     }
 
     /**
@@ -55,36 +56,39 @@ public class ProductFilterService {
      * @param name часть названия для поиска
      * @return список товаров, содержащих указанную строку в названии
      */
-    public List<Product> filterProductsByName(List<Product> products, String name) {
+    public List<Product> filterByName(List<Product> products, String name) {
         long start = System.currentTimeMillis();
-        List<Product> filtered = new ArrayList<>();
+        List<Product> out = new ArrayList<>();
+
+        String s = name.toLowerCase();
         for (Product p : products) {
-            if (p.getName().toLowerCase().contains(name.toLowerCase())) {
-                filtered.add(p);
+            if (p.getName().toLowerCase().contains(s)) {
+                out.add(p);
             }
         }
-        MetricsService.getInstance().displayMetrics("Фильтрация по имени", start);
-        return filtered;
+        MetricsService.getInstance().displayMetrics("Фильтр по имени", start);
+        return out;
     }
 
     /**
      * Фильтрует товары по диапазону цен.
      *
      * @param products список всех товаров
-     * @param minPrice минимальная цена
-     * @param maxPrice максимальная цена
+     * @param min минимальная цена
+     * @param max максимальная цена
      * @return список товаров в указанном ценовом диапазоне
      */
-    public List<Product> filterProductsByPriceRange(List<Product> products, double minPrice, double maxPrice) {
+    public List<Product> filterByPrice(List<Product> products, double min, double max) {
         long start = System.currentTimeMillis();
-        List<Product> filtered = new ArrayList<>();
+        List<Product> out = new ArrayList<>();
+
         for (Product p : products) {
-            if (p.getPrice() >= minPrice && p.getPrice() <= maxPrice) {
-                filtered.add(p);
+            if (p.getPrice() >= min && p.getPrice() <= max) {
+                out.add(p);
             }
         }
-        MetricsService.getInstance().displayMetrics("Фильтрация по ценовому диапазону", start);
-        return filtered;
+        MetricsService.getInstance().displayMetrics("Фильтр по цене", start);
+        return out;
     }
 
     /**
@@ -94,15 +98,17 @@ public class ProductFilterService {
      * @param brand бренд для фильтрации
      * @return список товаров указанного бренда
      */
-    public List<Product> filterProductsByBrand(List<Product> products, String brand) {
+    public List<Product> filterByBrand(List<Product> products, String brand) {
         long start = System.currentTimeMillis();
-        List<Product> filtered = new ArrayList<>();
+        List<Product> out = new ArrayList<>();
+
         for (Product p : products) {
-            if (p.getBrand() != null && p.getBrand().equalsIgnoreCase(brand)) {
-                filtered.add(p);
+            if (p.getBrand() != null &&
+                    p.getBrand().equalsIgnoreCase(brand)) {
+                out.add(p);
             }
         }
-        MetricsService.getInstance().displayMetrics("Фильтрация по бренду", start);
-        return filtered;
+        MetricsService.getInstance().displayMetrics("Фильтр по бренду", start);
+        return out;
     }
 }
