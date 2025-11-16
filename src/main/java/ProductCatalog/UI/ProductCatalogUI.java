@@ -2,26 +2,50 @@ package ProductCatalog.UI;
 
 import ProductCatalog.Models.AuditEntry;
 import ProductCatalog.Models.Product;
-import ProductCatalog.Services.ProductCatalogService;
+import ProductCatalog.Services.AuditService;
+import ProductCatalog.Services.CatalogService;
+import ProductCatalog.Services.MetricsService;
+import ProductCatalog.Services.ProductFilterService;
+import ProductCatalog.Services.ProductService;
 import ProductCatalog.Services.UserService;
-import ProductCatalog.UnitOfWork;
 
 import java.util.List;
 import java.util.Scanner;
 
+/**
+ * Консольный пользовательский интерфейс для работы с системой каталога товаров.
+ * Поддерживает навигацию по каталогам, управление товарами и пользователями.
+ */
 public class ProductCatalogUI {
-    private final ProductCatalogService service;
     private final UserService userService;
+    private final CatalogService catalogService;
+    private final ProductService productService;
+    private final ProductFilterService filterService;
+    private final AuditService auditService;
 
-    public ProductCatalogUI() {
-        this.service = ProductCatalogService.getInstance();
-        this.userService = UserService.getInstance();
+    /**
+     * Создает экземпляр {@code ProductCatalogUI}.
+     *
+     * @param catalogService сервис каталогов
+     * @param productService сервис товаров
+     * @param userService сервис пользователей
+     * @param auditService сервис аудита
+     */
+    public ProductCatalogUI(CatalogService catalogService, ProductService productService, UserService userService, AuditService auditService) {
+        this.catalogService = catalogService;
+        this.userService = userService;
+        this.productService = productService;
+        this.auditService = auditService;
+        MetricsService.getInstance(catalogService);
+        this.filterService = ProductFilterService.getInstance();
     }
 
+    /**
+     * Запускает главное меню программы.
+     */
     public void run() {
         Scanner console = new Scanner(System.in);
         displayMainMenu(console);
-        UnitOfWork.saveData();
     }
 
     private void displayMainMenu(Scanner console) {
@@ -38,10 +62,12 @@ public class ProductCatalogUI {
             } else {
                 System.out.println("Вы не авторизованы");
             }
-            System.out.println("1. Просмотреть каталоги");
-            System.out.println("2. Войти");
-            System.out.println("3. Зарегистрироваться");
-            System.out.println("0. Выход из программы");
+            System.out.println("""
+            1. Просмотреть каталоги
+            2. Войти
+            3. Зарегистрироваться
+            0. Выход из программы
+            """);
             System.out.print("Ваш выбор: ");
 
             try {
@@ -62,7 +88,7 @@ public class ProductCatalogUI {
                         if (userService.isAdmin()){
                             displayAuditLog();
                         } else {
-                            System.out.println("недостаточно прав.");
+                            System.out.println("Недостаточно прав.");
                         }
                     }
                     case 0 -> {
@@ -109,7 +135,7 @@ public class ProductCatalogUI {
     }
 
     private void displayCatalogsMenu(Scanner console) {
-        var catalogs = service.getAllCatalogs();
+        var catalogs = catalogService.getAllCatalogs();
         int choice;
         do {
             System.out.println("\n\t\tCATALOGS");
@@ -134,24 +160,26 @@ public class ProductCatalogUI {
     }
 
     private void displayProductsMenu(int catalogIndex, Scanner console) {
-        List<Product> products = service.getProductsByCatalog(catalogIndex);
+        List<Product> products = productService.getProductsByCatalog(catalogIndex);
         int choice = -1;
         do {
-            System.out.println("\n\t" + service.getCatalogByIndex(catalogIndex).getName());
+            System.out.println("\n\t" + catalogService.getCatalogByIndex(catalogIndex).getName());
             for (int i = 0; i < products.size(); i++) {
                 System.out.printf("%-5d %-50s%n", i + 1, products.get(i).toShortString());
             } if(userService.isAdmin()) {
                 System.out.println("a. Добавить новый товар");
             }
-            System.out.println("f. Фильтровать товары");
-            System.out.println("0. Назад");
+            System.out.println("""
+            f. Фильтровать товары
+            0. Назад
+            """);
             System.out.print("Выберите товар: ");
 
             String input = console.next();
             if (input.equalsIgnoreCase("a")) {
                 if(userService.isAdmin()) {
                     createProduct(catalogIndex, console);
-                    products = service.getProductsByCatalog(catalogIndex); // обновляем список
+                    products = productService.getProductsByCatalog(catalogIndex);
                 } else {
                     System.out.println("Только администратор может добавлять товары!");
                 }
@@ -174,7 +202,7 @@ public class ProductCatalogUI {
     }
 
     private void createProduct(int catalogIndex, Scanner console) {
-        console.nextLine(); // очистка буфера
+        console.nextLine();
         System.out.print("Название товара: ");
         String name = console.nextLine();
         System.out.print("Цена товара: ");
@@ -192,11 +220,11 @@ public class ProductCatalogUI {
             return;
         }
 
-        boolean ok = service.createProduct(new Product(name, price, description, brand, category), catalogIndex);
+        boolean ok = productService.createProduct(new Product(name, price, description, brand, category), catalogIndex);
 
         if(ok){
             System.out.println("Товар успешно добавлен.");
-        } else{
+        } else {
             System.out.println("Ошибка при добавлении товара.");
         }
     }
@@ -209,8 +237,10 @@ public class ProductCatalogUI {
         do {
             System.out.println("\n" + product);
             if(userService.isAdmin()) {
-                System.out.println("1. Удалить");
-                System.out.println("2. Изменить");
+                System.out.println("""
+                1. Удалить
+                2. Изменить
+                """);
             }
             System.out.println("0. Назад");
             System.out.print("Ваш выбор: ");
@@ -222,7 +252,7 @@ public class ProductCatalogUI {
                             System.out.println("Только администратор может удалять товары!");
                             break;
                         }
-                        boolean deleted = service.deleteProduct(product);
+                        boolean deleted = productService.deleteProduct(product);
                         if (deleted) {
                             System.out.println("Товар удалён.");
                         } else {
@@ -252,18 +282,20 @@ public class ProductCatalogUI {
         int choice;
         do {
             System.out.println("\n" + temp);
-            System.out.println("1. Изменить название");
-            System.out.println("2. Изменить цену");
-            System.out.println("3. Изменить описание");
-            System.out.println("4. Изменить бренд");
-            System.out.println("5. Изменить категорию");
-            System.out.println("6. Сохранить");
-            System.out.println("0. Отмена");
+            System.out.println("""
+            1. Изменить название
+            2. Изменить цену
+            3. Изменить описание
+            4. Изменить бренд
+            5. Изменить категорию
+            6. Сохранить
+            0. Отмена
+            """);
             System.out.print("Ваш выбор: ");
 
             try {
                 choice = console.nextInt();
-                console.nextLine(); // очистка буфера
+                console.nextLine();
                 switch (choice) {
                     case 1 -> {
                         System.out.print("Новое название: ");
@@ -287,7 +319,7 @@ public class ProductCatalogUI {
                         temp.setCategory(console.nextLine());
                     }
                     case 6 -> {
-                        boolean edited = service.updateProduct(product, temp);
+                        boolean edited = productService.updateProduct(product, temp);
                         if (edited){
                             System.out.println("Изменения сохранены.");
                         } else {
@@ -313,23 +345,25 @@ public class ProductCatalogUI {
 
     private List<Product> filterProductsMenu(int catalogIndex, Scanner console) {
         console.nextLine();
-        System.out.println("\nФильтры:");
-        System.out.println("1. По имени");
-        System.out.println("2. По диапазону цены");
-        System.out.println("3. По бренду");
-        System.out.println("4. По категории");
-        System.out.println("0. Назад");
+        System.out.println("""
+        Фильтры:
+        1. По имени
+        2. По диапазону цены
+        3. По бренду
+        4. По категории
+        0. Назад
+        """);
         System.out.print("Выберите фильтр: ");
         int choice = console.nextInt();
         console.nextLine();
 
-        List<Product> filtered = service.getProductsByCatalog(catalogIndex);
+        List<Product> filtered = productService.getProductsByCatalog(catalogIndex);
 
         switch (choice) {
             case 1 -> {
                 System.out.print("Введите часть названия: ");
                 String name = console.nextLine();
-                filtered = service.filterProductsByName(catalogIndex, name);
+                filtered = filterService.filterProductsByName(filtered, name);
             }
             case 2 -> {
                 System.out.print("Минимальная цена: ");
@@ -337,17 +371,17 @@ public class ProductCatalogUI {
                 System.out.print("Максимальная цена: ");
                 double max = console.nextDouble();
                 console.nextLine();
-                filtered = service.filterProductsByPriceRange(catalogIndex, min, max);
+                filtered = filterService.filterProductsByPriceRange(filtered, min, max);
             }
             case 3 -> {
                 System.out.print("Бренд: ");
                 String brand = console.nextLine();
-                filtered = service.filterProductsByBrand(catalogIndex, brand);
+                filtered = filterService.filterProductsByBrand(filtered, brand);
             }
             case 4 -> {
                 System.out.print("Категория: ");
                 String category = console.nextLine();
-                filtered = service.filterProductsByCategory(catalogIndex, category); // метод добавляем в сервис
+                filtered = filterService.filterProductsByCategory(filtered, category);
             }
             case 0 -> System.out.println("Возврат к списку товаров.");
         }
@@ -360,7 +394,7 @@ public class ProductCatalogUI {
     }
 
     private void displayAuditLog(){
-        List<AuditEntry> log = UnitOfWork.getInstance().getAuditLog();
+        List<AuditEntry> log = auditService.getAuditLog();
         if(log.isEmpty()){
             System.out.println("Журнал аудита пуст.");
             return;
