@@ -1,7 +1,6 @@
 package ProductCatalog.Repositories;
 
 import ProductCatalog.Models.AuditEntry;
-import ProductCatalog.Models.Catalog;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -18,10 +17,11 @@ public class AuditRepository {
         this.dataSource = dataSource;
     }
 
-    public void save(AuditEntry entry){
+    public AuditEntry save(AuditEntry entry){
         final String SQL = """
                 INSERT INTO app.audit_log (username, action, details, timestamp)
                 VALUES (?, ?, ?, NOW())
+                RETURNING id
                 """;
 
         try (Connection connection = dataSource.getConnection();
@@ -30,15 +30,21 @@ public class AuditRepository {
             preparedStatement.setString(2, entry.getAction());
             preparedStatement.setString(3, entry.getDetails());
 
-            preparedStatement.executeUpdate();
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            if (resultSet.next()){
+                entry.setId(resultSet.getLong("id"));
+            }
+            return entry;
         } catch (SQLException exception){
             System.out.println(exception.getMessage());
         }
+        return null;
     }
 
     public List<AuditEntry> findAll() {
         List<AuditEntry> logsList = new ArrayList<>();
-        final String SQL = "SELECT username, action, details, timestamp FROM app.audit_log";
+        final String SQL = "SELECT * FROM app.audit_log";
 
         try(Connection connection = dataSource.getConnection();
             PreparedStatement preparedStatement = connection.prepareStatement(SQL);
@@ -46,6 +52,7 @@ public class AuditRepository {
 
             while (resultSet.next()){
                 logsList.add(new AuditEntry(
+                        resultSet.getLong("id"),
                         resultSet.getString("username"),
                         resultSet.getString("action"),
                         resultSet.getString("details"),
@@ -56,5 +63,13 @@ public class AuditRepository {
             System.out.println(exception.getMessage());
         }
         return logsList;
+    }
+
+    public AuditEntry findById(long id){
+        List<AuditEntry> logsList = this.findAll();
+        for (AuditEntry a : logsList){
+            if (a.getId() == id) return a;
+        }
+        return null;
     }
 }

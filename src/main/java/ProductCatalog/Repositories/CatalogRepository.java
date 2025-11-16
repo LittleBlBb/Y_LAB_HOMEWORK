@@ -39,13 +39,13 @@ public class CatalogRepository {
 
     public Catalog save(Catalog catalog){
         final String SQL = """
-                INSERT INTO app.catalog (name)
-                VALUES (?)
-                RETURNING id
-                """;
+            INSERT INTO app.catalog (name)
+            VALUES (?)
+            RETURNING id
+            """;
 
         try (Connection connection = dataSource.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(SQL)){
+             PreparedStatement preparedStatement = connection.prepareStatement(SQL)) {
 
             preparedStatement.setString(1, catalog.getName());
             ResultSet resultSet = preparedStatement.executeQuery();
@@ -60,6 +60,7 @@ public class CatalogRepository {
         return null;
     }
 
+
     public boolean delete(long id) {
         final String SQL = "DELETE FROM app.catalog WHERE id = ?";
         try (Connection connection = dataSource.getConnection();
@@ -71,5 +72,13 @@ public class CatalogRepository {
             System.out.println(exception.getMessage());
         }
         return false;
+    }
+
+    public Catalog findById(long id){
+        List<Catalog> catalogsList = this.findAll();
+        for (Catalog c : catalogsList){
+            if(c.getId() == id) return c;
+        }
+        return null;
     }
 }

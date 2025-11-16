@@ -6,7 +6,12 @@
          http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.9.xsd"
         logicalFilePath="db/changelog/changelog.xml">
 
-        <include file="create-schemas.xml" relativeToChangelogFile="true"/>
-        <include file="create-tables.xml" relativeToChangelogFile="true"/>
-        <include file="init-data.xml" relativeToChangelogFile="true"/>
+    <changeSet id="1" author="LittleBlBb">
+        <sql>CREATE SCHEMA IF NOT EXISTS app;</sql>
+    </changeSet>
+
+    <changeSet id="2" author="LittleBlBb">
+        <sql>CREATE SCHEMA IF NOT EXISTS liquibase;</sql>
+    </changeSet>
+    
 </databaseChangeLog>

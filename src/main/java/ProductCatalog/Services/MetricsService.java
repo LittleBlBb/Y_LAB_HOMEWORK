@@ -1,7 +1,6 @@
 package ProductCatalog.Services;
 
 import ProductCatalog.Models.Catalog;
-import lombok.Getter;
 
 import java.util.List;
 
@@ -10,7 +9,6 @@ import java.util.List;
  * Реализует шаблон Singleton.
  */
 public class MetricsService {
-    @Getter
     private static MetricsService instance;
     private final CatalogService catalogService;
 

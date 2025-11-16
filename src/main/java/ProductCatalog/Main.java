@@ -1,5 +1,6 @@
 package ProductCatalog;
 
+import ProductCatalog.DB.DBConnection;
 import ProductCatalog.Repositories.AuditRepository;
 import ProductCatalog.Repositories.CatalogRepository;
 import ProductCatalog.Repositories.ProductRepository;

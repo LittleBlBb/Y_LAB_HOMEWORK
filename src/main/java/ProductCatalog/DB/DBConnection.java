@@ -1,9 +1,6 @@
-package ProductCatalog;
+package ProductCatalog.DB;
 
 import org.postgresql.ds.PGSimpleDataSource;
-
-import java.sql.Connection;
-import java.sql.SQLException;
 
 public class DBConnection {
     private static PGSimpleDataSource dataSource;
@@ -12,12 +9,14 @@ public class DBConnection {
         if (dataSource == null) {
             dataSource = new PGSimpleDataSource();
 
-            String host = System.getenv().getOrDefault("DB_HOST", "localhost");
-            String portStr = System.getenv().getOrDefault("DB_PORT", "15432");
-            String db = System.getenv().getOrDefault("DB_NAME", "postgres");
-            String user = System.getenv().getOrDefault("DB_USER", "catalog");
-            String password = System.getenv().getOrDefault("DB_PASSWORD", "password");
-            String schema = System.getenv().getOrDefault("DB_SCHEMA", "app");
+            Config config = Config.getInstance();
+
+            String host = config.getDbHost();
+            String portStr = config.getDbPort();
+            String db = config.getDbName();
+            String user = config.getDbUsername();
+            String password = config.getDbPassword();
+            String schema = config.getDbSchema();
 
             int port = Integer.parseInt(portStr);
 
