@@ -4,6 +4,8 @@ import ProductCatalog.Models.User;
 import ProductCatalog.Repositories.UserRepository;
 import lombok.Getter;
 
+import java.util.List;
+
 /**
  * Сервис для управления пользователями.
  * Поддерживает регистрацию, вход, выход и проверку ролей.
@@ -23,6 +25,10 @@ public class UserService {
     public UserService(UserRepository userRepository, AuditService auditService) {
         this.userRepository = userRepository;
         this.auditService = auditService;
+    }
+
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
     }
 
     /**

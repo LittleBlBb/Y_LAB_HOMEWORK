@@ -40,10 +40,10 @@ public class ProductService {
     /**
      *
      * @param id id товара, который удаляем
-     * @param name название товара
      * @return
      */
-    public boolean deleteProduct(long id, String name) {
+    public boolean deleteProduct(long id) {
+        String name = productRepository.findById(id).getName();
         long start = System.currentTimeMillis();
         boolean deleted = productRepository.delete(id);
         if (deleted) {
@@ -86,5 +86,9 @@ public class ProductService {
         auditService.log(username, "CREATE_PRODUCT", "Добавлен товар: " + product.getName());
         MetricsService.getInstance().displayMetrics("Добавление товара", start);
         return true;
+    }
+
+    public Product findById(long id) {
+        return productRepository.findById(id);
     }
 }

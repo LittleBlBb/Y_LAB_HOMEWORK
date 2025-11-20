@@ -224,7 +224,7 @@ public class ProductCatalogUI {
                 ch = sc.nextInt();
                 switch (ch) {
                     case 1 -> {
-                        if (productService.deleteProduct(p.getId(), p.getName()))
+                        if (productService.deleteProduct(p.getId()))
                             System.out.println("Удалено.");
                         return;
                     }

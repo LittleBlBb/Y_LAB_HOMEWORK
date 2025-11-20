@@ -62,7 +62,8 @@ public class CatalogService {
      * @param name название каталога
      * @return {@code true}, если каталог успешно удалён
      */
-    public boolean deleteCatalog(long id, String name) {
+    public boolean deleteCatalog(long id) {
+        String name = catalogRepository.findById(id).getName();
         boolean deleted = catalogRepository.delete(id);
         if (deleted) {
             auditService.log(
@@ -74,5 +75,9 @@ public class CatalogService {
             );
         }
         return deleted;
+    }
+
+    public Catalog findById(long id) {
+        return catalogRepository.findById(id);
     }
 }
