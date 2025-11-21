@@ -20,7 +20,7 @@ public class UserRepository {
     public User findByUsername(String username) {
         final String SQL = """
                 SELECT id, username, password, role
-                FROM app.users
+                FROM app.user
                 WHERE username = ?
                 """;
         try (Connection connection = dataSource.getConnection();
@@ -44,7 +44,7 @@ public class UserRepository {
 
     public User save(User user){
         final String SQL = """
-                INSERT INTO app.users (username, password, role)
+                INSERT INTO app.user (username, password, role)
                 VALUES (?, ?, ?)
                 RETURNING id
                 """;
@@ -70,7 +70,7 @@ public class UserRepository {
     }
 
     public List<User> findAll() {
-        final String SQL = "SELECT * FROM users";
+        final String SQL = "SELECT * FROM app.user";
         List<User> usersList = new ArrayList<>();
 
         try (Connection connection = dataSource.getConnection();
@@ -93,9 +93,26 @@ public class UserRepository {
     }
 
     public User findById(long id){
-        List<User> usersList = this.findAll();
-        for (User u : usersList){
-            if(u.getId() == id) return u;
+        final String SQL = """
+                SELECT * FROM app.user
+                WHERE id = ?
+                """;
+
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(SQL)) {
+                preparedStatement.setLong(1, id);
+                ResultSet resultSet = preparedStatement.executeQuery();
+
+                if(resultSet.next()){
+                    return new User(
+                            resultSet.getLong("id"),
+                            resultSet.getString("username"),
+                            resultSet.getString("password"),
+                            resultSet.getString("role")
+                    );
+                }
+        } catch (SQLException exception){
+            System.out.println(exception.getMessage());
         }
         return null;
     }

@@ -1,7 +1,10 @@
 package ProductCatalog.Servlets;
 
+import ProductCatalog.DTO.ProductDTO;
+import ProductCatalog.Mappers.ProductMapper;
 import ProductCatalog.Models.Product;
 import ProductCatalog.Services.ProductService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -9,13 +12,12 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.List;
 
 @WebServlet("/products")
 public class ProductServlet extends HttpServlet {
     private ProductService productService;
-
+    private final ObjectMapper mapper = new ObjectMapper();
     @Override
     public void init() throws ServletException {
         productService = (ProductService) getServletContext().getAttribute("productService");
@@ -23,52 +25,33 @@ public class ProductServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String catalogIdStr = req.getParameter("catalogId");
-        if(catalogIdStr == null){
-            resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "catalogId is required");
-            return;
-        }
-        long catalogId = Long.parseLong(catalogIdStr);
 
-        List<Product> products = productService.getProducts(catalogId);
+        String catalogIdStr = req.getParameter("catalogId");
+
+        List<Product> products =
+                (catalogIdStr == null)
+                        ? productService.getAll()
+                        : productService.getProducts(Long.parseLong(catalogIdStr));
+
+        List<ProductDTO> dtoList = products.stream()
+                .map(ProductMapper.INSTANCE::toDTO)
+                .toList();
+
         resp.setContentType("application/json");
-        PrintWriter out = resp.getWriter();
-        out.println("[");
-        for (int i = 0; i < products.size(); i++) {
-            Product product = products.get(i);
-            out.printf("{\"id\":%d,\"name\":\"%s\",\"price\":%.2f,\"brand\":\"%s\",\"category\":\"%s\"}%s%n",
-                    product.getId(), product.getName(), product.getPrice(), product.getBrand(),  product.getCategory(),
-                    i < products.size() ? "," : "");
-        }
-        out.println("]");
+        mapper.writeValue(resp.getWriter(), dtoList);
     }
+
 
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String catalogIdStr = req.getParameter("catalogId");
-        if(catalogIdStr == null){
-            resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "catalogId is required");
-            return;
-        }
-        long catalogId = Long.parseLong(catalogIdStr);
+        ProductDTO dto = mapper.readValue(req.getInputStream(), ProductDTO.class);
 
-        String name = req.getParameter("name");
-        double price = Double.parseDouble(req.getParameter("price"));
-        String brand = req.getParameter("brand");
-        String category = req.getParameter("category");
-        String description = req.getParameter("description");
-        boolean created = productService.createProduct(
-                new Product(
-                        catalogId,
-                        name,
-                        price,
-                        brand,
-                        category,
-                        description
-                )
-        );
-        resp.setStatus(created ? HttpServletResponse.SC_CREATED : HttpServletResponse.SC_BAD_REQUEST);
+        Product product = ProductMapper.INSTANCE.toEntity(dto);
+
+        boolean created = productService.createProduct(product);
+
+        resp.setStatus(created ? HttpServletResponse.SC_OK :  HttpServletResponse.SC_BAD_REQUEST);
     }
 
     @Override

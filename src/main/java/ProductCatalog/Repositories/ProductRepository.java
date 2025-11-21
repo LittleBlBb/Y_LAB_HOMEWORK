@@ -116,7 +116,7 @@ public class ProductRepository {
     }
 
     public List<Product> findAll() {
-        final String SQL = "SELECT * FROM product";
+        final String SQL = "SELECT * FROM app.product";
         List<Product> productsList = new ArrayList<>();
 
         try (Connection connection = dataSource.getConnection();
@@ -142,11 +142,29 @@ public class ProductRepository {
     }
 
     public Product findById(long id){
-        List<Product> products = this.findAll();
-        for (Product p : products){
-            if(p.getId() == id){
-                return p;
+        final String SQL = """
+                SELECT * FROM app.product
+                WHERE id = ?
+                """;
+
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(SQL)) {
+            preparedStatement.setLong(1, id);
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            if(resultSet.next()){
+                return new Product(
+                        resultSet.getLong("id"),
+                        resultSet.getLong("catalog_id"),
+                        resultSet.getString("name"),
+                        resultSet.getDouble("price"),
+                        resultSet.getString("description"),
+                        resultSet.getString("brand"),
+                        resultSet.getString("category")
+                );
             }
+        } catch (SQLException exception){
+            System.out.println(exception.getMessage());
         }
         return null;
     }

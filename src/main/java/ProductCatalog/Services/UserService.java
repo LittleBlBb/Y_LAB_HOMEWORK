@@ -27,7 +27,7 @@ public class UserService {
         this.auditService = auditService;
     }
 
-    public List<User> getAllUsers() {
+    public List<User> getAll() {
         return userRepository.findAll();
     }
 
@@ -47,6 +47,20 @@ public class UserService {
 
         auditService.log(username, "REGISTER", "Регистрация нового пользователя");
 
+        return true;
+    }
+    /**
+     * Регистрирует нового пользователя.
+     *
+     * @param user новый пользователь
+     * @return {@code true}, если регистрация успешна
+     */
+    public boolean register(User user) {
+        if (userRepository.findByUsername(user.getUsername()) != null) {
+            return false;
+        }
+        userRepository.save(user);
+        auditService.log(user.getUsername(), "REGISTER", "Регистрация нового пользователя");
         return true;
     }
 

@@ -1,6 +1,5 @@
 package ProductCatalog.Services;
 
-import ProductCatalog.Models.Catalog;
 import ProductCatalog.Models.Product;
 import ProductCatalog.Repositories.ProductRepository;
 
@@ -35,6 +34,15 @@ public class ProductService {
      */
     public List<Product> getProducts(long catalogId){
         return productRepository.findByCatalog(catalogId);
+    }
+
+
+    /**
+     * Возвращает все товары из БД
+     * @return
+     */
+    public List<Product> getAll(){
+        return productRepository.findAll();
     }
 
     /**

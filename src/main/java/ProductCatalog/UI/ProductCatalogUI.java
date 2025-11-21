@@ -122,7 +122,7 @@ public class ProductCatalogUI {
     }
 
     private void displayCatalogsMenu(Scanner sc) {
-        var catalogs = catalogService.getAllCatalogs();
+        var catalogs = catalogService.getAll();
         int choice;
 
         do {

@@ -1,23 +1,20 @@
 package ProductCatalog.Models;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+@AllArgsConstructor
+@NoArgsConstructor
 @Data
 public class AuditEntry {
-    long id;
-    private final String username;
-    private final String action;
-    private final String details;
+    private long id;
+    private String username;
+    private String action;
+    private String details;
     private LocalDateTime timestamp;
 
-    public AuditEntry(long id, String username, String action, String details, LocalDateTime timestamp) {
-        this.id = id;
-        this.username = username;
-        this.action = action;
-        this.details = details;
-        this.timestamp = timestamp;
-    }
 
     public AuditEntry(String username, String action, String details, LocalDateTime timestamp) {
         this.username = username;

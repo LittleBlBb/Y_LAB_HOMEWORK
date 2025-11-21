@@ -33,7 +33,7 @@ public class CatalogService {
      *
      * @return список каталогов
      */
-    public List<Catalog> getAllCatalogs() {
+    public List<Catalog> getAll() {
         return catalogRepository.findAll();
     }
 

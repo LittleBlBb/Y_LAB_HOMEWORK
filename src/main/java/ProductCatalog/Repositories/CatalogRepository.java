@@ -1,6 +1,7 @@
 package ProductCatalog.Repositories;
 
 import ProductCatalog.Models.Catalog;
+import ProductCatalog.Models.User;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -75,9 +76,24 @@ public class CatalogRepository {
     }
 
     public Catalog findById(long id){
-        List<Catalog> catalogsList = this.findAll();
-        for (Catalog c : catalogsList){
-            if(c.getId() == id) return c;
+        final String SQL = """
+                SELECT * FROM app.catalog
+                WHERE id = ?
+                """;
+
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(SQL)) {
+            preparedStatement.setLong(1, id);
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            if(resultSet.next()){
+                return new Catalog(
+                        resultSet.getLong("id"),
+                        resultSet.getString("name")
+                );
+            }
+        } catch (SQLException exception){
+            System.out.println(exception.getMessage());
         }
         return null;
     }

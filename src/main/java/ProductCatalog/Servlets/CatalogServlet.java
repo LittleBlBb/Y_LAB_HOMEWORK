@@ -1,7 +1,9 @@
 package ProductCatalog.Servlets;
 
-import ProductCatalog.Models.Catalog;
+import ProductCatalog.DTO.CatalogDTO;
+import ProductCatalog.Mappers.CatalogMapper;
 import ProductCatalog.Services.CatalogService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -9,12 +11,13 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
-import java.io.PrintWriter;
+
 import java.util.List;
 
 @WebServlet("/catalogs")
 public class CatalogServlet extends HttpServlet {
     private CatalogService catalogService;
+    private final ObjectMapper mapper = new ObjectMapper();
 
     @Override
     public void init() throws ServletException {
@@ -23,23 +26,22 @@ public class CatalogServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        List<Catalog> catalogs =  catalogService.getAllCatalogs();
+        List<CatalogDTO> dtoList = catalogService.getAll().stream()
+                .map(CatalogMapper.INSTANCE::toDTO)
+                        .toList();
+
         resp.setContentType("application/json");
-        PrintWriter out = resp.getWriter();
-        out.println("[");
-        for (int i = 0; i < catalogs.size(); i++) {
-            Catalog catalog = catalogs.get(i);
-            out.printf("{\"id\":%d,\"name\":\"%s\"}%s%n",
-                    catalog.getId(), catalog.getName(),
-                    i > catalogs.size() - 1 ? "," : "");
-        }
-        out.println("]");
+
+        mapper.writeValue(resp.getWriter(), dtoList);
     }
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String name = req.getParameter("name");
-        boolean created = catalogService.createCatalog(new Catalog(name));
+        CatalogDTO dto = mapper.readValue(req.getInputStream(), CatalogDTO.class);
+
+        boolean created = catalogService.createCatalog(
+                CatalogMapper.INSTANCE.toEntity(dto)
+        );
         resp.setStatus(created ? HttpServletResponse.SC_CREATED : HttpServletResponse.SC_BAD_REQUEST);
     }
 
