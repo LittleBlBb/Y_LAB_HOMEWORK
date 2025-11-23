@@ -3,6 +3,8 @@ package ProductCatalog.Servlets;
 import ProductCatalog.DTO.CatalogDTO;
 import ProductCatalog.Mappers.CatalogMapper;
 import ProductCatalog.Services.CatalogService;
+import ProductCatalog.Validators.CatalogValidator;
+import ProductCatalog.Validators.ProductValidator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -13,6 +15,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 import java.util.List;
+import java.util.Map;
 
 @WebServlet("/catalogs")
 public class CatalogServlet extends HttpServlet {
@@ -38,6 +41,16 @@ public class CatalogServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         CatalogDTO dto = mapper.readValue(req.getInputStream(), CatalogDTO.class);
+
+        List<String> errors = CatalogValidator.validate(dto);
+        if (!errors.isEmpty()) {
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+
+            mapper.writeValue(resp.getWriter(),
+                    Map.of("validation_errors", errors)
+            );
+            return;
+        }
 
         boolean created = catalogService.createCatalog(
                 CatalogMapper.INSTANCE.toEntity(dto)

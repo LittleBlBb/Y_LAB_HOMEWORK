@@ -1,7 +1,9 @@
-package ProductCatalog;
+package ProductCatalog.RepositoryTests;
 
-import ProductCatalog.Models.AuditEntry;
-import ProductCatalog.Repositories.AuditRepository;
+import ProductCatalog.Models.Catalog;
+import ProductCatalog.Repositories.CatalogRepository;
+
+
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -13,15 +15,14 @@ import org.testcontainers.containers.PostgreSQLContainer;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.Statement;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class AuditRepositoryTest {
+public class CatalogRepositoryTest {
 
     private PostgreSQLContainer<?> postgres;
     private DataSource dataSource;
-    private AuditRepository auditRepository;
+    private CatalogRepository catalogRepository;
 
     @BeforeAll
     public void setUp() throws Exception {
@@ -41,51 +42,51 @@ public class AuditRepositoryTest {
         dataSource = ds;
 
         try (Connection conn = dataSource.getConnection(); Statement stmt = conn.createStatement()) {
-
             stmt.execute("CREATE SCHEMA IF NOT EXISTS app;");
-            stmt.execute("CREATE SEQUENCE IF NOT EXISTS app.audit_seq START 1;");
-
+            stmt.execute("CREATE SEQUENCE IF NOT EXISTS app.catalog_seq START 1;");
             stmt.execute("""
-                CREATE TABLE IF NOT EXISTS app.audit_log(
-                    id BIGINT DEFAULT nextval('app.audit_seq') PRIMARY KEY,
-                    username VARCHAR(255),
-                    action VARCHAR(255),
-                    details TEXT,
-                    timestamp TIMESTAMP
-                );
-                """);
+                    CREATE TABLE IF NOT EXISTS app.catalog(
+                        id BIGINT DEFAULT nextval('app.catalog_seq') PRIMARY KEY,
+                        name VARCHAR(255) NOT NULL
+                    );
+                    """);
         }
 
-        auditRepository = new AuditRepository(dataSource);
+        catalogRepository = new CatalogRepository(dataSource);
     }
 
     @AfterAll
-    public void tearDown() {
-        if (postgres != null) postgres.stop();
+    public void tearDown() throws Exception {
+        if (postgres != null) {
+            postgres.stop();
+        }
     }
 
     @Test
     public void testInsertAndFind() {
-        AuditEntry a = new AuditEntry(
-                "john",
-                "CREATE_PRODUCT",
-                "Created new phone",
-                LocalDateTime.now()
-        );
+        Catalog catalog = new Catalog("Test Catalog");
+        catalogRepository.save(catalog);
 
-        auditRepository.save(a);
-
-        AuditEntry fetched = auditRepository.findById(a.getId());
-        Assertions.assertEquals(a.getAction(), fetched.getAction());
-        Assertions.assertEquals(a.getUsername(), fetched.getUsername());
+        Catalog fetched = catalogRepository.findById(catalog.getId());
+        Assertions.assertEquals(catalog.getName(), fetched.getName());
     }
 
     @Test
     public void testFindAll() {
-        auditRepository.save(new AuditEntry("u1", "A1", "d1", LocalDateTime.now()));
-        auditRepository.save(new AuditEntry("u2", "A2", "d2", LocalDateTime.now()));
+        catalogRepository.save(new Catalog("Catalog 1"));
+        catalogRepository.save(new Catalog("Catalog 2"));
 
-        List<AuditEntry> list = auditRepository.findAll();
-        Assertions.assertTrue(list.size() == 2);
+        List<Catalog> all = catalogRepository.findAll();
+        Assertions.assertTrue(all.size() == 2);
+    }
+
+    @Test
+    public void testDelete() {
+        Catalog catalog = catalogRepository.save(new Catalog("ToDelete"));
+        boolean deleted = catalogRepository.delete(catalog.getId());
+        Assertions.assertTrue(deleted);
+
+        Catalog fetched = catalogRepository.findById(catalog.getId());
+        Assertions.assertNull(fetched);
     }
 }

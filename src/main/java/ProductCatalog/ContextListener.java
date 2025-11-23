@@ -1,5 +1,6 @@
 package ProductCatalog;
 
+import ProductCatalog.Aspects.AuditAspect;
 import ProductCatalog.DB.DBConnection;
 import ProductCatalog.Repositories.AuditRepository;
 import ProductCatalog.Repositories.CatalogRepository;
@@ -33,6 +34,8 @@ public class ContextListener implements ServletContextListener {
         MetricsService.getInstance(catalogService);
         ProductService productService = new ProductService(productRepo, auditService, userService);
         ProductFilterService.getInstance();
+
+        AuditAspect.setAuditService(auditService);
 
         sce.getServletContext().setAttribute("userService", userService);
         sce.getServletContext().setAttribute("catalogService", catalogService);

@@ -1,4 +1,4 @@
-package ProductCatalog;
+package ProductCatalog.RepositoryTests;
 
 import ProductCatalog.Models.User;
 import ProductCatalog.Repositories.UserRepository;

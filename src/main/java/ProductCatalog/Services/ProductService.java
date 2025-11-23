@@ -1,5 +1,7 @@
 package ProductCatalog.Services;
 
+import ProductCatalog.Annotations.Auditable;
+import ProductCatalog.Annotations.LogExecution;
 import ProductCatalog.Models.Product;
 import ProductCatalog.Repositories.ProductRepository;
 
@@ -50,6 +52,8 @@ public class ProductService {
      * @param id id товара, который удаляем
      * @return
      */
+    @Auditable(action = "Delete product")
+    @LogExecution
     public boolean deleteProduct(long id) {
         String name = productRepository.findById(id).getName();
         long start = System.currentTimeMillis();
@@ -85,6 +89,8 @@ public class ProductService {
      * @param product товар для добавления
      * @return {@code true}, если товар успешно добавлен
      */
+    @Auditable(action = "Add product")
+    @LogExecution
     public boolean createProduct(Product product) {
         long start = System.currentTimeMillis();
         productRepository.save(product);

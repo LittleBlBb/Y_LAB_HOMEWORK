@@ -4,6 +4,8 @@ import ProductCatalog.DTO.UserDTO;
 
 import ProductCatalog.Mappers.UserMapper;
 import ProductCatalog.Services.UserService;
+import ProductCatalog.Validators.ProductValidator;
+import ProductCatalog.Validators.UserValidator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -13,6 +15,7 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 @WebServlet("/users")
 public class UserServlet extends HttpServlet {
@@ -36,6 +39,16 @@ public class UserServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         UserDTO dto = mapper.readValue(req.getInputStream(), UserDTO.class);
+
+        List<String> errors = UserValidator.validate(dto);
+        if (!errors.isEmpty()) {
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+
+            mapper.writeValue(resp.getWriter(),
+                    Map.of("validation_errors", errors)
+            );
+            return;
+        }
 
         boolean created = userService.register(UserMapper.INSTANCE.toEntity(dto));
 

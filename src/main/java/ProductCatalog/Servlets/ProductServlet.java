@@ -4,6 +4,7 @@ import ProductCatalog.DTO.ProductDTO;
 import ProductCatalog.Mappers.ProductMapper;
 import ProductCatalog.Models.Product;
 import ProductCatalog.Services.ProductService;
+import ProductCatalog.Validators.ProductValidator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -13,6 +14,7 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 @WebServlet("/products")
 public class ProductServlet extends HttpServlet {
@@ -47,11 +49,28 @@ public class ProductServlet extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         ProductDTO dto = mapper.readValue(req.getInputStream(), ProductDTO.class);
 
+        List<String> errors = ProductValidator.validate(dto);
+        if (!errors.isEmpty()) {
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+
+            mapper.writeValue(resp.getWriter(),
+                    Map.of("validation_errors", errors)
+            );
+            return;
+        }
+
         Product product = ProductMapper.INSTANCE.toEntity(dto);
 
         boolean created = productService.createProduct(product);
 
-        resp.setStatus(created ? HttpServletResponse.SC_OK :  HttpServletResponse.SC_BAD_REQUEST);
+        if (created) {
+            resp.setStatus(HttpServletResponse.SC_CREATED);
+            mapper.writeValue(resp.getWriter(), ProductMapper.INSTANCE.toDTO(product));
+        }
+        else{
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            mapper.writeValue(resp.getWriter(), "Product not created");
+        }
     }
 
     @Override
