@@ -36,7 +36,12 @@ public class AuditAspect {
                 "URL: " + request.getRequestURI() +
                 ", HTTP: " + request.getMethod();
 
+
+        long start = System.currentTimeMillis();
         Object result = joinPoint.proceed();
+        long duration = System.currentTimeMillis() - start;
+
+        details += ", executionTime=" + duration + "ms";
 
         if (auditService != null) {
             auditService.save(username, action, details);
