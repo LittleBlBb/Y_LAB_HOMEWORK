@@ -2,7 +2,6 @@ package ProductCatalog.Services;
 
 import ProductCatalog.Models.User;
 import ProductCatalog.Repositories.UserRepository;
-import lombok.Getter;
 
 import java.util.List;
 
@@ -13,7 +12,6 @@ import java.util.List;
 public class UserService {
     private final UserRepository userRepository;
     private final AuditService auditService;
-    @Getter
     private User currentUser;
 
     /**
@@ -45,7 +43,7 @@ public class UserService {
         User newUser = new User(username, password, "User");
         userRepository.save(newUser);
 
-        auditService.log(username, "REGISTER", "Регистрация нового пользователя");
+        auditService.save(username, "REGISTER", "Регистрация нового пользователя");
 
         return true;
     }
@@ -60,7 +58,7 @@ public class UserService {
             return false;
         }
         userRepository.save(user);
-        auditService.log(user.getUsername(), "REGISTER", "Регистрация нового пользователя");
+        auditService.save(user.getUsername(), "REGISTER", "Регистрация нового пользователя");
         return true;
     }
 
@@ -75,11 +73,11 @@ public class UserService {
         User user = userRepository.findByUsername(username);
         if (user != null && user.getPassword().equals(password)) {
             currentUser = user;
-            auditService.log(username, "LOGIN", "Успешный вход");
+            auditService.save(username, "LOGIN", "Успешный вход");
             return true;
         }
 
-        auditService.log(username, "LOGIN_FAILED", "Неудачная попытка входа");
+        auditService.save(username, "LOGIN_FAILED", "Неудачная попытка входа");
         return false;
     }
 
@@ -88,7 +86,7 @@ public class UserService {
      */
     public void logout() {
         if (currentUser != null) {
-            auditService.log(currentUser.getUsername(), "LOGOUT", "Выход из системы");
+            auditService.save(currentUser.getUsername(), "LOGOUT", "Выход из системы");
         }
         currentUser = null;
     }
@@ -109,5 +107,9 @@ public class UserService {
      */
     public boolean isAdmin() {
         return currentUser != null && "admin".equalsIgnoreCase(currentUser.getRole());
+    }
+
+    public User getCurrentUser() {
+        return currentUser;
     }
 }

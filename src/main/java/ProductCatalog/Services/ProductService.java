@@ -1,7 +1,5 @@
 package ProductCatalog.Services;
 
-import ProductCatalog.Annotations.Auditable;
-import ProductCatalog.Annotations.LogExecution;
 import ProductCatalog.Models.Product;
 import ProductCatalog.Repositories.ProductRepository;
 
@@ -52,14 +50,12 @@ public class ProductService {
      * @param id id товара, который удаляем
      * @return
      */
-    @Auditable(action = "Delete product")
-    @LogExecution
     public boolean deleteProduct(long id) {
         String name = productRepository.findById(id).getName();
         long start = System.currentTimeMillis();
         boolean deleted = productRepository.delete(id);
         if (deleted) {
-            auditService.log(userService.getCurrentUser().getUsername(),
+            auditService.save(userService.getCurrentUser().getUsername(),
                     "DELETE_PRODUCT", "Удалён товар: " + name);
             MetricsService.getInstance().displayMetrics("Удаление товара", start);
         }
@@ -76,7 +72,7 @@ public class ProductService {
         long start = System.currentTimeMillis();
         boolean updated = productRepository.update(newProduct);
         if (updated){
-            auditService.log(userService.getCurrentUser().getUsername(),
+            auditService.save(userService.getCurrentUser().getUsername(),
                     "UPDATE_PRODUCT", "Изменён товар: " + newProduct.getName());
             MetricsService.getInstance().displayMetrics("Изменение товара", start);
         }
@@ -89,15 +85,13 @@ public class ProductService {
      * @param product товар для добавления
      * @return {@code true}, если товар успешно добавлен
      */
-    @Auditable(action = "Add product")
-    @LogExecution
     public boolean createProduct(Product product) {
         long start = System.currentTimeMillis();
         productRepository.save(product);
         String username = userService.getCurrentUser() != null
                 ? userService.getCurrentUser().getUsername()
                 : "system";
-        auditService.log(username, "CREATE_PRODUCT", "Добавлен товар: " + product.getName());
+        auditService.save(username, "CREATE_PRODUCT", "Добавлен товар: " + product.getName());
         MetricsService.getInstance().displayMetrics("Добавление товара", start);
         return true;
     }

@@ -1,7 +1,6 @@
 package ProductCatalog.Repositories;
 
 import ProductCatalog.Models.Catalog;
-import ProductCatalog.Models.User;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -77,7 +76,7 @@ public class CatalogRepository {
 
     public Catalog findById(long id){
         final String SQL = """
-                SELECT * FROM app.catalog
+                SELECT id, name FROM app.catalog
                 WHERE id = ?
                 """;
 

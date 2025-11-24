@@ -1,10 +1,10 @@
 package ProductCatalog.Servlets;
 
+import ProductCatalog.Annotations.Auditable;
 import ProductCatalog.DTO.UserDTO;
 
 import ProductCatalog.Mappers.UserMapper;
 import ProductCatalog.Services.UserService;
-import ProductCatalog.Validators.ProductValidator;
 import ProductCatalog.Validators.UserValidator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
@@ -28,6 +28,7 @@ public class UserServlet extends HttpServlet {
     }
 
     @Override
+    @Auditable
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         List<UserDTO> dtoList = userService.getAll().stream()
                 .map(UserMapper.INSTANCE::toDTO)
@@ -37,6 +38,7 @@ public class UserServlet extends HttpServlet {
     }
 
     @Override
+    @Auditable
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         UserDTO dto = mapper.readValue(req.getInputStream(), UserDTO.class);
 

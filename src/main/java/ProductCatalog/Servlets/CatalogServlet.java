@@ -1,10 +1,10 @@
 package ProductCatalog.Servlets;
 
+import ProductCatalog.Annotations.Auditable;
 import ProductCatalog.DTO.CatalogDTO;
 import ProductCatalog.Mappers.CatalogMapper;
 import ProductCatalog.Services.CatalogService;
 import ProductCatalog.Validators.CatalogValidator;
-import ProductCatalog.Validators.ProductValidator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -28,6 +28,7 @@ public class CatalogServlet extends HttpServlet {
     }
 
     @Override
+    @Auditable
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         List<CatalogDTO> dtoList = catalogService.getAll().stream()
                 .map(CatalogMapper.INSTANCE::toDTO)
@@ -39,6 +40,7 @@ public class CatalogServlet extends HttpServlet {
     }
 
     @Override
+    @Auditable
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         CatalogDTO dto = mapper.readValue(req.getInputStream(), CatalogDTO.class);
 
@@ -59,6 +61,7 @@ public class CatalogServlet extends HttpServlet {
     }
 
     @Override
+    @Auditable
     protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         long id = Long.parseLong(req.getParameter("id"));
         boolean deleted = catalogService.deleteCatalog(id);

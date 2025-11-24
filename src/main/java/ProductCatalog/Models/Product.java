@@ -1,12 +1,5 @@
 package ProductCatalog.Models;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
-@NoArgsConstructor
-@AllArgsConstructor
-@Data
 public class Product {
 
     private long id;
@@ -23,6 +16,76 @@ public class Product {
         this.price = price;
         this.description = description;
         this.brand = brand;
+        this.category = category;
+    }
+
+    public Product(long id, long catalogId, String name, double price, String description, String brand, String category) {
+        this.id = id;
+        this.catalogId = catalogId;
+        this.name = name;
+        this.price = price;
+        this.description = description;
+        this.brand = brand;
+        this.category = category;
+    }
+
+    public Product() {
+
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    public long getCatalogId() {
+        return catalogId;
+    }
+
+    public void setCatalogId(long catalogId) {
+        this.catalogId = catalogId;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public double getPrice() {
+        return price;
+    }
+
+    public void setPrice(double price) {
+        this.price = price;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getBrand() {
+        return brand;
+    }
+
+    public void setBrand(String brand) {
+        this.brand = brand;
+    }
+
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
         this.category = category;
     }
 

@@ -45,7 +45,7 @@ public class CatalogService {
      */
     public boolean createCatalog(Catalog catalog) {
         catalogRepository.save(catalog);
-        auditService.log(
+        auditService.save(
                 userService.getCurrentUser() != null
                         ? userService.getCurrentUser().getUsername()
                         : "system",
@@ -66,7 +66,7 @@ public class CatalogService {
         String name = catalogRepository.findById(id).getName();
         boolean deleted = catalogRepository.delete(id);
         if (deleted) {
-            auditService.log(
+            auditService.save(
                     userService.getCurrentUser() != null
                             ? userService.getCurrentUser().getUsername()
                             : "system",

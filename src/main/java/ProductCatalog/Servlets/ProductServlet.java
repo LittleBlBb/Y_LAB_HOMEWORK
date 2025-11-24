@@ -1,5 +1,6 @@
 package ProductCatalog.Servlets;
 
+import ProductCatalog.Annotations.Auditable;
 import ProductCatalog.DTO.ProductDTO;
 import ProductCatalog.Mappers.ProductMapper;
 import ProductCatalog.Models.Product;
@@ -26,6 +27,7 @@ public class ProductServlet extends HttpServlet {
     }
 
     @Override
+    @Auditable
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
         String catalogIdStr = req.getParameter("catalogId");
@@ -46,6 +48,7 @@ public class ProductServlet extends HttpServlet {
 
 
     @Override
+    @Auditable
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         ProductDTO dto = mapper.readValue(req.getInputStream(), ProductDTO.class);
 
@@ -74,6 +77,7 @@ public class ProductServlet extends HttpServlet {
     }
 
     @Override
+    @Auditable
     protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         long id = Long.parseLong(req.getParameter("id"));
         boolean deleted = productService.deleteProduct(id);

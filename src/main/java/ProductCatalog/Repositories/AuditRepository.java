@@ -1,7 +1,6 @@
 package ProductCatalog.Repositories;
 
 import ProductCatalog.Models.AuditEntry;
-import ProductCatalog.Models.User;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
