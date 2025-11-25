@@ -3,32 +3,30 @@ package ProductCatalog.DB;
 import org.postgresql.ds.PGSimpleDataSource;
 
 public class DBConnection {
-    private static PGSimpleDataSource dataSource;
+    private final PGSimpleDataSource dataSource;
 
-    public static PGSimpleDataSource getDataSource() {
-        if (dataSource == null) {
-            dataSource = new PGSimpleDataSource();
+    public DBConnection(Config config) {
+        this.dataSource = new PGSimpleDataSource();
 
-            Config config = Config.getInstance();
+        String host = config.getProperty(ConfigKeys.DB_HOST);
+        String portStr = config.getProperty(ConfigKeys.DB_PORT);
+        String db = config.getProperty(ConfigKeys.DB_NAME);
+        String user = config.getProperty(ConfigKeys.DB_USERNAME);
+        String password = config.getProperty(ConfigKeys.DB_PASSWORD);
+        String schema = config.getProperty(ConfigKeys.DB_SCHEMA);
 
-            String host = config.getDbHost();
-            String portStr = config.getDbPort();
-            String db = config.getDbName();
-            String user = config.getDbUsername();
-            String password = config.getDbPassword();
-            String schema = config.getDbSchema();
+        int port = Integer.parseInt(portStr);
 
-            int port = Integer.parseInt(portStr);
+        dataSource.setServerNames(new String[]{host});
+        dataSource.setPortNumbers(new int[]{port});
+        dataSource.setDatabaseName(db);
+        dataSource.setUser(user);
+        dataSource.setPassword(password);
+        dataSource.setCurrentSchema(schema);
+        dataSource.setSsl(false);
+    }
 
-            dataSource.setServerNames(new String[]{host});
-            dataSource.setPortNumbers(new int[]{port});
-            dataSource.setDatabaseName(db);
-            dataSource.setUser(user);
-            dataSource.setPassword(password);
-            dataSource.setCurrentSchema(schema);
-            dataSource.setSsl(false);
-
-        }
+    public PGSimpleDataSource getDataSource() {
         return dataSource;
     }
 }

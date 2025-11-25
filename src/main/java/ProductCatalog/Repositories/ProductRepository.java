@@ -11,23 +11,45 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ProductRepository {
+    private static final String SQL_FIND_BY_ID = """
+                SELECT id, catalog_id, name, price, brand, category, description
+                FROM app.product
+                WHERE id = ?;
+                """;
+
+    private static final String SQL_FIND_ALL = "SELECT * FROM app.product;";
+
+    private static final String SQL_DELETE = "DELETE FROM app.product WHERE id = ?;";
+
+    private static final String SQL_UPDATE = """
+            UPDATE app.product
+            SET name=?, price=?, description=?, brand=?, category=?
+            WHERE id=?;
+        """;
+
+    private static final String SQL_INSERT = """
+                INSERT INTO app.product (catalog_id, name, price, description, brand, category)
+                VALUES (?, ?, ?, ?, ?, ?)
+                RETURNING id;
+                """;
+
+    private static final String SQL_FIND_BY_CATALOG_ID = """
+                SELECT id, catalog_id, name, price, description, brand, category
+                FROM app.product
+                WHERE catalog_id = ?;
+                """;
+
     private final DataSource dataSource;
 
     public ProductRepository(DataSource dataSource){
         this.dataSource = dataSource;
     }
 
-    public List<Product> findByCatalog(long catalogId){
+    public List<Product> findByCatalogId(long catalogId){
         List<Product> productList = new ArrayList<>();
 
-        final String SQL = """
-                SELECT id, catalog_id, name, price, description, brand, category
-                FROM app.product
-                WHERE catalog_id = ?
-                """;
-
         try (Connection connection = dataSource.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(SQL)){
+             PreparedStatement preparedStatement = connection.prepareStatement(SQL_FIND_BY_CATALOG_ID)){
 
             preparedStatement.setLong(1, catalogId);
             ResultSet resultSet = preparedStatement.executeQuery();
@@ -50,14 +72,8 @@ public class ProductRepository {
     }
 
     public Product save(Product p){
-        final String SQL = """
-                INSERT INTO app.product (catalog_id, name, price, description, brand, category)
-                VALUES (?, ?, ?, ?, ?, ?)
-                RETURNING id
-                """;
-
         try (Connection connection = dataSource.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(SQL)){
+             PreparedStatement preparedStatement = connection.prepareStatement(SQL_INSERT)){
 
             preparedStatement.setLong(1, p.getCatalogId());
             preparedStatement.setString(2, p.getName());
@@ -78,14 +94,8 @@ public class ProductRepository {
         return null;
     }
     public boolean update(Product p) {
-        final String SQL = """
-            UPDATE app.product
-            SET name=?, price=?, description=?, brand=?, category=?
-            WHERE id=?
-        """;
-
         try (Connection conn = dataSource.getConnection();
-             PreparedStatement preparedStatement = conn.prepareStatement(SQL)) {
+             PreparedStatement preparedStatement = conn.prepareStatement(SQL_UPDATE)) {
 
             preparedStatement.setString(1, p.getName());
             preparedStatement.setDouble(2, p.getPrice());
@@ -104,7 +114,7 @@ public class ProductRepository {
 
     public boolean delete(long id) {
         try (Connection conn = dataSource.getConnection();
-             PreparedStatement preparedStatement = conn.prepareStatement("DELETE FROM app.product WHERE id = ?")) {
+             PreparedStatement preparedStatement = conn.prepareStatement(SQL_DELETE)) {
 
             preparedStatement.setLong(1, id);
             return preparedStatement.executeUpdate() > 0;
@@ -116,11 +126,10 @@ public class ProductRepository {
     }
 
     public List<Product> findAll() {
-        final String SQL = "SELECT * FROM app.product";
         List<Product> productsList = new ArrayList<>();
 
         try (Connection connection = dataSource.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(SQL)){
+             PreparedStatement preparedStatement = connection.prepareStatement(SQL_FIND_ALL)){
 
             ResultSet resultSet = preparedStatement.executeQuery();
             while(resultSet.next()){
@@ -142,14 +151,8 @@ public class ProductRepository {
     }
 
     public Product findById(long id){
-        final String SQL = """
-                SELECT id, catalog_id, name, price, brand, category, description
-                FROM app.product
-                WHERE id = ?
-                """;
-
         try (Connection connection = dataSource.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(SQL)) {
+             PreparedStatement preparedStatement = connection.prepareStatement(SQL_FIND_BY_ID)) {
             preparedStatement.setLong(1, id);
             ResultSet resultSet = preparedStatement.executeQuery();
 

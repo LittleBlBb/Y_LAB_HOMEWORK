@@ -11,6 +11,25 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UserRepository {
+    private static final String SQL_FIND_BY_USERNAME = """
+                SELECT id, username, password, role
+                FROM app.user
+                WHERE username = ?;
+                """;
+
+    private static final String SQL_INSERT = """
+                INSERT INTO app.user (username, password, role)
+                VALUES (?, ?, ?)
+                RETURNING id;
+                """;
+
+    private static final String SQL_FIND_ALL = "SELECT id, username, password, role FROM app.user;";
+
+    private static final String SQL_FIND_BY_ID = """
+                SELECT id, username, password, role FROM app.user
+                WHERE id = ?
+                """;
+
     private final DataSource dataSource;
 
     public UserRepository(DataSource dataSource){
@@ -18,13 +37,9 @@ public class UserRepository {
     }
 
     public User findByUsername(String username) {
-        final String SQL = """
-                SELECT id, username, password, role
-                FROM app.user
-                WHERE username = ?
-                """;
+
         try (Connection connection = dataSource.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(SQL)) {
+             PreparedStatement preparedStatement = connection.prepareStatement(SQL_FIND_BY_USERNAME)) {
             preparedStatement.setString(1, username);
             ResultSet resultSet = preparedStatement.executeQuery();
 
@@ -43,14 +58,8 @@ public class UserRepository {
     }
 
     public User save(User user){
-        final String SQL = """
-                INSERT INTO app.user (username, password, role)
-                VALUES (?, ?, ?)
-                RETURNING id
-                """;
-
         try (Connection connection = dataSource.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(SQL)){
+             PreparedStatement preparedStatement = connection.prepareStatement(SQL_INSERT)){
 
             preparedStatement.setString(1, user.getUsername());
             preparedStatement.setString(2, user.getPassword());
@@ -70,11 +79,10 @@ public class UserRepository {
     }
 
     public List<User> findAll() {
-        final String SQL = "SELECT id, username, password, role FROM app.user";
         List<User> usersList = new ArrayList<>();
 
         try (Connection connection = dataSource.getConnection();
-            PreparedStatement preparedStatement = connection.prepareStatement(SQL)){
+            PreparedStatement preparedStatement = connection.prepareStatement(SQL_FIND_ALL)){
 
             ResultSet resultSet = preparedStatement.executeQuery();
             while(resultSet.next()){
@@ -93,13 +101,8 @@ public class UserRepository {
     }
 
     public User findById(long id){
-        final String SQL = """
-                SELECT id, username, password, role FROM app.user
-                WHERE id = ?
-                """;
-
         try (Connection connection = dataSource.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(SQL)) {
+             PreparedStatement preparedStatement = connection.prepareStatement(SQL_FIND_BY_ID)) {
                 preparedStatement.setLong(1, id);
                 ResultSet resultSet = preparedStatement.executeQuery();
 

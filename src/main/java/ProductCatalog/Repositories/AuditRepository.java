@@ -13,19 +13,28 @@ import java.util.List;
 public class AuditRepository {
     private final DataSource dataSource;
 
+    private static final String SQL_INSERT = """
+            INSERT INTO app.audit_log (username, action, details, timestamp)
+            VALUES (?, ?, ?, NOW())
+            RETURNING id;
+            """;
+
+    private static final String SQL_FIND_ALL = """
+            SELECT * FROM app.audit_log;
+            """;
+
+    private static final String SQL_FIND_BY_ID = """
+            SELECT * FROM app.audit_log
+            WHERE id = ?;
+            """;
+
     public AuditRepository(DataSource dataSource) {
         this.dataSource = dataSource;
     }
 
     public AuditEntry save(AuditEntry entry){
-        final String SQL = """
-                INSERT INTO app.audit_log (username, action, details, timestamp)
-                VALUES (?, ?, ?, NOW())
-                RETURNING id
-                """;
-
         try (Connection connection = dataSource.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(SQL)){
+             PreparedStatement preparedStatement = connection.prepareStatement(SQL_INSERT)){
             preparedStatement.setString(1, entry.getUsername());
             preparedStatement.setString(2, entry.getAction());
             preparedStatement.setString(3, entry.getDetails());
@@ -44,10 +53,8 @@ public class AuditRepository {
 
     public List<AuditEntry> findAll() {
         List<AuditEntry> logsList = new ArrayList<>();
-        final String SQL = "SELECT * FROM app.audit_log";
-
         try(Connection connection = dataSource.getConnection();
-            PreparedStatement preparedStatement = connection.prepareStatement(SQL);
+            PreparedStatement preparedStatement = connection.prepareStatement(SQL_FIND_ALL);
             ResultSet resultSet = preparedStatement.executeQuery()){
 
             while (resultSet.next()){
@@ -66,13 +73,8 @@ public class AuditRepository {
     }
 
     public AuditEntry findById(long id){
-        final String SQL = """
-                SELECT * FROM app.audit_log
-                WHERE id = ?
-                """;
-
         try (Connection connection = dataSource.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(SQL)) {
+             PreparedStatement preparedStatement = connection.prepareStatement(SQL_FIND_BY_ID)) {
             preparedStatement.setLong(1, id);
             ResultSet resultSet = preparedStatement.executeQuery();
 
