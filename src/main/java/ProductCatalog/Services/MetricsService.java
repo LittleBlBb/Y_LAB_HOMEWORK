@@ -1,7 +1,6 @@
 package ProductCatalog.Services;
 
 import ProductCatalog.Models.Catalog;
-import lombok.Getter;
 
 import java.util.List;
 
@@ -10,7 +9,6 @@ import java.util.List;
  * Реализует шаблон Singleton.
  */
 public class MetricsService {
-    @Getter
     private static MetricsService instance;
     private final CatalogService catalogService;
 
@@ -41,7 +39,7 @@ public class MetricsService {
      * <p>
      * Этот метод используется для получения уже инициализированного экземпляра
      * сервиса метрик (реализует паттерн Singleton).
-     * Если экземпляр ещё не был создан через вызов {@code getInstance(CatalogService, ProductService)},
+     * Если экземпляр ещё не был создан через вызов {@code getInstance(CatalogService)},
      * будет выброшено исключение {@link IllegalStateException}.
      *
      * @return экземпляр {@link MetricsService}
@@ -65,22 +63,6 @@ public class MetricsService {
     }
 
     /**
-     * Возвращает общее количество каталогов.
-     *
-     * @return количество каталогов
-     */
-    public int getTotalProductCount() {
-        int count = 0;
-        List<Catalog> catalogs = catalogService.getAllCatalogs();
-        if (catalogs != null) {
-            for (Catalog c : catalogs) {
-                count += c.getProducts().size();
-            }
-        }
-        return count;
-    }
-
-    /**
      * Отображает метрики в консоли.
      *
      * @param actionName название действия
@@ -93,13 +75,11 @@ public class MetricsService {
                 Действие: %s
                 Время выполнения: %d мс
                 Каталогов: %d
-                Товаров всего: %d
                 ===================================
                 """.formatted(
                 actionName,
                 duration,
-                getTotalCatalogCount(),
-                getTotalProductCount()
+                getTotalCatalogCount()
         ));
     }
 }

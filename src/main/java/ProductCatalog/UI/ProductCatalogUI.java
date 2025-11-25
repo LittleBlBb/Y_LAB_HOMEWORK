@@ -48,361 +48,316 @@ public class ProductCatalogUI {
         displayMainMenu(console);
     }
 
-    private void displayMainMenu(Scanner console) {
+    private void displayMainMenu(Scanner sc) {
         int choice;
         do {
-            System.out.println("\n\t\tMENU");
-            if (userService.isAuthenticated()){
-                System.out.println("Вы вошли как: " + userService.getCurrentUser().getUsername() +
+            System.out.println("\n=== МЕНЮ ===");
+
+            if (userService.isAuthenticated()) {
+                System.out.println("Вы вошли как: " +
+                        userService.getCurrentUser().getUsername() +
                         " (" + userService.getCurrentUser().getRole() + ")");
-                System.out.println("4. Выйти из аккаунта");
-                if(userService.isAdmin()){
-                    System.out.println("5. Просмотр аудита (admin)");
+                System.out.println("4. Выйти");
+                if (userService.isAdmin()) {
+                    System.out.println("5. Журнал аудита");
                 }
             } else {
                 System.out.println("Вы не авторизованы");
             }
-            System.out.println("""
-            1. Просмотреть каталоги
-            2. Войти
-            3. Зарегистрироваться
-            0. Выход из программы
-            """);
-            System.out.print("Ваш выбор: ");
 
+            System.out.println("""
+            1. Каталоги
+            2. Вход
+            3. Регистрация
+            0. Выход
+            """);
+
+            System.out.print("Ваш выбор: ");
             try {
-                choice = console.nextInt();
+                choice = sc.nextInt();
                 switch (choice) {
-                    case 1 -> displayCatalogsMenu(console);
-                    case 2 -> loginMenu(console);
-                    case 3 -> registerMenu(console);
-                    case 4 -> {
-                        if (userService.isAuthenticated()){
-                            userService.logout();
-                            System.out.println("Вы вышли из аккаунта.");
-                        } else {
-                            System.out.println("Вы не вошли в систему.");
-                        }
-                    }
+                    case 1 -> displayCatalogsMenu(sc);
+                    case 2 -> login(sc);
+                    case 3 -> register(sc);
+                    case 4 -> userService.logout();
                     case 5 -> {
-                        if (userService.isAdmin()){
-                            displayAuditLog();
-                        } else {
-                            System.out.println("Недостаточно прав.");
-                        }
+                        if (userService.isAdmin()) displayAuditLog();
                     }
-                    case 0 -> {
-                        System.out.println("До свидания!");
-                        return;
-                    }
-                    default -> System.out.println("Некорректный выбор.");
+                    case 0 -> System.out.println("Выход...");
+                    default -> System.out.println("Ошибка ввода.");
                 }
             } catch (Exception e) {
-                pauseForInput(console);
+                sc.nextLine();
                 choice = -1;
             }
+
         } while (choice != 0);
     }
 
-    private void loginMenu(Scanner console){
-        console.nextLine();
-        System.out.println("Введите логин: ");
-        String username = console.nextLine();
-        System.out.println("Введите пароль: ");
-        String password = console.nextLine();
+    private void login(Scanner sc) {
+        sc.nextLine();
+        System.out.print("Логин: ");
+        String u = sc.nextLine();
+        System.out.print("Пароль: ");
+        String p = sc.nextLine();
 
-        if (userService.login(username, password)){
-            System.out.println("Добро пожаловать, " + username + "!");
+        if (userService.login(u, p)) {
+            System.out.println("Добро пожаловать, " + u);
         } else {
-            System.out.println("Неверный логин или пароль.");
+            System.out.println("Ошибка входа.");
         }
     }
 
-    private void registerMenu(Scanner console){
-        console.nextLine();
-        System.out.println("Придумайте логин: ");
-        String username = console.nextLine();
-        System.out.println("Придумайте пароль: ");
-        String password = console.nextLine();
+    private void register(Scanner sc) {
+        sc.nextLine();
+        System.out.print("Логин: ");
+        String u = sc.nextLine();
+        System.out.print("Пароль: ");
+        String p = sc.nextLine();
 
-        if (userService.register(username, password))
-        {
-            System.out.println("Регистрация успешна! Теперь вы можете войти.");
-        } else {
-            System.out.println("Пользователь с таким логином уже существует.");
-        }
-
+        if (userService.register(u, p))
+            System.out.println("Готово.");
+        else
+            System.out.println("Пользователь уже существует.");
     }
 
-    private void displayCatalogsMenu(Scanner console) {
+    private void displayCatalogsMenu(Scanner sc) {
         var catalogs = catalogService.getAllCatalogs();
         int choice;
+
         do {
-            System.out.println("\n\t\tCATALOGS");
+            System.out.println("\n=== КАТАЛОГИ ===");
             for (int i = 0; i < catalogs.size(); i++) {
-                System.out.printf("%-5d %-25s%n", i + 1, catalogs.get(i).getName());
+                System.out.printf("%d. %s%n", i + 1, catalogs.get(i).getName());
             }
             System.out.println("0. Назад");
-            System.out.print("Выберите каталог: ");
 
-            try {
-                choice = console.nextInt();
-                if (choice > 0 && choice <= catalogs.size()) {
-                    displayProductsMenu(choice - 1, console);
-                } else if (choice != 0) {
-                    System.out.println("Некорректный выбор.");
-                }
-            } catch (Exception e) {
-                pauseForInput(console);
-                choice = -1;
-            }
-        } while (choice != 0);
-    }
-
-    private void displayProductsMenu(int catalogIndex, Scanner console) {
-        List<Product> products = productService.getProductsByCatalog(catalogIndex);
-        int choice = -1;
-        do {
-            System.out.println("\n\t" + catalogService.getCatalogByIndex(catalogIndex).getName());
-            for (int i = 0; i < products.size(); i++) {
-                System.out.printf("%-5d %-50s%n", i + 1, products.get(i).toShortString());
-            } if(userService.isAdmin()) {
-                System.out.println("a. Добавить новый товар");
-            }
-            System.out.println("""
-            f. Фильтровать товары
-            0. Назад
-            """);
-            System.out.print("Выберите товар: ");
-
-            String input = console.next();
-            if (input.equalsIgnoreCase("a")) {
-                if(userService.isAdmin()) {
-                    createProduct(catalogIndex, console);
-                    products = productService.getProductsByCatalog(catalogIndex);
-                } else {
-                    System.out.println("Только администратор может добавлять товары!");
-                }
-            } else if (input.equalsIgnoreCase("f")) {
-                products = filterProductsMenu(catalogIndex, console);
-            } else {
-                try {
-                    choice = Integer.parseInt(input);
-                    if (choice > 0 && choice <= products.size()) {
-                        displayProductMenu(products.get(choice - 1), console);
-                    } else if (choice != 0) {
-                        System.out.println("Некорректный выбор.");
-                    }
-                } catch (Exception e) {
-                    pauseForInput(console);
-                    choice = -1;
-                }
-            }
-        } while (choice != 0);
-    }
-
-    private void createProduct(int catalogIndex, Scanner console) {
-        console.nextLine();
-        System.out.print("Название товара: ");
-        String name = console.nextLine();
-        System.out.print("Цена товара: ");
-        double price = console.nextDouble();
-        console.nextLine();
-        System.out.print("Описание товара: ");
-        String description = console.nextLine();
-        System.out.print("Бренд: ");
-        String brand = console.nextLine();
-        System.out.print("Категория: ");
-        String category = console.nextLine();
-
-        if(!userService.isAdmin()){
-            System.out.println("Только администратор может добавлять товары!");
-            return;
-        }
-
-        boolean ok = productService.createProduct(new Product(name, price, description, brand, category), catalogIndex);
-
-        if(ok){
-            System.out.println("Товар успешно добавлен.");
-        } else {
-            System.out.println("Ошибка при добавлении товара.");
-        }
-    }
-
-
-
-
-    private void displayProductMenu(Product product, Scanner console) {
-        int choice;
-        do {
-            System.out.println("\n" + product);
-            if(userService.isAdmin()) {
-                System.out.println("""
-                1. Удалить
-                2. Изменить
-                """);
-            }
-            System.out.println("0. Назад");
             System.out.print("Ваш выбор: ");
             try {
-                choice = console.nextInt();
-                switch (choice) {
-                    case 1 -> {
-                        if(!userService.isAdmin()){
-                            System.out.println("Только администратор может удалять товары!");
-                            break;
-                        }
-                        boolean deleted = productService.deleteProduct(product);
-                        if (deleted) {
-                            System.out.println("Товар удалён.");
-                        } else {
-                            System.out.println("Ошибка при удалении.");
-                        }
-                        return;
-                    }
-                    case 2 -> {
-                        if (!userService.isAdmin()) {
-                            System.out.println("Только администратор может изменять товары!");
-                            break;
-                        }
-                        editProduct(product, console);
-                    }
-                    case 0 -> { return; }
-                    default -> System.out.println("Некорректный выбор.");
+                choice = sc.nextInt();
+                if (choice > 0 && choice <= catalogs.size()) {
+                    long catalogId = catalogs.get(choice - 1).getId();
+                    displayProductsMenu(catalogId, sc);
                 }
             } catch (Exception e) {
-                pauseForInput(console);
+                sc.nextLine();
                 choice = -1;
             }
+
         } while (choice != 0);
     }
 
-    private void editProduct(Product product, Scanner console) {
-        Product temp = new Product(product.getName(), product.getPrice(), product.getDescription(), product.getBrand(), product.getCategory());
-        int choice;
+    private void displayProductsMenu(long catalogId, Scanner sc) {
+        while (true) {
+
+            List<Product> products = productService.getProducts(catalogId);
+
+            System.out.println("\n=== ТОВАРЫ ===");
+            for (int i = 0; i < products.size(); i++) {
+                System.out.printf("%d. %s%n", i + 1, products.get(i).toShortString());
+            }
+
+            if (userService.isAdmin())
+                System.out.println("A. Добавить");
+
+            System.out.println("F. Фильтр");
+            System.out.println("0. Назад");
+            System.out.print("Ваш выбор: ");
+
+            String input = sc.next();
+
+            if (input.equalsIgnoreCase("0")) return;
+
+            if (input.equalsIgnoreCase("A") && userService.isAdmin()) {
+                createProduct(catalogId, sc);
+                continue;
+            }
+
+            if (input.equalsIgnoreCase("F")) {
+                filterProductsMenu(catalogId, sc);
+                continue;
+            }
+
+            try {
+                int n = Integer.parseInt(input);
+                if (n > 0 && n <= products.size()) {
+                    displayProductMenu(products.get(n - 1), sc);
+                }
+            } catch (NumberFormatException ignore) {}
+        }
+    }
+
+    private void createProduct(long catalogId, Scanner sc) {
+        sc.nextLine();
+        System.out.print("Название: ");
+        String n = sc.nextLine();
+        System.out.print("Цена: ");
+        double price = sc.nextDouble();
+        sc.nextLine();
+        System.out.print("Описание: ");
+        String d = sc.nextLine();
+        System.out.print("Бренд: ");
+        String b = sc.nextLine();
+        System.out.print("Категория: ");
+        String c = sc.nextLine();
+
+        Product p = new Product(0, catalogId, n, price, d, b, c);
+
+        if (productService.createProduct(p))
+            System.out.println("Добавлено.");
+        else
+            System.out.println("Ошибка!");
+    }
+
+    private void displayProductMenu(Product p, Scanner sc) {
+        int ch;
         do {
-            System.out.println("\n" + temp);
+            System.out.println("\n" + p);
+
+            if (userService.isAdmin())
+                System.out.println("1. Удалить\n2. Изменить");
+
+            System.out.println("0. Назад");
+
+            System.out.print("Ваш выбор: ");
+            try {
+                ch = sc.nextInt();
+                switch (ch) {
+                    case 1 -> {
+                        if (productService.deleteProduct(p.getId(), p.getName()))
+                            System.out.println("Удалено.");
+                        return;
+                    }
+                    case 2 -> editProduct(p, sc);
+                    case 0 -> { return; }
+                }
+            } catch (Exception e) {
+                sc.nextLine();
+                ch = -1;
+            }
+        } while (ch != 0);
+    }
+
+    private void editProduct(Product p, Scanner sc) {
+        Product tmp = new Product(
+                p.getId(),
+                p.getCatalogId(),
+                p.getName(),
+                p.getPrice(),
+                p.getDescription(),
+                p.getBrand(),
+                p.getCategory()
+        );
+
+        int ch;
+        do {
+            System.out.println("\n" + tmp);
             System.out.println("""
-            1. Изменить название
-            2. Изменить цену
-            3. Изменить описание
-            4. Изменить бренд
-            5. Изменить категорию
+            1. Название
+            2. Цена
+            3. Описание
+            4. Бренд
+            5. Категория
             6. Сохранить
             0. Отмена
             """);
-            System.out.print("Ваш выбор: ");
 
+            System.out.print("Ваш выбор: ");
             try {
-                choice = console.nextInt();
-                console.nextLine();
-                switch (choice) {
+                ch = sc.nextInt();
+                sc.nextLine();
+
+                switch (ch) {
                     case 1 -> {
                         System.out.print("Новое название: ");
-                        temp.setName(console.nextLine());
+                        tmp.setName(sc.nextLine());
                     }
                     case 2 -> {
                         System.out.print("Новая цена: ");
-                        temp.setPrice(console.nextDouble());
-                        console.nextLine();
+                        tmp.setPrice(sc.nextDouble());
+                        sc.nextLine();
                     }
                     case 3 -> {
                         System.out.print("Новое описание: ");
-                        temp.setDescription(console.nextLine());
+                        tmp.setDescription(sc.nextLine());
                     }
                     case 4 -> {
                         System.out.print("Новый бренд: ");
-                        temp.setBrand(console.nextLine());
+                        tmp.setBrand(sc.nextLine());
                     }
                     case 5 -> {
                         System.out.print("Новая категория: ");
-                        temp.setCategory(console.nextLine());
+                        tmp.setCategory(sc.nextLine());
                     }
                     case 6 -> {
-                        boolean edited = productService.updateProduct(product, temp);
-                        if (edited){
-                            System.out.println("Изменения сохранены.");
-                        } else {
-                            System.out.println("Ошибка при сохранении изменений.");
-                        }
+                        if (productService.updateProduct(tmp))
+                            System.out.println("Сохранено.");
+                        else
+                            System.out.println("Ошибка сохранения.");
                         return;
                     }
-                    case 0 -> System.out.println("Изменения отменены.");
-                    default -> System.out.println("Некорректный выбор.");
                 }
+
             } catch (Exception e) {
-                pauseForInput(console);
-                choice = -1;
+                sc.nextLine();
+                ch = -1;
             }
-        } while (choice != 0);
+
+        } while (ch != 0);
     }
 
+    private void filterProductsMenu(long catalogId, Scanner sc) {
+        List<Product> list = productService.getProducts(catalogId);
 
-    private void pauseForInput(Scanner console) {
-        System.out.println("Нажмите Enter для продолжения...");
-        console.nextLine();
-    }
-
-    private List<Product> filterProductsMenu(int catalogIndex, Scanner console) {
-        console.nextLine();
+        sc.nextLine();
         System.out.println("""
-        Фильтры:
         1. По имени
-        2. По диапазону цены
+        2. По цене
         3. По бренду
         4. По категории
         0. Назад
         """);
-        System.out.print("Выберите фильтр: ");
-        int choice = console.nextInt();
-        console.nextLine();
 
-        List<Product> filtered = productService.getProductsByCatalog(catalogIndex);
+        System.out.print("Выбор: ");
+        int ch = sc.nextInt();
+        sc.nextLine();
 
-        switch (choice) {
+        List<Product> filtered = list;
+
+        switch (ch) {
             case 1 -> {
-                System.out.print("Введите часть названия: ");
-                String name = console.nextLine();
-                filtered = filterService.filterProductsByName(filtered, name);
+                System.out.print("Название содержит: ");
+                filtered = filterService.filterByName(list, sc.nextLine());
             }
             case 2 -> {
-                System.out.print("Минимальная цена: ");
-                double min = console.nextDouble();
-                System.out.print("Максимальная цена: ");
-                double max = console.nextDouble();
-                console.nextLine();
-                filtered = filterService.filterProductsByPriceRange(filtered, min, max);
+                System.out.print("Минимум: ");
+                double min = sc.nextDouble();
+                System.out.print("Максимум: ");
+                double max = sc.nextDouble();
+                sc.nextLine();
+                filtered = filterService.filterByPrice(list, min, max);
             }
             case 3 -> {
                 System.out.print("Бренд: ");
-                String brand = console.nextLine();
-                filtered = filterService.filterProductsByBrand(filtered, brand);
+                filtered = filterService.filterByBrand(list, sc.nextLine());
             }
             case 4 -> {
                 System.out.print("Категория: ");
-                String category = console.nextLine();
-                filtered = filterService.filterProductsByCategory(filtered, category);
+                filtered = filterService.filterByCategory(list, sc.nextLine());
             }
-            case 0 -> System.out.println("Возврат к списку товаров.");
+            case 0 -> { return; }
         }
 
-        System.out.println("\nОтфильтрованные товары:");
+        System.out.println("\n=== РЕЗУЛЬТАТ ===");
         for (int i = 0; i < filtered.size(); i++) {
-            System.out.printf("%-5d %-25s%n", i + 1, filtered.get(i).getName());
+            System.out.printf("%d. %s%n", i + 1, filtered.get(i).toShortString());
         }
-        return filtered;
     }
 
-    private void displayAuditLog(){
-        List<AuditEntry> log = auditService.getAuditLog();
-        if(log.isEmpty()){
-            System.out.println("Журнал аудита пуст.");
-            return;
-        }
-        System.out.println("\n ==== Журнал аудита ====");
-        for (AuditEntry entry : log){
-            System.out.println(entry);
-        }
-        System.out.println("==== Конец журнала ====");
+    private void displayAuditLog() {
+        List<AuditEntry> log = auditService.getAll();
+        System.out.println("\n=== АУДИТ ===");
+        for (AuditEntry e : log) System.out.println(e);
+        System.out.println("============");
     }
 }
