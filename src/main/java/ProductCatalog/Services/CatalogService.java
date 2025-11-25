@@ -48,7 +48,7 @@ public class CatalogService {
         auditService.save(
                 userService.getCurrentUser() != null
                         ? userService.getCurrentUser().getUsername()
-                        : "system",
+                        : "anonymous",
                 "CREATE_CATALOG",
                 "Создан новый каталог: " + catalog.getName()
         );
@@ -59,19 +59,24 @@ public class CatalogService {
      * Удаляет указанный каталог и записывает действие в журнал аудита.
      *
      * @param id id каталога для удаления
-     * @param name название каталога
      * @return {@code true}, если каталог успешно удалён
      */
     public boolean deleteCatalog(long id) {
-        String name = catalogRepository.findById(id).getName();
+        Catalog catalog = catalogRepository.findById(id);
+
+        if (catalog == null) {
+            return false;
+        }
+
         boolean deleted = catalogRepository.delete(id);
+
         if (deleted) {
             auditService.save(
                     userService.getCurrentUser() != null
                             ? userService.getCurrentUser().getUsername()
-                            : "system",
+                            : "anonymous",
                     "DELETE_CATALOG",
-                    "Удалён каталог: " + name
+                    "Удалён каталог: " + catalog.getName()
             );
         }
         return deleted;

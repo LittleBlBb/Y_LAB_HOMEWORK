@@ -6,27 +6,27 @@ public class Product {
     private long catalogId;
     private String name;
     private double price;
-    private String description;
     private String brand;
     private String category;
+    private String description;
 
-    public Product(long catalogId, String name, double price, String description, String brand, String category) {
+    public Product(long catalogId, String name, double price, String brand, String category, String description) {
         this.catalogId = catalogId;
         this.name = name;
         this.price = price;
-        this.description = description;
         this.brand = brand;
         this.category = category;
+        this.description = description;
     }
 
-    public Product(long id, long catalogId, String name, double price, String description, String brand, String category) {
+    public Product(long id, long catalogId, String name, double price, String brand, String category, String description) {
         this.id = id;
         this.catalogId = catalogId;
         this.name = name;
         this.price = price;
-        this.description = description;
         this.brand = brand;
         this.category = category;
+        this.description = description;
     }
 
     public Product() {

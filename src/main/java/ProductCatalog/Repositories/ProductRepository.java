@@ -143,7 +143,8 @@ public class ProductRepository {
 
     public Product findById(long id){
         final String SQL = """
-                SELECT * FROM app.product
+                SELECT id, catalog_id, name, price, brand, category, description
+                FROM app.product
                 WHERE id = ?
                 """;
 
@@ -158,9 +159,9 @@ public class ProductRepository {
                         resultSet.getLong("catalog_id"),
                         resultSet.getString("name"),
                         resultSet.getDouble("price"),
-                        resultSet.getString("description"),
                         resultSet.getString("brand"),
-                        resultSet.getString("category")
+                        resultSet.getString("category"),
+                        resultSet.getString("description")
                 );
             }
         } catch (SQLException exception){

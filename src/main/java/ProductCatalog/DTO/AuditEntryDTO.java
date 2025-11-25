@@ -1,5 +1,7 @@
 package ProductCatalog.DTO;
 
+import java.util.Objects;
+
 public class AuditEntryDTO {
     private long id;
     private String username;
@@ -47,5 +49,22 @@ public class AuditEntryDTO {
 
     public String getTimestamp() {
         return timestamp;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof AuditEntryDTO that)) return false;
+        return id == that.id
+                && Objects.equals(username, that.username)
+                && Objects.equals(action, that.action)
+                && Objects.equals(details, that.details)
+                && Objects.equals(timestamp, that.timestamp);
+
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, username, action, details, timestamp);
     }
 }

@@ -1,5 +1,7 @@
 package ProductCatalog.DTO;
 
+import java.util.Objects;
+
 public class UserDTO {
     private long id;
     private String username;
@@ -45,5 +47,20 @@ public class UserDTO {
 
     public void setRole(String role) {
         this.role = role;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof UserDTO that)) return false;
+        return id == that.id
+                && Objects.equals(username, that.username)
+                && Objects.equals(password, that.password)
+                && Objects.equals(role, that.role);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, username, password, role);
     }
 }

@@ -3,6 +3,7 @@ package ProductCatalog.Servlets;
 import ProductCatalog.Annotations.Auditable;
 import ProductCatalog.DTO.CatalogDTO;
 import ProductCatalog.Mappers.CatalogMapper;
+import ProductCatalog.Models.Catalog;
 import ProductCatalog.Services.CatalogService;
 import ProductCatalog.Validators.CatalogValidator;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -42,6 +43,8 @@ public class CatalogServlet extends HttpServlet {
     @Override
     @Auditable
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        resp.setContentType("application/json");
+
         CatalogDTO dto = mapper.readValue(req.getInputStream(), CatalogDTO.class);
 
         List<String> errors = CatalogValidator.validate(dto);
@@ -54,10 +57,17 @@ public class CatalogServlet extends HttpServlet {
             return;
         }
 
-        boolean created = catalogService.createCatalog(
-                CatalogMapper.INSTANCE.toEntity(dto)
-        );
-        resp.setStatus(created ? HttpServletResponse.SC_CREATED : HttpServletResponse.SC_BAD_REQUEST);
+        Catalog entity = CatalogMapper.INSTANCE.toEntity(dto);
+
+        boolean created = catalogService.createCatalog(entity);
+
+        if(created) {
+            resp.setStatus(HttpServletResponse.SC_CREATED);
+            mapper.writeValue(resp.getWriter(), CatalogMapper.INSTANCE.toDTO(entity));
+        } else {
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            mapper.writeValue(resp.getWriter(), "Catalog not created");
+        }
     }
 
     @Override
@@ -65,6 +75,13 @@ public class CatalogServlet extends HttpServlet {
     protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         long id = Long.parseLong(req.getParameter("id"));
         boolean deleted = catalogService.deleteCatalog(id);
-        resp.setStatus(deleted ? HttpServletResponse.SC_OK : HttpServletResponse.SC_BAD_REQUEST);
+
+        if (deleted) {
+            resp.setStatus(HttpServletResponse.SC_OK);
+            mapper.writeValue(resp.getWriter(), "Catalog deleted");
+        } else {
+            resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            mapper.writeValue(resp.getWriter(), "Catalog not found");
+        }
     }
 }

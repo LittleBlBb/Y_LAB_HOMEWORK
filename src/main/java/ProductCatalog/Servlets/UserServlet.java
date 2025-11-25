@@ -4,6 +4,7 @@ import ProductCatalog.Annotations.Auditable;
 import ProductCatalog.DTO.UserDTO;
 
 import ProductCatalog.Mappers.UserMapper;
+import ProductCatalog.Models.User;
 import ProductCatalog.Services.UserService;
 import ProductCatalog.Validators.UserValidator;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -42,6 +43,8 @@ public class UserServlet extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         UserDTO dto = mapper.readValue(req.getInputStream(), UserDTO.class);
 
+        resp.setContentType("application/json");
+
         List<String> errors = UserValidator.validate(dto);
         if (!errors.isEmpty()) {
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -51,9 +54,15 @@ public class UserServlet extends HttpServlet {
             );
             return;
         }
+        User entity = UserMapper.INSTANCE.toEntity(dto);
+        boolean created = userService.register(entity);
 
-        boolean created = userService.register(UserMapper.INSTANCE.toEntity(dto));
-
-        resp.setStatus(created ? HttpServletResponse.SC_CREATED : HttpServletResponse.SC_BAD_REQUEST);
+        if (created){
+            resp.setStatus(HttpServletResponse.SC_CREATED);
+            mapper.writeValue(resp.getWriter(), UserMapper.INSTANCE.toDTO(entity));
+        } else {
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            mapper.writeValue(resp.getWriter(), "User not created");
+        }
     }
 }

@@ -1,5 +1,7 @@
 package ProductCatalog.DTO;
 
+import java.util.Objects;
+
 public class ProductDTO {
     private long id;
     private Long catalogId;
@@ -75,5 +77,22 @@ public class ProductDTO {
 
     public void setCategory(String category) {
         this.category = category;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof ProductDTO that)) return false;
+        return id == that.id
+                && Objects.equals(name, that.name)
+                && Objects.equals(price, that.price)
+                && Objects.equals(brand, that.brand)
+                && Objects.equals(category, that.category)
+                && Objects.equals(description, that.description);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, name, price, brand, category, description);
     }
 }

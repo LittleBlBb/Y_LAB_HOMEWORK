@@ -45,11 +45,10 @@ public class ProductServlet extends HttpServlet {
         mapper.writeValue(resp.getWriter(), dtoList);
     }
 
-
-
     @Override
     @Auditable
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        resp.setContentType("application/json");
         ProductDTO dto = mapper.readValue(req.getInputStream(), ProductDTO.class);
 
         List<String> errors = ProductValidator.validate(dto);
@@ -70,7 +69,7 @@ public class ProductServlet extends HttpServlet {
             resp.setStatus(HttpServletResponse.SC_CREATED);
             mapper.writeValue(resp.getWriter(), ProductMapper.INSTANCE.toDTO(product));
         }
-        else{
+        else {
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             mapper.writeValue(resp.getWriter(), "Product not created");
         }
@@ -81,6 +80,12 @@ public class ProductServlet extends HttpServlet {
     protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         long id = Long.parseLong(req.getParameter("id"));
         boolean deleted = productService.deleteProduct(id);
-        resp.setStatus(deleted ? HttpServletResponse.SC_OK : HttpServletResponse.SC_BAD_REQUEST);
+        if (deleted) {
+            resp.setStatus(HttpServletResponse.SC_OK);
+            mapper.writeValue(resp.getWriter(), "Product deleted");
+        } else {
+            resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            mapper.writeValue(resp.getWriter(), "Product not found");
+        }
     }
 }

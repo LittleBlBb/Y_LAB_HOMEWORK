@@ -12,7 +12,8 @@ public class ProductValidator {
 
         if (dto.getCatalogId() == null)
             errors.add("catalog_id is required.");
-        else if (dto.getCatalogId() <= 0)
+
+        if (dto.getCatalogId() <= 0)
             errors.add("catalog_id must be greater than 0.");
 
         if (dto.getName() == null || dto.getName().isBlank())

@@ -1,5 +1,7 @@
 package ProductCatalog.DTO;
 
+import java.util.Objects;
+
 public class CatalogDTO {
     private long id;
     private String name;
@@ -25,5 +27,17 @@ public class CatalogDTO {
 
     public String getName() {
         return name;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof CatalogDTO that)) return false;
+        return id == that.id && Objects.equals(name, that.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, name);
     }
 }

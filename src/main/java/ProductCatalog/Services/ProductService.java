@@ -51,12 +51,18 @@ public class ProductService {
      * @return
      */
     public boolean deleteProduct(long id) {
-        String name = productRepository.findById(id).getName();
+        Product product = productRepository.findById(id);
+        if (product == null){
+            return false;
+        }
+
         long start = System.currentTimeMillis();
         boolean deleted = productRepository.delete(id);
         if (deleted) {
-            auditService.save(userService.getCurrentUser().getUsername(),
-                    "DELETE_PRODUCT", "Удалён товар: " + name);
+            auditService.save(userService.getCurrentUser() != null
+                            ? userService.getCurrentUser().getUsername()
+                            : "anonymous",
+                    "DELETE_PRODUCT", "Удалён товар: " + product.getName());
             MetricsService.getInstance().displayMetrics("Удаление товара", start);
         }
         return deleted;
@@ -72,7 +78,9 @@ public class ProductService {
         long start = System.currentTimeMillis();
         boolean updated = productRepository.update(newProduct);
         if (updated){
-            auditService.save(userService.getCurrentUser().getUsername(),
+            auditService.save(userService.getCurrentUser() != null
+                    ? userService.getCurrentUser().getUsername()
+                    : "anonymous",
                     "UPDATE_PRODUCT", "Изменён товар: " + newProduct.getName());
             MetricsService.getInstance().displayMetrics("Изменение товара", start);
         }
@@ -90,7 +98,7 @@ public class ProductService {
         productRepository.save(product);
         String username = userService.getCurrentUser() != null
                 ? userService.getCurrentUser().getUsername()
-                : "system";
+                : "anonymous";
         auditService.save(username, "CREATE_PRODUCT", "Добавлен товар: " + product.getName());
         MetricsService.getInstance().displayMetrics("Добавление товара", start);
         return true;

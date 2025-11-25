@@ -70,7 +70,7 @@ public class UserRepository {
     }
 
     public List<User> findAll() {
-        final String SQL = "SELECT * FROM app.user";
+        final String SQL = "SELECT id, username, password, role FROM app.user";
         List<User> usersList = new ArrayList<>();
 
         try (Connection connection = dataSource.getConnection();
@@ -94,7 +94,7 @@ public class UserRepository {
 
     public User findById(long id){
         final String SQL = """
-                SELECT * FROM app.user
+                SELECT id, username, password, role FROM app.user
                 WHERE id = ?
                 """;
 

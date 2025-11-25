@@ -25,9 +25,14 @@ public class AuditAspect {
         AuditService auditService = (AuditService) request.getServletContext().getAttribute("auditService");
 
         String username = "anonymous";
-        if (request.getSession() != null) {
-            Object u = request.getSession(false).getAttribute("username");
-            if (u != null) username = u.toString();
+
+        var seesion = request.getSession(false);
+
+        if (seesion != null) {
+            Object u = seesion.getAttribute("username");
+            if (u != null) {
+                username = u.toString();
+            }
         }
 
         String action = joinPoint.getSignature().getName();
@@ -35,7 +40,6 @@ public class AuditAspect {
         String details =
                 "URL: " + request.getRequestURI() +
                 ", HTTP: " + request.getMethod();
-
 
         long start = System.currentTimeMillis();
         Object result = joinPoint.proceed();
