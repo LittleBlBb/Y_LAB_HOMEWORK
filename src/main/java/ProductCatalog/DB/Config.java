@@ -10,12 +10,16 @@ public class Config {
     public Config() {
         try (InputStream input = getClass().getClassLoader().getResourceAsStream("application.properties")) {
             if (input == null) {
-                throw new IOException("application.properties file not found");
+                throw new RuntimeException("application.properties file not found");
             }
             properties.load(input);
         } catch (IOException e) {
-            System.out.println("Error loading config: " + e.getMessage());
+            throw new RuntimeException("Failed to load config file", e);
         }
+    }
+
+    public void override(String oldProperty, String newProperty) {
+        properties.put(oldProperty, newProperty);
     }
 
     public String getProperty(String key) {

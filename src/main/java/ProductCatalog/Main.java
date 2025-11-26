@@ -18,8 +18,12 @@ public class Main {
         DBConnection db = new DBConnection(config);
         PGSimpleDataSource dataSource = db.getDataSource();
 
-        Migrator migrator = new Migrator(config, db);
-        migrator.migrate();
+        try {
+            Migrator migrator = new Migrator(config, db);
+            migrator.migrate();
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to migrate", e);
+        }
 
         UserRepository userRepo = new UserRepository(dataSource);
         CatalogRepository catalogRepo = new CatalogRepository(dataSource);
