@@ -28,7 +28,7 @@ public class AuditService {
      * @param action   название действия
      * @param details  дополнительные детали действия
      */
-    public void log(String username, String action, String details) {
+    public void save(String username, String action, String details) {
         auditRepository.save(new AuditEntry(username, action, details));
     }
 

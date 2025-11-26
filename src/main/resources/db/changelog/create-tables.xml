@@ -33,9 +33,9 @@
             </column>
             <column name="name" type="VARCHAR(255)"/>
             <column name="price" type="NUMERIC(12,2)"/>
-            <column name="description" type="TEXT"/>
             <column name="brand" type="VARCHAR(255)"/>
             <column name="category" type="VARCHAR(255)"/>
+            <column name="description" type="TEXT"/>
         </createTable>
 
         <addForeignKeyConstraint

@@ -2,7 +2,8 @@ package ProductCatalog.Services;
 
 import ProductCatalog.Models.User;
 import ProductCatalog.Repositories.UserRepository;
-import lombok.Getter;
+
+import java.util.List;
 
 /**
  * Сервис для управления пользователями.
@@ -11,7 +12,6 @@ import lombok.Getter;
 public class UserService {
     private final UserRepository userRepository;
     private final AuditService auditService;
-    @Getter
     private User currentUser;
 
     /**
@@ -23,6 +23,10 @@ public class UserService {
     public UserService(UserRepository userRepository, AuditService auditService) {
         this.userRepository = userRepository;
         this.auditService = auditService;
+    }
+
+    public List<User> getAll() {
+        return userRepository.findAll();
     }
 
     /**
@@ -39,8 +43,22 @@ public class UserService {
         User newUser = new User(username, password, "User");
         userRepository.save(newUser);
 
-        auditService.log(username, "REGISTER", "Регистрация нового пользователя");
+        auditService.save(username, "REGISTER", "Регистрация нового пользователя");
 
+        return true;
+    }
+    /**
+     * Регистрирует нового пользователя.
+     *
+     * @param user новый пользователь
+     * @return {@code true}, если регистрация успешна
+     */
+    public boolean register(User user) {
+        if (userRepository.findByUsername(user.getUsername()) != null) {
+            return false;
+        }
+        userRepository.save(user);
+        auditService.save(user.getUsername(), "REGISTER", "Регистрация нового пользователя");
         return true;
     }
 
@@ -55,11 +73,11 @@ public class UserService {
         User user = userRepository.findByUsername(username);
         if (user != null && user.getPassword().equals(password)) {
             currentUser = user;
-            auditService.log(username, "LOGIN", "Успешный вход");
+            auditService.save(username, "LOGIN", "Успешный вход");
             return true;
         }
 
-        auditService.log(username, "LOGIN_FAILED", "Неудачная попытка входа");
+        auditService.save(username, "LOGIN_FAILED", "Неудачная попытка входа");
         return false;
     }
 
@@ -68,7 +86,7 @@ public class UserService {
      */
     public void logout() {
         if (currentUser != null) {
-            auditService.log(currentUser.getUsername(), "LOGOUT", "Выход из системы");
+            auditService.save(currentUser.getUsername(), "LOGOUT", "Выход из системы");
         }
         currentUser = null;
     }
@@ -89,5 +107,9 @@ public class UserService {
      */
     public boolean isAdmin() {
         return currentUser != null && "admin".equalsIgnoreCase(currentUser.getRole());
+    }
+
+    public User getCurrentUser() {
+        return currentUser;
     }
 }
