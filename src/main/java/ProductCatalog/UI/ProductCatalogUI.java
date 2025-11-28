@@ -122,7 +122,7 @@ public class ProductCatalogUI {
     }
 
     private void displayCatalogsMenu(Scanner sc) {
-        var catalogs = catalogService.getAllCatalogs();
+        var catalogs = catalogService.getAll();
         int choice;
 
         do {
@@ -224,7 +224,7 @@ public class ProductCatalogUI {
                 ch = sc.nextInt();
                 switch (ch) {
                     case 1 -> {
-                        if (productService.deleteProduct(p.getId(), p.getName()))
+                        if (productService.deleteProduct(p.getId()))
                             System.out.println("Удалено.");
                         return;
                     }
