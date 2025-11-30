@@ -1,5 +1,6 @@
 package ProductCatalog.controllers;
 
+import ProductCatalog.annotations.Auditable;
 import ProductCatalog.validators.ProductValidator;
 import ProductCatalog.dto.ProductDTO;
 import ProductCatalog.mappers.ProductMapper;
@@ -29,6 +30,7 @@ public class ProductController {
         this.productService = productService;
     }
 
+    @Auditable
     @GetMapping
     @Operation(summary = "getting all products or products by catalogId")
     public List<ProductDTO> getProducts(@RequestParam(name="catalogId", required = false) Long catalogId) {
@@ -45,6 +47,7 @@ public class ProductController {
                 .collect(Collectors.toList());
     }
 
+    @Auditable
     @PostMapping
     @Operation(summary = "create new product")
     public String createProduct(@RequestBody ProductDTO productDTO) {
@@ -62,6 +65,7 @@ public class ProductController {
         }
     }
 
+    @Auditable
     @DeleteMapping
     @Operation(summary = "delete product by id")
     public String deleteProduct(@RequestParam(name = "id", required = true) Long id) {

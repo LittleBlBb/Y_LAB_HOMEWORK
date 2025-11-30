@@ -1,5 +1,6 @@
 package ProductCatalog.controllers;
 
+import ProductCatalog.annotations.Auditable;
 import ProductCatalog.services.AuditService;
 import ProductCatalog.dto.AuditEntryDTO;
 import ProductCatalog.mappers.AuditMapper;
@@ -22,6 +23,7 @@ public class AuditController {
         this.auditService = auditService;
     }
 
+    @Auditable
     @GetMapping
     @Operation(summary = "get all logs")
     public List<AuditEntryDTO> getAllLogs(){

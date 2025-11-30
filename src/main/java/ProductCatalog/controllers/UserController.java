@@ -1,5 +1,6 @@
 package ProductCatalog.controllers;
 
+import ProductCatalog.annotations.Auditable;
 import ProductCatalog.models.User;
 import ProductCatalog.services.UserService;
 import ProductCatalog.validators.UserValidator;
@@ -26,6 +27,7 @@ public class UserController {
         this.userService = userService;
     }
 
+    @Auditable
     @GetMapping
     @Operation(summary = "get all users")
     public List<UserDTO> getAllUsers() {
@@ -34,6 +36,7 @@ public class UserController {
                 .collect(Collectors.toList());
     }
 
+    @Auditable
     @PostMapping
     @Operation(summary = "register new user")
     public String registerUser(@RequestBody UserDTO userDTO) {
