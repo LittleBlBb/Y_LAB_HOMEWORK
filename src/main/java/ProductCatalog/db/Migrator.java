@@ -1,4 +1,4 @@
-package ProductCatalog.DB;
+package ProductCatalog.db;
 
 import liquibase.Liquibase;
 import liquibase.database.Database;

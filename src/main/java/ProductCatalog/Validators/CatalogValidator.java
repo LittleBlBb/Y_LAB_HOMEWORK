@@ -1,6 +1,6 @@
 package ProductCatalog.Validators;
 
-import ProductCatalog.DTO.CatalogDTO;
+import ProductCatalog.dto.CatalogDTO;
 
 import java.util.ArrayList;
 import java.util.List;

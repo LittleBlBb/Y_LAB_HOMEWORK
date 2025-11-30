@@ -1,4 +1,4 @@
-package ProductCatalog.Aspects;
+package ProductCatalog.aspects;
 
 import ProductCatalog.Services.AuditService;
 import jakarta.servlet.http.HttpServletRequest;

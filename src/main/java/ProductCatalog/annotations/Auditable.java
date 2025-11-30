@@ -1,4 +1,4 @@
-package ProductCatalog.Annotations;
+package ProductCatalog.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

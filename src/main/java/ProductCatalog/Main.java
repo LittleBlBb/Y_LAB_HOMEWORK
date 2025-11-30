@@ -1,8 +1,8 @@
 package ProductCatalog;
 
-import ProductCatalog.DB.Config;
-import ProductCatalog.DB.DBConnection;
-import ProductCatalog.DB.Migrator;
+import ProductCatalog.db.Config;
+import ProductCatalog.db.DBConnection;
+import ProductCatalog.db.Migrator;
 import ProductCatalog.Repositories.AuditRepository;
 import ProductCatalog.Repositories.CatalogRepository;
 import ProductCatalog.Repositories.ProductRepository;

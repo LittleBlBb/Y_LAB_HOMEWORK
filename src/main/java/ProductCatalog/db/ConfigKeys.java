@@ -1,4 +1,4 @@
-package ProductCatalog.DB;
+package ProductCatalog.db;
 
 public class ConfigKeys {
     private ConfigKeys() {}

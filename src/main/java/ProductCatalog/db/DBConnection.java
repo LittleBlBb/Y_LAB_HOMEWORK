@@ -1,4 +1,4 @@
-package ProductCatalog.DB;
+package ProductCatalog.db;
 
 import org.postgresql.ds.PGSimpleDataSource;
 

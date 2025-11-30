@@ -1,6 +1,6 @@
-package ProductCatalog.Mappers;
+package ProductCatalog.mappers;
 
-import ProductCatalog.DTO.UserDTO;
+import ProductCatalog.dto.UserDTO;
 import ProductCatalog.Models.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;

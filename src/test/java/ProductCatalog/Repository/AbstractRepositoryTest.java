@@ -1,8 +1,8 @@
 package ProductCatalog.Repository;
 
-import ProductCatalog.DB.Config;
-import ProductCatalog.DB.ConfigKeys;
-import ProductCatalog.DB.DBConnection;
+import ProductCatalog.db.Config;
+import ProductCatalog.db.ConfigKeys;
+import ProductCatalog.db.DBConnection;
 import liquibase.Liquibase;
 import liquibase.database.Database;
 import liquibase.database.DatabaseFactory;

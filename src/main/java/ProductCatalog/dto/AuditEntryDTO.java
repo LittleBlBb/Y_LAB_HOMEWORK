@@ -1,4 +1,4 @@
-package ProductCatalog.DTO;
+package ProductCatalog.dto;
 
 import java.util.Objects;
 
