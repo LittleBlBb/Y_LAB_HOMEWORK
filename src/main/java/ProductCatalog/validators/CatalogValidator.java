@@ -1,4 +1,4 @@
-package ProductCatalog.Validators;
+package ProductCatalog.validators;
 
 import ProductCatalog.dto.CatalogDTO;
 

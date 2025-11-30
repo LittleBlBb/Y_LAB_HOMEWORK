@@ -1,13 +1,13 @@
-package ProductCatalog.UI;
+package ProductCatalog.ui;
 
-import ProductCatalog.Models.AuditEntry;
-import ProductCatalog.Models.Product;
-import ProductCatalog.Services.AuditService;
-import ProductCatalog.Services.CatalogService;
-import ProductCatalog.Services.MetricsService;
-import ProductCatalog.Services.ProductFilterService;
-import ProductCatalog.Services.ProductService;
-import ProductCatalog.Services.UserService;
+import ProductCatalog.models.AuditEntry;
+import ProductCatalog.models.Product;
+import ProductCatalog.services.AuditService;
+import ProductCatalog.services.CatalogService;
+import ProductCatalog.services.MetricsService;
+import ProductCatalog.services.ProductFilterService;
+import ProductCatalog.services.ProductService;
+import ProductCatalog.services.UserService;
 
 import java.util.List;
 import java.util.Scanner;

@@ -1,6 +1,6 @@
-package ProductCatalog.Repositories;
+package ProductCatalog.repositories;
 
-import ProductCatalog.Models.AuditEntry;
+import ProductCatalog.models.AuditEntry;
 
 import javax.sql.DataSource;
 import java.sql.Connection;

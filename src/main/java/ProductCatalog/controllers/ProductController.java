@@ -1,10 +1,10 @@
 package ProductCatalog.controllers;
 
-import ProductCatalog.Validators.ProductValidator;
+import ProductCatalog.validators.ProductValidator;
 import ProductCatalog.dto.ProductDTO;
 import ProductCatalog.mappers.ProductMapper;
-import ProductCatalog.Models.Product;
-import ProductCatalog.Services.ProductService;
+import ProductCatalog.models.Product;
+import ProductCatalog.services.ProductService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.DeleteMapping;

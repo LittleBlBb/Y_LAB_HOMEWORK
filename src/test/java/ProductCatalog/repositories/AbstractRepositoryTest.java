@@ -1,4 +1,4 @@
-package ProductCatalog.Repository;
+package ProductCatalog.repositories;
 
 import ProductCatalog.db.Config;
 import ProductCatalog.db.ConfigKeys;

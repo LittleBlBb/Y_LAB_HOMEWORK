@@ -1,7 +1,7 @@
-package ProductCatalog.Services;
+package ProductCatalog.services;
 
-import ProductCatalog.Models.Catalog;
-import ProductCatalog.Repositories.CatalogRepository;
+import ProductCatalog.models.Catalog;
+import ProductCatalog.repositories.CatalogRepository;
 
 import java.util.List;
 

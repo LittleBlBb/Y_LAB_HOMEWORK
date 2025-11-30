@@ -1,6 +1,6 @@
 package ProductCatalog.aspects;
 
-import ProductCatalog.Services.AuditService;
+import ProductCatalog.services.AuditService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;

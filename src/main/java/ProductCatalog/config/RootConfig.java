@@ -2,16 +2,16 @@ package ProductCatalog.config;
 
 import ProductCatalog.db.Config;
 import ProductCatalog.db.DBConnection;
-import ProductCatalog.Repositories.AuditRepository;
-import ProductCatalog.Repositories.CatalogRepository;
-import ProductCatalog.Repositories.ProductRepository;
-import ProductCatalog.Repositories.UserRepository;
-import ProductCatalog.Services.AuditService;
-import ProductCatalog.Services.CatalogService;
-import ProductCatalog.Services.MetricsService;
-import ProductCatalog.Services.ProductFilterService;
-import ProductCatalog.Services.ProductService;
-import ProductCatalog.Services.UserService;
+import ProductCatalog.repositories.AuditRepository;
+import ProductCatalog.repositories.CatalogRepository;
+import ProductCatalog.repositories.ProductRepository;
+import ProductCatalog.repositories.UserRepository;
+import ProductCatalog.services.AuditService;
+import ProductCatalog.services.CatalogService;
+import ProductCatalog.services.MetricsService;
+import ProductCatalog.services.ProductFilterService;
+import ProductCatalog.services.ProductService;
+import ProductCatalog.services.UserService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 

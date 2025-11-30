@@ -1,8 +1,8 @@
 package ProductCatalog.controllers;
 
-import ProductCatalog.Models.User;
-import ProductCatalog.Services.UserService;
-import ProductCatalog.Validators.UserValidator;
+import ProductCatalog.models.User;
+import ProductCatalog.services.UserService;
+import ProductCatalog.validators.UserValidator;
 import ProductCatalog.dto.UserDTO;
 import ProductCatalog.mappers.UserMapper;
 import io.swagger.v3.oas.annotations.Operation;

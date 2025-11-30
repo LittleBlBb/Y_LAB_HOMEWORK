@@ -1,4 +1,4 @@
-package ProductCatalog.Models;
+package ProductCatalog.models;
 
 public class Product {
 

@@ -1,6 +1,6 @@
 package ProductCatalog.controllers;
 
-import ProductCatalog.Services.AuditService;
+import ProductCatalog.services.AuditService;
 import ProductCatalog.dto.AuditEntryDTO;
 import ProductCatalog.mappers.AuditMapper;
 import io.swagger.v3.oas.annotations.Operation;

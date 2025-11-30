@@ -1,6 +1,6 @@
-package ProductCatalog.Repositories;
+package ProductCatalog.repositories;
 
-import ProductCatalog.Models.User;
+import ProductCatalog.models.User;
 
 import javax.sql.DataSource;
 import java.sql.Connection;

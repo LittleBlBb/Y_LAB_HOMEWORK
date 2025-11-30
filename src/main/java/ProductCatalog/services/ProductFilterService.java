@@ -1,6 +1,6 @@
-package ProductCatalog.Services;
+package ProductCatalog.services;
 
-import ProductCatalog.Models.Product;
+import ProductCatalog.models.Product;
 
 import java.util.ArrayList;
 import java.util.List;

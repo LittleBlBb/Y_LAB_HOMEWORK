@@ -1,8 +1,8 @@
 package ProductCatalog.controllers;
 
-import ProductCatalog.Models.Catalog;
-import ProductCatalog.Services.CatalogService;
-import ProductCatalog.Validators.CatalogValidator;
+import ProductCatalog.models.Catalog;
+import ProductCatalog.services.CatalogService;
+import ProductCatalog.validators.CatalogValidator;
 import ProductCatalog.dto.CatalogDTO;
 import ProductCatalog.mappers.CatalogMapper;
 import io.swagger.v3.oas.annotations.Operation;

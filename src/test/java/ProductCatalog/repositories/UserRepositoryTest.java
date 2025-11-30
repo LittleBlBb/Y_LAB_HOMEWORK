@@ -1,8 +1,6 @@
-package ProductCatalog.Repository;
+package ProductCatalog.repositories;
 
-import ProductCatalog.Models.User;
-import ProductCatalog.Repositories.AuditRepository;
-import ProductCatalog.Repositories.UserRepository;
+import ProductCatalog.models.User;
 import org.junit.jupiter.api.*;
 
 

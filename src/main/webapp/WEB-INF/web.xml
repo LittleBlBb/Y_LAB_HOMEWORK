@@ -9,6 +9,7 @@
         <param-name>contextConfigLocation</param-name>
         <param-value>
             ProductCatalog.config.RootConfig
+            ProductCatalog.config.OpenApiConfig
         </param-value>
     </context-param>
 
