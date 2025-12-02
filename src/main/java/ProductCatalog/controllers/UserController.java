@@ -16,7 +16,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.stream.Collectors;
-
+/**
+ * Контроллер для управления пользователями.
+ * Предоставляет REST-эндпоинты для получения и создания пользователей.
+ * Использует {@link ProductCatalog.services.UserService} для выполнения бизнес-логики и {@link ProductCatalog.mappers.UserMapper}
+ * для преобразования сущностей в DTO и обратно.
+ *
+ * Аннотация {@link Auditable} применяется для аудита действий.
+ */
 @RestController
 @RequestMapping("/api/users")
 @Tag(name = "users", description = "operations with users")
@@ -27,7 +34,10 @@ public class UserController {
         this.userService = userService;
     }
 
-    @Auditable
+    /**
+     * Получение списка пользователей.
+     * @return список пользователей в виде {@link UserDTO}
+     */
     @GetMapping
     @Operation(summary = "get all users")
     public List<UserDTO> getAllUsers() {
@@ -36,6 +46,15 @@ public class UserController {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Регистрация нового пользователя
+     * Перед созданием происходит валидация входных данных при помощи {@link UserValidator}
+     * В случае ошибок возвращается строка с перечнем ошибок.
+     * Если регистрация успешна - возвращает {@code "REGISTERED"}
+     * Иначе - возвращает {@code "FAILED}
+     * @param userDTO - DTO пользователя, которого необходимо создать
+     * @return строковое представление статуса выполнения операции
+     */
     @Auditable
     @PostMapping
     @Operation(summary = "register new user")
@@ -48,7 +67,7 @@ public class UserController {
         boolean created = userService.register(entity);
 
         if (created){
-            return "CREATED";
+            return "REGISTERED";
         } else {
            return "FAILED";
         }

@@ -13,6 +13,13 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Контроллер для управления Журналом аудита.
+ * Предоставляет REST-эндпоинт для получения пользователей.
+ * Использует {@link ProductCatalog.services.AuditService} для выполнения бизнес-логики и {@link ProductCatalog.mappers.AuditMapper}
+ * для преобразования сущностей в DTO и обратно.
+ *
+ */
 @RestController
 @RequestMapping("/api/logs")
 @Tag(name = "logs", description = "show all logs")
@@ -23,7 +30,10 @@ public class AuditController {
         this.auditService = auditService;
     }
 
-    @Auditable
+    /**
+     * Получение всех логов.
+     * @return список логов в виде {@link ProductCatalog.dto.AuditEntryDTO}
+     */
     @GetMapping
     @Operation(summary = "get all logs")
     public List<AuditEntryDTO> getAllLogs(){

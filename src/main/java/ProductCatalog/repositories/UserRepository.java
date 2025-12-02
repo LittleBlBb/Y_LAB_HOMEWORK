@@ -10,6 +10,10 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Репозиторий для управления пользователями.
+ * Отвечает за действия с пользователями в бд
+ */
 public class UserRepository {
     private static final String SQL_FIND_BY_USERNAME = """
                 SELECT id, username, password, role
@@ -36,6 +40,11 @@ public class UserRepository {
         this.dataSource = dataSource;
     }
 
+    /**
+     * Ищет пользователя по имени в бд
+     * @param username
+     * @return найденный пользователь
+     */
     public User findByUsername(String username) {
 
         try (Connection connection = dataSource.getConnection();
@@ -57,6 +66,11 @@ public class UserRepository {
         return null;
     }
 
+    /**
+     * Сохраняет пользователя в бд
+     * @param user
+     * @return целый пользователь
+     */
     public User save(User user){
         try (Connection connection = dataSource.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(SQL_INSERT)){
@@ -78,6 +92,10 @@ public class UserRepository {
         return null;
     }
 
+    /**
+     * Получает всех пользователей из бд
+     * @return список пользователей
+     */
     public List<User> findAll() {
         List<User> usersList = new ArrayList<>();
 
@@ -100,6 +118,11 @@ public class UserRepository {
         return usersList;
     }
 
+    /**
+     * Ищет пользователя по id в бд
+     * @param id
+     * @return найденный пользователь
+     */
     public User findById(long id){
         try (Connection connection = dataSource.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(SQL_FIND_BY_ID)) {

@@ -10,6 +10,10 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Репозиторий для управления журналом аудита.
+ * Отвечает за действия с логами в бд
+ */
 public class AuditRepository {
     private final DataSource dataSource;
 
@@ -32,6 +36,11 @@ public class AuditRepository {
         this.dataSource = dataSource;
     }
 
+    /**
+     * Сохраняет лог в бд
+     * @param entry
+     * @return целый лог
+     */
     public AuditEntry save(AuditEntry entry){
         try (Connection connection = dataSource.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(SQL_INSERT)){
@@ -51,6 +60,10 @@ public class AuditRepository {
         return null;
     }
 
+    /**
+     * Получает все логи из бд
+     * @return список логов
+     */
     public List<AuditEntry> findAll() {
         List<AuditEntry> logsList = new ArrayList<>();
         try(Connection connection = dataSource.getConnection();
@@ -72,6 +85,11 @@ public class AuditRepository {
         return logsList;
     }
 
+    /**
+     * Ищет лог по id в бд
+     * @param id
+     * @return найденный лог
+     */
     public AuditEntry findById(long id){
         try (Connection connection = dataSource.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(SQL_FIND_BY_ID)) {

@@ -10,6 +10,10 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Репозиторий для управления товарами.
+ * Отвечает за действия с товарами в бд
+ */
 public class ProductRepository {
     private static final String SQL_FIND_BY_ID = """
                 SELECT id, catalog_id, name, price, brand, category, description
@@ -45,6 +49,11 @@ public class ProductRepository {
         this.dataSource = dataSource;
     }
 
+    /**
+     * Ищет все товары из каталога по catalogId
+     * @param catalogId
+     * @return каталог
+     */
     public List<Product> findByCatalogId(long catalogId){
         List<Product> productList = new ArrayList<>();
 
@@ -71,38 +80,49 @@ public class ProductRepository {
         return productList;
     }
 
-    public Product save(Product p){
+    /**
+     * Сохраняет товар в бд
+     * @param product
+     * @return целый товар
+     */
+    public Product save(Product product){
         try (Connection connection = dataSource.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(SQL_INSERT)){
 
-            preparedStatement.setLong(1, p.getCatalogId());
-            preparedStatement.setString(2, p.getName());
-            preparedStatement.setDouble(3, p.getPrice());
-            preparedStatement.setString(4, p.getDescription());
-            preparedStatement.setString(5, p.getBrand());
-            preparedStatement.setString(6, p.getCategory());
+            preparedStatement.setLong(1, product.getCatalogId());
+            preparedStatement.setString(2, product.getName());
+            preparedStatement.setDouble(3, product.getPrice());
+            preparedStatement.setString(4, product.getDescription());
+            preparedStatement.setString(5, product.getBrand());
+            preparedStatement.setString(6, product.getCategory());
 
             ResultSet resultSet = preparedStatement.executeQuery();
 
             if(resultSet.next()){
-                p.setId(resultSet.getLong("id"));
+                product.setId(resultSet.getLong("id"));
             }
-            return p;
+            return product;
         }catch (SQLException exception){
             System.out.println(exception.getMessage());
         }
         return null;
     }
-    public boolean update(Product p) {
+
+    /**
+     * Обновляет товар по id в бд
+     * @param product
+     * @return true, если обновилось, иначе false.
+     */
+    public boolean update(Product product) {
         try (Connection conn = dataSource.getConnection();
              PreparedStatement preparedStatement = conn.prepareStatement(SQL_UPDATE)) {
 
-            preparedStatement.setString(1, p.getName());
-            preparedStatement.setDouble(2, p.getPrice());
-            preparedStatement.setString(3, p.getDescription());
-            preparedStatement.setString(4, p.getBrand());
-            preparedStatement.setString(5, p.getCategory());
-            preparedStatement.setLong(6, p.getId());
+            preparedStatement.setString(1, product.getName());
+            preparedStatement.setDouble(2, product.getPrice());
+            preparedStatement.setString(3, product.getDescription());
+            preparedStatement.setString(4, product.getBrand());
+            preparedStatement.setString(5, product.getCategory());
+            preparedStatement.setLong(6, product.getId());
 
             return preparedStatement.executeUpdate() > 0;
 
@@ -112,6 +132,11 @@ public class ProductRepository {
         return false;
     }
 
+    /**
+     * Удаляет товар из бд по id
+     * @param id
+     * @return true, если удалилось, иначе true.
+     */
     public boolean delete(long id) {
         try (Connection conn = dataSource.getConnection();
              PreparedStatement preparedStatement = conn.prepareStatement(SQL_DELETE)) {
@@ -125,6 +150,10 @@ public class ProductRepository {
         return false;
     }
 
+    /**
+     * Получает все товары из бд
+     * @return список товаров
+     */
     public List<Product> findAll() {
         List<Product> productsList = new ArrayList<>();
 
@@ -150,6 +179,11 @@ public class ProductRepository {
         return productsList;
     }
 
+    /**
+     * Ищет товар по id в бд
+     * @param id
+     * @return найденный товар
+     */
     public Product findById(long id){
         try (Connection connection = dataSource.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(SQL_FIND_BY_ID)) {

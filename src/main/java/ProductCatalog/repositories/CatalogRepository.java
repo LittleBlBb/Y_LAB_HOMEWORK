@@ -10,6 +10,10 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Репозиторий для управления каталогами.
+ * Отвечает за действия с каталогами в бд
+ */
 public class CatalogRepository {
     private static final String SQL_FIND_ALL = """
             SELECT id, name FROM app.catalog;
@@ -36,6 +40,10 @@ public class CatalogRepository {
         this.dataSource = dataSource;
     }
 
+    /**
+     * Получает все каталоги из бд
+     * @return список каталогов
+     */
     public List<Catalog> findAll() {
         List<Catalog> catalogsList = new ArrayList<>();
 
@@ -55,6 +63,11 @@ public class CatalogRepository {
         return catalogsList;
     }
 
+    /**
+     * Сохраняет каталог в бд
+     * @param catalog
+     * @return целый каталог
+     */
     public Catalog save(Catalog catalog){
         try (Connection connection = dataSource.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(SQL_INSERT)) {
@@ -72,6 +85,11 @@ public class CatalogRepository {
         return null;
     }
 
+    /**
+     * Удаляет каталог из бд
+     * @param id
+     * @return true, если удалилось, иначе false.
+     */
     public boolean delete(long id) {
         try (Connection connection = dataSource.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(SQL_DELETE)){
@@ -84,6 +102,11 @@ public class CatalogRepository {
         return false;
     }
 
+    /**
+     * Ищет каталог по id в бд
+     * @param id
+     * @return каталог
+     */
     public Catalog findById(long id){
         try (Connection connection = dataSource.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(SQL_FIND_BY_ID)) {

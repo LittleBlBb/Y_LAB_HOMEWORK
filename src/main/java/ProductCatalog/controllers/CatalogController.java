@@ -19,6 +19,14 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Контроллер для управления каталогами.
+ * Предоставляет REST-эндпоинты для получения, создания и удаления каталогов.
+ * Использует {@link ProductCatalog.services.CatalogService} для выполнения бизнес-логики и {@link ProductCatalog.mappers.CatalogMapper}
+ * для преобразования сущностей в DTO и обратно.
+ *
+ * Аннотация {@link Auditable} применяется для аудита действий.
+ */
 @RestController
 @RequestMapping("/api/catalogs")
 @Tag(name = "catalogs", description = "operations with catalogs")
@@ -30,7 +38,10 @@ public class CatalogController {
         this.catalogService = catalogService;
     }
 
-    @Auditable
+    /**
+     * Получение списка каталогов.
+     * @return список каталогов в виде {@link ProductCatalog.dto.CatalogDTO}.
+     */
     @GetMapping
     @Operation(summary = "getting all catalogs or catalog by catalogId")
     public List<CatalogDTO> getCatalogs() {
@@ -39,6 +50,15 @@ public class CatalogController {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Создание нового каталога.
+     * Перед созданием происходит валидация входных данных при помощи {@link CatalogValidator}.
+     * В случае ошибок возвращается строка с перечнем ошибок.
+     * Если создание успешно - возвращается {@code "CREATED"}.
+     * Иначе - возвращается {@code "FAILED"}.
+     * @param catalogDTO - DTO каталога, который необходимо создать.
+     * @return строковый статус выполнения операции.
+     */
     @Auditable
     @PostMapping
     @Operation(summary = "create new catalog")
@@ -53,21 +73,28 @@ public class CatalogController {
         boolean created = catalogService.createCatalog(entity);
 
         if(created) {
-            return "Catalog created";
+            return "CREATED";
         } else {
-            return "Catalog could not be created";
+            return "FAILED";
         }
     }
 
+    /**
+     * Удаление каталога.
+     * Если каталог удален успешно - возвращается {@code "DELETED"}
+     * Иначе - возвращается {@code "FAILED"}
+     * @param id - id каталога, который необходимо удалить
+     * @return - строковый статус выполнения операции
+     */
     @Auditable
     @DeleteMapping
     @Operation(summary = "delete catalog by id")
     public String deleteCatalogById(@RequestParam(name = "id", required = true) Long id) {
         boolean deleted = catalogService.deleteCatalog(id);
         if(deleted) {
-            return "Catalog deleted";
+            return "DELETED";
         } else {
-            return "Catalog could not be deleted";
+            return "FAILED";
         }
     }
 }
