@@ -36,25 +36,25 @@
             <column name="catalog_id" valueNumeric="1"/>
             <column name="name" value="IPhone 15"/>
             <column name="price" valueNumeric="999.99"/>
-            <column name="description" value="Смартфон яблоко круто классно потом исправим"/>
             <column name="brand" value="Apple"/>
             <column name="category" value="Смартфон"/>
+            <column name="description" value="Смартфон яблоко круто классно потом исправим"/>
         </insert>
         <insert tableName="product" schemaName="app">
             <column name="catalog_id" valueNumeric="1"/>
             <column name="name" value="Galaxy S24"/>
             <column name="price" valueNumeric="899"/>
-            <column name="description" value="Смартфон не яблоко круто классно потом исправим"/>
             <column name="brand" value="Samsung"/>
             <column name="category" value="Смартфон"/>
+            <column name="description" value="Смартфон не яблоко круто классно потом исправим"/>
         </insert>
         <insert tableName="product" schemaName="app">
             <column name="catalog_id" valueNumeric="1"/>
             <column name="name" value="IPad Air 10"/>
             <column name="price" valueNumeric="500"/>
-            <column name="description" value="Планшет яблоко круто классно потом исправим"/>
             <column name="brand" value="Apple"/>
             <column name="category" value="Планшет"/>
+            <column name="description" value="Планшет яблоко круто классно потом исправим"/>
         </insert>
     </changeSet>
 
@@ -63,25 +63,25 @@
             <column name="catalog_id" valueNumeric="2"/>
             <column name="name" value="RTX 5090 Ti"/>
             <column name="price" valueNumeric="1500"/>
-            <column name="description" value="Видюха крутая нереально"/>
             <column name="brand" value="Nvidia"/>
             <column name="category" value="Видеокарта"/>
+            <column name="description" value="Видюха крутая нереально"/>
         </insert>
         <insert tableName="product" schemaName="app">
             <column name="catalog_id" valueNumeric="2"/>
             <column name="name" value="GTX 1660 Super"/>
             <column name="price" valueNumeric="130"/>
-            <column name="description" value="Легендарная видюха"/>
             <column name="brand" value="Nvidia"/>
             <column name="category" value="Видеокарта"/>
+            <column name="description" value="Легендарная видюха"/>
         </insert>
         <insert tableName="product" schemaName="app">
             <column name="catalog_id" valueNumeric="2"/>
             <column name="name" value="Core i9-9900k"/>
             <column name="price" valueNumeric="500"/>
-            <column name="description" value="Проц крутой жесть"/>
             <column name="brand" value="Intel"/>
             <column name="category" value="Процессор"/>
+            <column name="description" value="Проц крутой жесть"/>
         </insert>
     </changeSet>
 
@@ -90,25 +90,25 @@
             <column name="catalog_id" valueNumeric="3"/>
             <column name="name" value="Индукционная варочная поверхность EH-I4MB/B"/>
             <column name="price" valueNumeric="100"/>
-            <column name="description" value="Варочная плита электрическая"/>
             <column name="brand" value="DEXP"/>
             <column name="category" value="Электрическая плита"/>
+            <column name="description" value="Варочная плита электрическая"/>
         </insert>
         <insert tableName="product" schemaName="app">
             <column name="catalog_id" valueNumeric="3"/>
             <column name="name" value="Газовая варочная поверхность LD4GTB"/>
             <column name="price" valueNumeric="130"/>
-            <column name="description" value="Варочная плита газовая"/>
             <column name="brand" value="DEXP"/>
             <column name="category" value="Газовая плита"/>
+            <column name="description" value="Варочная плита газовая"/>
         </insert>
         <insert tableName="product" schemaName="app">
             <column name="catalog_id" valueNumeric="3"/>
             <column name="name" value="Скребок O2SR019"/>
             <column name="price" valueNumeric="1.5"/>
-            <column name="description" value="Какой-то скребок я не знаю, что это"/>
             <column name="brand" value="OneTwo"/>
             <column name="category" value="Скребок"/>
+            <column name="description" value="Какой-то скребок я не знаю, что это"/>
         </insert>
     </changeSet>
 
@@ -117,25 +117,25 @@
             <column name="catalog_id" valueNumeric="4"/>
             <column name="name" value="МФУ лазерное M2040dn"/>
             <column name="price" valueNumeric="820.94"/>
-            <column name="description" value="Принтер круто классно"/>
             <column name="brand" value="Kyocera"/>
             <column name="category" value="Принтер"/>
+            <column name="description" value="Принтер круто классно"/>
         </insert>
         <insert tableName="product" schemaName="app">
             <column name="catalog_id" valueNumeric="4"/>
             <column name="name" value="CR-Scan Raptor"/>
             <column name="price" valueNumeric="1799.99"/>
-            <column name="description" value="Сканнер 3D"/>
             <column name="brand" value="Creality"/>
             <column name="category" value="Сканнер"/>
+            <column name="description" value="Сканнер 3D"/>
         </insert>
         <insert tableName="product" schemaName="app">
             <column name="catalog_id" valueNumeric="4"/>
             <column name="name" value="Chaos Guard 400M"/>
             <column name="price" valueNumeric="140"/>
-            <column name="description" value="Кресло вроде норм"/>
             <column name="brand" value="ARDOR GAMING"/>
             <column name="category" value="Компьютерное кресло"/>
+            <column name="description" value="Кресло вроде норм"/>
         </insert>
     </changeSet>
 </databaseChangeLog>

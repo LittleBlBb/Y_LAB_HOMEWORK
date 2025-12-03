@@ -1,36 +1,26 @@
-package ProductCatalog.Models;
+package ProductCatalog.DTO;
 
-public class Product {
+import java.util.Objects;
 
+public class ProductDTO {
     private long id;
-    private long catalogId;
+    private Long catalogId;
     private String name;
     private double price;
+    private String description;
     private String brand;
     private String category;
-    private String description;
 
-    public Product(long catalogId, String name, double price, String brand, String category, String description) {
-        this.catalogId = catalogId;
-        this.name = name;
-        this.price = price;
-        this.brand = brand;
-        this.category = category;
-        this.description = description;
-    }
+    public ProductDTO() {}
 
-    public Product(long id, long catalogId, String name, double price, String brand, String category, String description) {
+    public ProductDTO(long id, Long catalogId, String name, double price, String description, String brand, String category) {
         this.id = id;
         this.catalogId = catalogId;
         this.name = name;
         this.price = price;
+        this.description = description;
         this.brand = brand;
         this.category = category;
-        this.description = description;
-    }
-
-    public Product() {
-
     }
 
     public long getId() {
@@ -41,11 +31,11 @@ public class Product {
         this.id = id;
     }
 
-    public long getCatalogId() {
+    public Long getCatalogId() {
         return catalogId;
     }
 
-    public void setCatalogId(long catalogId) {
+    public void setCatalogId(Long catalogId) {
         this.catalogId = catalogId;
     }
 
@@ -89,23 +79,20 @@ public class Product {
         this.category = category;
     }
 
-    public String toShortString() {
-        return brand + " " + name + " - " + price + "$";
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof ProductDTO that)) return false;
+        return id == that.id
+                && Objects.equals(name, that.name)
+                && Objects.equals(price, that.price)
+                && Objects.equals(brand, that.brand)
+                && Objects.equals(category, that.category)
+                && Objects.equals(description, that.description);
     }
 
     @Override
-    public String toString() {
-        return """
-                Бренд: %s
-                Название: %s
-                Цена: %.2f
-                Категория: %s
-                Описание: %s
-                """.formatted(
-                        brand,
-                name,
-                price,
-                category,
-                description);
+    public int hashCode() {
+        return Objects.hash(id, name, price, brand, category, description);
     }
 }

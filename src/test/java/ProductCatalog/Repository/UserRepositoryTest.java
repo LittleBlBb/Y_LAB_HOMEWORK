@@ -1,4 +1,4 @@
-package ProductCatalog;
+package ProductCatalog.Repository;
 
 import ProductCatalog.Models.User;
 import ProductCatalog.Repositories.UserRepository;
@@ -38,7 +38,7 @@ public class UserRepositoryTest {
         try (Connection conn = dataSource.getConnection(); Statement stmt = conn.createStatement()) {
             stmt.execute("CREATE SCHEMA IF NOT EXISTS app;");
             stmt.execute("""
-                    CREATE TABLE IF NOT EXISTS app.users(
+                    CREATE TABLE IF NOT EXISTS app.user(
                         id SERIAL PRIMARY KEY,
                         username VARCHAR(255) NOT NULL,
                         password VARCHAR(255) NOT NULL,

@@ -1,26 +1,21 @@
-package ProductCatalog.Models;
+package ProductCatalog.DTO;
 
-public class User {
+import java.util.Objects;
+
+public class UserDTO {
     private long id;
     private String username;
     private String password;
     private String role;
 
-    public User(long id, String username, String password, String role) {
+    public UserDTO() {}
+
+    public UserDTO(long id, String username, String password, String role) {
         this.id = id;
         this.username = username;
         this.password = password;
         this.role = role;
     }
-
-    public User(String username, String password, String role) {
-        this.username = username;
-        this.password = password;
-        this.role = role;
-    }
-
-    public User() {}
-
 
     public long getId() {
         return id;
@@ -52,5 +47,20 @@ public class User {
 
     public void setRole(String role) {
         this.role = role;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof UserDTO that)) return false;
+        return id == that.id
+                && Objects.equals(username, that.username)
+                && Objects.equals(password, that.password)
+                && Objects.equals(role, that.role);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, username, password, role);
     }
 }

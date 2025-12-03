@@ -1,6 +1,5 @@
 package ProductCatalog.Services;
 
-import ProductCatalog.Models.Catalog;
 import ProductCatalog.Models.Product;
 import ProductCatalog.Repositories.ProductRepository;
 
@@ -37,18 +36,33 @@ public class ProductService {
         return productRepository.findByCatalog(catalogId);
     }
 
+
+    /**
+     * Возвращает все товары из БД
+     * @return
+     */
+    public List<Product> getAll(){
+        return productRepository.findAll();
+    }
+
     /**
      *
      * @param id id товара, который удаляем
-     * @param name название товара
      * @return
      */
-    public boolean deleteProduct(long id, String name) {
+    public boolean deleteProduct(long id) {
+        Product product = productRepository.findById(id);
+        if (product == null){
+            return false;
+        }
+
         long start = System.currentTimeMillis();
         boolean deleted = productRepository.delete(id);
         if (deleted) {
-            auditService.log(userService.getCurrentUser().getUsername(),
-                    "DELETE_PRODUCT", "Удалён товар: " + name);
+            auditService.save(userService.getCurrentUser() != null
+                            ? userService.getCurrentUser().getUsername()
+                            : "anonymous",
+                    "DELETE_PRODUCT", "Удалён товар: " + product.getName());
             MetricsService.getInstance().displayMetrics("Удаление товара", start);
         }
         return deleted;
@@ -64,7 +78,9 @@ public class ProductService {
         long start = System.currentTimeMillis();
         boolean updated = productRepository.update(newProduct);
         if (updated){
-            auditService.log(userService.getCurrentUser().getUsername(),
+            auditService.save(userService.getCurrentUser() != null
+                    ? userService.getCurrentUser().getUsername()
+                    : "anonymous",
                     "UPDATE_PRODUCT", "Изменён товар: " + newProduct.getName());
             MetricsService.getInstance().displayMetrics("Изменение товара", start);
         }
@@ -82,9 +98,13 @@ public class ProductService {
         productRepository.save(product);
         String username = userService.getCurrentUser() != null
                 ? userService.getCurrentUser().getUsername()
-                : "system";
-        auditService.log(username, "CREATE_PRODUCT", "Добавлен товар: " + product.getName());
+                : "anonymous";
+        auditService.save(username, "CREATE_PRODUCT", "Добавлен товар: " + product.getName());
         MetricsService.getInstance().displayMetrics("Добавление товара", start);
         return true;
+    }
+
+    public Product findById(long id) {
+        return productRepository.findById(id);
     }
 }

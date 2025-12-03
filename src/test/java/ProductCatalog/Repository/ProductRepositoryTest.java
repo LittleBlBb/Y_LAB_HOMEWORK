@@ -1,4 +1,4 @@
-package ProductCatalog;
+package ProductCatalog.Repository;
 
 import ProductCatalog.Models.Product;
 import ProductCatalog.Repositories.ProductRepository;
@@ -52,18 +52,18 @@ public class ProductRepositoryTest {
                     name VARCHAR(255) NOT NULL
                     );
                     """);
-
             statement.execute("""
                     CREATE TABLE IF NOT EXISTS app.product(
                     id BIGINT DEFAULT nextval('app.product_seq') PRIMARY KEY,
                     catalog_id BIGINT NOT NULL,
                     name VARCHAR(255) NOT NULL,
                     price NUMERIC(12,2),
-                    description TEXT,
                     brand VARCHAR(255),
-                    category VARCHAR(255)
+                    category VARCHAR(255),
+                    description Text
                     );
                     """);
+
 
             statement.execute("""
                     ALTER TABLE app.product
@@ -91,9 +91,9 @@ public class ProductRepositoryTest {
                 1L,
                 "Phone",
                 799,
-                "Smartphone",
                 "BrandGood",
-                "Electronics"
+                "Electronics",
+                "Smartphone"
         );
 
         productRepository.save(product);
