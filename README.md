@@ -93,7 +93,7 @@ mvn clean install
 mvn clean package
 ```
 
-- Скопируйте архив с названием проекта из папки target (`ProjectName.war`) в папку webapps.
+- Скопируйте архив с названием проекта из папки target (`ProductCatalog-1.0-SNAPSHOT.war`) в папку webapps.
 - Запустите приложение:
     - Запустите батник `apache-tomcat/bin/startup.bat`
 
