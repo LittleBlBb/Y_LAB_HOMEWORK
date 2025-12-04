@@ -3,32 +3,30 @@ package ProductCatalog.DB;
 import org.postgresql.ds.PGSimpleDataSource;
 
 public class DBConnection {
-    private static PGSimpleDataSource dataSource;
+    private final PGSimpleDataSource dataSource;
 
-    public static PGSimpleDataSource getDataSource() {
-        if (dataSource == null) {
-            dataSource = new PGSimpleDataSource();
+    public DBConnection(Config config) {
+        this(
+                config.getProperty(ConfigKeys.DB_HOST),
+                Integer.parseInt(config.getProperty(ConfigKeys.DB_PORT)),
+                config.getProperty(ConfigKeys.DB_NAME),
+                config.getProperty(ConfigKeys.DB_USERNAME),
+                config.getProperty(ConfigKeys.DB_PASSWORD),
+                config.getProperty(ConfigKeys.DB_SCHEMA)
+        );
+    }
 
-            Config config = Config.getInstance();
+    public DBConnection(String host, int port, String db, String user, String password, String schema) {
+        this.dataSource = new PGSimpleDataSource();
+        dataSource.setServerNames(new String[]{host});
+        dataSource.setPortNumbers(new int[]{port});
+        dataSource.setDatabaseName(db);
+        dataSource.setUser(user);
+        dataSource.setPassword(password);
+        dataSource.setCurrentSchema(schema);
+    }
 
-            String host = config.getDbHost();
-            String portStr = config.getDbPort();
-            String db = config.getDbName();
-            String user = config.getDbUsername();
-            String password = config.getDbPassword();
-            String schema = config.getDbSchema();
-
-            int port = Integer.parseInt(portStr);
-
-            dataSource.setServerNames(new String[]{host});
-            dataSource.setPortNumbers(new int[]{port});
-            dataSource.setDatabaseName(db);
-            dataSource.setUser(user);
-            dataSource.setPassword(password);
-            dataSource.setCurrentSchema(schema);
-            dataSource.setSsl(false);
-
-        }
+    public PGSimpleDataSource getDataSource() {
         return dataSource;
     }
 }

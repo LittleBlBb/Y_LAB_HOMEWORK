@@ -33,7 +33,7 @@ public class ProductService {
      * @return
      */
     public List<Product> getProducts(long catalogId){
-        return productRepository.findByCatalog(catalogId);
+        return productRepository.findByCatalogId(catalogId);
     }
 
 

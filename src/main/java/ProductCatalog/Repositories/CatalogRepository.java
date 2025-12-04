@@ -11,6 +11,25 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CatalogRepository {
+    private static final String SQL_FIND_ALL = """
+            SELECT id, name FROM app.catalog;
+            """;
+
+    private static final String SQL_FIND_BY_ID = """
+                SELECT id, name FROM app.catalog
+                WHERE id = ?
+                """;
+
+    private static final String SQL_DELETE = """
+            DELETE FROM app.catalog WHERE id = ?;
+            """;
+
+    private static final String SQL_INSERT = """
+            INSERT INTO app.catalog (name)
+            VALUES (?)
+            RETURNING id;
+            """;
+
     private final DataSource dataSource;
 
     public CatalogRepository(DataSource dataSource){
@@ -19,10 +38,9 @@ public class CatalogRepository {
 
     public List<Catalog> findAll() {
         List<Catalog> catalogsList = new ArrayList<>();
-        final String SQL = "SELECT id, name FROM app.catalog;";
 
         try(Connection connection = dataSource.getConnection();
-            PreparedStatement preparedStatement = connection.prepareStatement(SQL);
+            PreparedStatement preparedStatement = connection.prepareStatement(SQL_FIND_ALL);
             ResultSet resultSet = preparedStatement.executeQuery()){
 
             while (resultSet.next()){
@@ -38,14 +56,8 @@ public class CatalogRepository {
     }
 
     public Catalog save(Catalog catalog){
-        final String SQL = """
-            INSERT INTO app.catalog (name)
-            VALUES (?)
-            RETURNING id
-            """;
-
         try (Connection connection = dataSource.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(SQL)) {
+             PreparedStatement preparedStatement = connection.prepareStatement(SQL_INSERT)) {
 
             preparedStatement.setString(1, catalog.getName());
             ResultSet resultSet = preparedStatement.executeQuery();
@@ -60,11 +72,9 @@ public class CatalogRepository {
         return null;
     }
 
-
     public boolean delete(long id) {
-        final String SQL = "DELETE FROM app.catalog WHERE id = ?";
         try (Connection connection = dataSource.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(SQL)){
+             PreparedStatement preparedStatement = connection.prepareStatement(SQL_DELETE)){
 
             preparedStatement.setLong(1, id);
             return preparedStatement.executeUpdate() > 0;
@@ -75,13 +85,8 @@ public class CatalogRepository {
     }
 
     public Catalog findById(long id){
-        final String SQL = """
-                SELECT id, name FROM app.catalog
-                WHERE id = ?
-                """;
-
         try (Connection connection = dataSource.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(SQL)) {
+             PreparedStatement preparedStatement = connection.prepareStatement(SQL_FIND_BY_ID)) {
             preparedStatement.setLong(1, id);
             ResultSet resultSet = preparedStatement.executeQuery();
 

@@ -1,6 +1,8 @@
 package ProductCatalog;
 
+import ProductCatalog.DB.Config;
 import ProductCatalog.DB.DBConnection;
+import ProductCatalog.DB.Migrator;
 import ProductCatalog.Repositories.AuditRepository;
 import ProductCatalog.Repositories.CatalogRepository;
 import ProductCatalog.Repositories.ProductRepository;
@@ -11,8 +13,17 @@ import org.postgresql.ds.PGSimpleDataSource;
 
 public class Main {
     public static void main(String[] args) {
+        Config config = new Config();
 
-        PGSimpleDataSource dataSource = DBConnection.getDataSource();
+        DBConnection db = new DBConnection(config);
+        PGSimpleDataSource dataSource = db.getDataSource();
+
+        try {
+            Migrator migrator = new Migrator(config, db);
+            migrator.migrate();
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to migrate", e);
+        }
 
         UserRepository userRepo = new UserRepository(dataSource);
         CatalogRepository catalogRepo = new CatalogRepository(dataSource);
