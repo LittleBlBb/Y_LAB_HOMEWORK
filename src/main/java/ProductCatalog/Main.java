@@ -1,12 +1,12 @@
 package ProductCatalog;
 
-import ProductCatalog.DB.DBConnection;
-import ProductCatalog.Repositories.AuditRepository;
-import ProductCatalog.Repositories.CatalogRepository;
-import ProductCatalog.Repositories.ProductRepository;
-import ProductCatalog.Repositories.UserRepository;
-import ProductCatalog.Services.*;
-import ProductCatalog.UI.ProductCatalogUI;
+import ProductCatalog.db.DBConnection;
+import ProductCatalog.repositories.AuditRepository;
+import ProductCatalog.repositories.CatalogRepository;
+import ProductCatalog.repositories.ProductRepository;
+import ProductCatalog.repositories.UserRepository;
+import ProductCatalog.services.*;
+import ProductCatalog.ui.ProductCatalogUI;
 import org.postgresql.ds.PGSimpleDataSource;
 
 public class Main {
