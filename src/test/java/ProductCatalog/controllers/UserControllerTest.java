@@ -57,6 +57,6 @@ public class UserControllerTest {
                                 .content(mapper.writeValueAsString(dto))
                 )
                 .andExpect(status().isOk())
-                .andExpect(content().string("CREATED"));
+                .andExpect(content().string("REGISTERED"));
     }
 }

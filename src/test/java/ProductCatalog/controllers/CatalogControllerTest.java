@@ -57,7 +57,7 @@ public class CatalogControllerTest {
                                 .content(mapper.writeValueAsString(dto))
                 )
                 .andExpect(status().isOk())
-                .andExpect(content().string("Catalog created"));
+                .andExpect(content().string("CREATED"));
     }
 
     @Test
@@ -66,6 +66,6 @@ public class CatalogControllerTest {
 
         mockMvc.perform(delete("/api/catalogs?id=1"))
                 .andExpect(status().isOk())
-                .andExpect(content().string("Catalog deleted"));
+                .andExpect(content().string("DELETED"));
     }
 }
