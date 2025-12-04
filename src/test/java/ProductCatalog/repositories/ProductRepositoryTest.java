@@ -1,6 +1,7 @@
 package ProductCatalog.repositories;
 
 import ProductCatalog.models.Product;
+import ProductCatalog.repositories.implemetations.ProductRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;

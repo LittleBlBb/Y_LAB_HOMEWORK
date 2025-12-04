@@ -6,7 +6,7 @@ import ProductCatalog.mappers.CatalogMapper;
 import ProductCatalog.models.Catalog;
 import ProductCatalog.models.Role;
 import ProductCatalog.models.User;
-import ProductCatalog.services.CatalogService;
+import ProductCatalog.services.implemetations.CatalogService;
 import ProductCatalog.validators.CatalogValidator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;

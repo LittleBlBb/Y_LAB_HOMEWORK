@@ -3,7 +3,7 @@ package ProductCatalog.servlets;
 import ProductCatalog.annotations.Auditable;
 import ProductCatalog.dto.AuditEntryDTO;
 import ProductCatalog.mappers.AuditMapper;
-import ProductCatalog.services.AuditService;
+import ProductCatalog.services.implemetations.AuditService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;

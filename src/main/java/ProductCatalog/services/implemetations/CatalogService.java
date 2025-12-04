@@ -1,7 +1,10 @@
-package ProductCatalog.services;
+package ProductCatalog.services.implemetations;
 
 import ProductCatalog.models.Catalog;
-import ProductCatalog.repositories.CatalogRepository;
+import ProductCatalog.repositories.interfaces.ICatalogRepository;
+import ProductCatalog.services.interfaces.IAuditService;
+import ProductCatalog.services.interfaces.ICatalogService;
+import ProductCatalog.services.interfaces.IUserService;
 
 import java.util.List;
 
@@ -10,10 +13,10 @@ import java.util.List;
  * Позволяет создавать, получать и удалять каталоги,
  * а также фиксирует действия в журнале аудита.
  */
-public class CatalogService {
-    private final AuditService auditService;
-    private final CatalogRepository catalogRepository;
-    private final UserService userService;
+public class CatalogService implements ICatalogService {
+    private final IAuditService auditService;
+    private final ICatalogRepository catalogRepository;
+    private final IUserService userService;
 
     /**
      * Создает экземпляр {@code CatalogService}.
@@ -22,7 +25,7 @@ public class CatalogService {
      * @param auditService сервис аудита
      * @param userService  сервис пользователей
      */
-    public CatalogService(CatalogRepository catalogRepository, AuditService auditService, UserService userService) {
+    public CatalogService(ICatalogRepository catalogRepository, IAuditService auditService, IUserService userService) {
         this.catalogRepository = catalogRepository;
         this.auditService = auditService;
         this.userService = userService;

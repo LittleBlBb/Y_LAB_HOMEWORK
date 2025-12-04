@@ -1,9 +1,9 @@
-package ProductCatalog.repositories;
+package ProductCatalog.repositories.implemetations;
 
-import ProductCatalog.annotations.Auditable;
 import ProductCatalog.annotations.Performance;
 import ProductCatalog.models.Role;
 import ProductCatalog.models.User;
+import ProductCatalog.repositories.interfaces.IUserRepository;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -13,7 +13,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class UserRepository {
+public class UserRepository implements IUserRepository {
     private final DataSource dataSource;
 
     public UserRepository(DataSource dataSource){
@@ -70,10 +70,10 @@ public class UserRepository {
             }
 
             return user;
-        } catch (SQLException exception){
-            System.out.println(exception.getMessage());
+        } catch (SQLException exception) {
+            System.err.println("Ошибка при удалении: " + exception.getMessage());
+            return null;
         }
-        return null;
     }
 
     @Performance
@@ -96,8 +96,9 @@ public class UserRepository {
                 ));
 
             }
-        } catch (SQLException e){
-            System.out.println(e.getMessage());
+        } catch (SQLException exception) {
+            throw new RuntimeException("Ошибка при чтении users: " +
+                    exception.getMessage(), exception);
         }
         return usersList;
     }
@@ -124,8 +125,9 @@ public class UserRepository {
                             role
                     );
                 }
-        } catch (SQLException exception){
-            System.out.println(exception.getMessage());
+        } catch (SQLException exception) {
+            throw new RuntimeException("Ошибка при чтении users: " +
+                    exception.getMessage(), exception);
         }
         return null;
     }

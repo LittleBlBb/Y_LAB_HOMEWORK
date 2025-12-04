@@ -3,6 +3,7 @@ package ProductCatalog.repositories;
 import ProductCatalog.models.Catalog;
 
 
+import ProductCatalog.repositories.implemetations.CatalogRepository;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;

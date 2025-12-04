@@ -1,8 +1,10 @@
-package ProductCatalog.services;
+package ProductCatalog.services.implemetations;
 
 import ProductCatalog.models.Role;
 import ProductCatalog.models.User;
-import ProductCatalog.repositories.UserRepository;
+import ProductCatalog.repositories.interfaces.IUserRepository;
+import ProductCatalog.services.interfaces.IAuditService;
+import ProductCatalog.services.interfaces.IUserService;
 
 import java.util.List;
 
@@ -10,9 +12,9 @@ import java.util.List;
  * Сервис для управления пользователями.
  * Поддерживает регистрацию, вход, выход и проверку ролей.
  */
-public class UserService {
-    private final UserRepository userRepository;
-    private final AuditService auditService;
+public class UserService implements IUserService {
+    private final IUserRepository userRepository;
+    private final IAuditService auditService;
     private User currentUser;
 
     /**
@@ -21,7 +23,7 @@ public class UserService {
      * @param userRepository объект, управляющий пользователями из БД
      * @param auditService сервис аудита
      */
-    public UserService(UserRepository userRepository, AuditService auditService) {
+    public UserService(IUserRepository userRepository, IAuditService auditService) {
         this.userRepository = userRepository;
         this.auditService = auditService;
     }

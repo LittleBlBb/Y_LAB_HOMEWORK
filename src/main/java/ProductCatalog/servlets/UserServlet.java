@@ -5,7 +5,7 @@ import ProductCatalog.dto.UserDTO;
 
 import ProductCatalog.mappers.UserMapper;
 import ProductCatalog.models.User;
-import ProductCatalog.services.UserService;
+import ProductCatalog.services.implemetations.UserService;
 import ProductCatalog.validators.UserValidator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;

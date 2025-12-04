@@ -1,8 +1,8 @@
-package ProductCatalog.repositories;
+package ProductCatalog.repositories.implemetations;
 
-import ProductCatalog.annotations.Auditable;
 import ProductCatalog.annotations.Performance;
 import ProductCatalog.models.Product;
+import ProductCatalog.repositories.interfaces.IProductRepository;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -12,7 +12,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ProductRepository {
+public class ProductRepository implements IProductRepository {
     private final DataSource dataSource;
 
     public ProductRepository(DataSource dataSource){
@@ -46,8 +46,9 @@ public class ProductRepository {
                         resultSet.getString("category")
                 ));
             }
-        }catch (SQLException exception){
-            System.out.println(exception.getMessage());
+        }catch (SQLException exception) {
+            throw new RuntimeException("Ошибка при чтении products: " +
+                    exception.getMessage(), exception);
         }
         return productList;
     }
@@ -77,9 +78,9 @@ public class ProductRepository {
             }
             return p;
         }catch (SQLException exception){
-            System.out.println(exception.getMessage());
+            System.err.println("Ошибка при записи в products: " + exception.getMessage());
+            return null;
         }
-        return null;
     }
 
     @Performance
@@ -103,9 +104,9 @@ public class ProductRepository {
             return preparedStatement.executeUpdate() > 0;
 
         } catch (SQLException exception) {
-            System.out.println(exception.getMessage());
+            System.err.println("Ошибка при удалении product: " + exception.getMessage());
+            return false;
         }
-        return false;
     }
 
     @Performance

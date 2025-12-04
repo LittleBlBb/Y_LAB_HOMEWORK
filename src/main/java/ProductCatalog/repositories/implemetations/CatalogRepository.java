@@ -1,8 +1,8 @@
-package ProductCatalog.repositories;
+package ProductCatalog.repositories.implemetations;
 
-import ProductCatalog.annotations.Auditable;
 import ProductCatalog.annotations.Performance;
 import ProductCatalog.models.Catalog;
+import ProductCatalog.repositories.interfaces.ICatalogRepository;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -12,7 +12,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CatalogRepository {
+public class CatalogRepository implements ICatalogRepository {
     private final DataSource dataSource;
 
     public CatalogRepository(DataSource dataSource){
@@ -34,8 +34,9 @@ public class CatalogRepository {
                         resultSet.getString("name")
                 ));
             }
-        } catch (SQLException exception){
-            System.out.println(exception.getMessage());
+        } catch (SQLException exception) {
+            throw new RuntimeException("Ошибка при чтении catalogs: " +
+                    exception.getMessage(), exception);
         }
         return catalogsList;
     }
@@ -58,24 +59,24 @@ public class CatalogRepository {
                 catalog.setId(resultSet.getLong("id"));
             }
             return catalog;
-        } catch (SQLException exception){
-            System.out.println(exception.getMessage());
+        } catch (SQLException exception) {
+            System.err.println("Ошибка при записи в catalogs: " + exception.getMessage());
+            return null;
         }
-        return null;
     }
 
     @Performance
     public boolean delete(long id) {
         final String SQL = "DELETE FROM app.catalog WHERE id = ?";
         try (Connection connection = dataSource.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(SQL)){
+             PreparedStatement preparedStatement = connection.prepareStatement(SQL)) {
 
             preparedStatement.setLong(1, id);
             return preparedStatement.executeUpdate() > 0;
-        } catch (SQLException exception){
-            System.out.println(exception.getMessage());
+        } catch (SQLException exception) {
+            System.err.println("Ошибка при удалении catalog: " + exception.getMessage());
+            return false;
         }
-        return false;
     }
 
     @Performance
@@ -96,8 +97,9 @@ public class CatalogRepository {
                         resultSet.getString("name")
                 );
             }
-        } catch (SQLException exception){
-            System.out.println(exception.getMessage());
+        } catch (SQLException exception) {
+            throw new RuntimeException("Ошибка при чтении catalogs: " +
+                    exception.getMessage(), exception);
         }
         return null;
     }

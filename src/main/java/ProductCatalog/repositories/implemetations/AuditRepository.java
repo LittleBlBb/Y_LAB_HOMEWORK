@@ -1,8 +1,8 @@
-package ProductCatalog.repositories;
+package ProductCatalog.repositories.implemetations;
 
-import ProductCatalog.annotations.Auditable;
 import ProductCatalog.annotations.Performance;
 import ProductCatalog.models.AuditEntry;
+import ProductCatalog.repositories.interfaces.IAuditRepository;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -12,7 +12,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AuditRepository {
+public class AuditRepository implements IAuditRepository {
     private final DataSource dataSource;
 
     public AuditRepository(DataSource dataSource) {
@@ -39,10 +39,10 @@ public class AuditRepository {
                 entry.setId(resultSet.getLong("id"));
             }
             return entry;
-        } catch (SQLException exception){
-            System.out.println(exception.getMessage());
+        } catch (SQLException exception) {
+            System.err.println("Ошибка при записи в audit_logs: " + exception.getMessage());
+            return null;
         }
-        return null;
     }
 
     @Performance
@@ -63,8 +63,9 @@ public class AuditRepository {
                         resultSet.getTimestamp("timestamp").toLocalDateTime()
                 ));
             }
-        } catch (SQLException exception){
-            System.out.println(exception.getMessage());
+        } catch (SQLException exception) {
+            throw new RuntimeException("Ошибка при чтении audit_logs: " +
+                    exception.getMessage(), exception);
         }
         return logsList;
     }
@@ -90,8 +91,9 @@ public class AuditRepository {
                         resultSet.getTimestamp("timestamp").toLocalDateTime()
                 );
             }
-        } catch (SQLException exception){
-            System.out.println(exception.getMessage());
+        } catch (SQLException exception) {
+            throw new RuntimeException("Ошибка при чтении audit_logs: " +
+                    exception.getMessage(), exception);
         }
         return null;
     }

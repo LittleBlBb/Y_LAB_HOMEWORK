@@ -2,6 +2,7 @@ package ProductCatalog.repositories;
 
 import ProductCatalog.models.Role;
 import ProductCatalog.models.User;
+import ProductCatalog.repositories.implemetations.UserRepository;
 import org.junit.jupiter.api.*;
 
 import org.postgresql.ds.PGSimpleDataSource;

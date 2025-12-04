@@ -2,12 +2,12 @@ package ProductCatalog.ui;
 
 import ProductCatalog.models.AuditEntry;
 import ProductCatalog.models.Product;
-import ProductCatalog.services.AuditService;
-import ProductCatalog.services.CatalogService;
+import ProductCatalog.services.implemetations.AuditService;
+import ProductCatalog.services.implemetations.CatalogService;
 import ProductCatalog.services.MetricsService;
 import ProductCatalog.services.ProductFilterService;
-import ProductCatalog.services.ProductService;
-import ProductCatalog.services.UserService;
+import ProductCatalog.services.implemetations.ProductService;
+import ProductCatalog.services.implemetations.UserService;
 
 import java.util.List;
 import java.util.Scanner;

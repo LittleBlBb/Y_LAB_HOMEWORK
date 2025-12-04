@@ -4,7 +4,7 @@ import ProductCatalog.dto.CatalogDTO;
 import ProductCatalog.models.Catalog;
 import ProductCatalog.models.Role;
 import ProductCatalog.models.User;
-import ProductCatalog.services.CatalogService;
+import ProductCatalog.services.implemetations.CatalogService;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletContext;

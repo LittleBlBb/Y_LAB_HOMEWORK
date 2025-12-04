@@ -1,38 +1,43 @@
 package ProductCatalog;
 
 import ProductCatalog.db.DBConnection;
-import ProductCatalog.repositories.AuditRepository;
-import ProductCatalog.repositories.CatalogRepository;
-import ProductCatalog.repositories.ProductRepository;
-import ProductCatalog.repositories.UserRepository;
-import ProductCatalog.services.AuditService;
-import ProductCatalog.services.CatalogService;
-import ProductCatalog.services.MetricsService;
-import ProductCatalog.services.ProductFilterService;
-import ProductCatalog.services.ProductService;
-import ProductCatalog.services.UserService;
+import ProductCatalog.repositories.implemetations.AuditRepository;
+import ProductCatalog.repositories.implemetations.CatalogRepository;
+import ProductCatalog.repositories.implemetations.ProductRepository;
+import ProductCatalog.repositories.implemetations.UserRepository;
+import ProductCatalog.repositories.interfaces.IAuditRepository;
+import ProductCatalog.repositories.interfaces.ICatalogRepository;
+import ProductCatalog.repositories.interfaces.IProductRepository;
+import ProductCatalog.repositories.interfaces.IUserRepository;
+import ProductCatalog.services.implemetations.AuditService;
+import ProductCatalog.services.implemetations.CatalogService;
+import ProductCatalog.services.implemetations.ProductService;
+import ProductCatalog.services.implemetations.UserService;
+import ProductCatalog.services.interfaces.IAuditService;
+import ProductCatalog.services.interfaces.ICatalogService;
+import ProductCatalog.services.interfaces.IProductService;
+import ProductCatalog.services.interfaces.IUserService;
 import jakarta.servlet.ServletContextEvent;
 import jakarta.servlet.ServletContextListener;
 import jakarta.servlet.annotation.WebListener;
-import org.postgresql.ds.PGSimpleDataSource;
+
+import javax.sql.DataSource;
 
 @WebListener
 public class ContextListener implements ServletContextListener {
     @Override
     public void contextInitialized(ServletContextEvent sce) {
-        PGSimpleDataSource dataSource = DBConnection.getDataSource();
+        DataSource dataSource = DBConnection.getDataSource();
 
-        UserRepository userRepo = new UserRepository(dataSource);
-        CatalogRepository catalogRepo = new CatalogRepository(dataSource);
-        ProductRepository productRepo = new ProductRepository(dataSource);
-        AuditRepository auditRepo = new AuditRepository(dataSource);
+        IUserRepository userRepo = new UserRepository(dataSource);
+        ICatalogRepository catalogRepo = new CatalogRepository(dataSource);
+        IProductRepository productRepo = new ProductRepository(dataSource);
+        IAuditRepository auditRepo = new AuditRepository(dataSource);
 
-        AuditService auditService = new AuditService(auditRepo);
-        UserService userService = new UserService(userRepo, auditService);
-        CatalogService catalogService = new CatalogService(catalogRepo, auditService, userService);
-        MetricsService.getInstance(catalogService);
-        ProductService productService = new ProductService(productRepo, auditService, userService);
-        ProductFilterService.getInstance();
+        IAuditService auditService = new AuditService(auditRepo);
+        IUserService userService = new UserService(userRepo, auditService);
+        ICatalogService catalogService = new CatalogService(catalogRepo, auditService, userService);
+        IProductService productService = new ProductService(productRepo, auditService, userService);
 
         sce.getServletContext().setAttribute("userService", userService);
         sce.getServletContext().setAttribute("catalogService", catalogService);

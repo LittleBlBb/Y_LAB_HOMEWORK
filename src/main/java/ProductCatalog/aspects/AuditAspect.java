@@ -2,7 +2,7 @@ package ProductCatalog.aspects;
 
 import ProductCatalog.annotations.Auditable;
 import ProductCatalog.models.User;
-import ProductCatalog.services.AuditService;
+import ProductCatalog.services.implemetations.AuditService;
 import ProductCatalog.servlets.SessionAttributes;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
