@@ -1,16 +1,24 @@
 package ProductCatalog;
 
-import ProductCatalog.DB.DBConnection;
-import ProductCatalog.Repositories.AuditRepository;
-import ProductCatalog.Repositories.CatalogRepository;
-import ProductCatalog.Repositories.ProductRepository;
-import ProductCatalog.Repositories.UserRepository;
-import ProductCatalog.Services.AuditService;
-import ProductCatalog.Services.CatalogService;
-import ProductCatalog.Services.MetricsService;
-import ProductCatalog.Services.ProductFilterService;
-import ProductCatalog.Services.ProductService;
-import ProductCatalog.Services.UserService;
+import ProductCatalog.db.Config;
+import ProductCatalog.db.DBConnection;
+import ProductCatalog.db.Migrator;
+import ProductCatalog.repositories.implemetations.AuditRepository;
+import ProductCatalog.repositories.implemetations.CatalogRepository;
+import ProductCatalog.repositories.implemetations.ProductRepository;
+import ProductCatalog.repositories.implemetations.UserRepository;
+import ProductCatalog.repositories.interfaces.IAuditRepository;
+import ProductCatalog.repositories.interfaces.ICatalogRepository;
+import ProductCatalog.repositories.interfaces.IProductRepository;
+import ProductCatalog.repositories.interfaces.IUserRepository;
+import ProductCatalog.services.implemetations.AuditService;
+import ProductCatalog.services.implemetations.CatalogService;
+import ProductCatalog.services.implemetations.ProductService;
+import ProductCatalog.services.implemetations.UserService;
+import ProductCatalog.services.interfaces.IAuditService;
+import ProductCatalog.services.interfaces.ICatalogService;
+import ProductCatalog.services.interfaces.IProductService;
+import ProductCatalog.services.interfaces.IUserService;
 import jakarta.servlet.ServletContextEvent;
 import jakarta.servlet.ServletContextListener;
 import jakarta.servlet.annotation.WebListener;
@@ -20,19 +28,27 @@ import org.postgresql.ds.PGSimpleDataSource;
 public class ContextListener implements ServletContextListener {
     @Override
     public void contextInitialized(ServletContextEvent sce) {
-        PGSimpleDataSource dataSource = DBConnection.getDataSource();
+        Config config = new Config();
 
-        UserRepository userRepo = new UserRepository(dataSource);
-        CatalogRepository catalogRepo = new CatalogRepository(dataSource);
-        ProductRepository productRepo = new ProductRepository(dataSource);
-        AuditRepository auditRepo = new AuditRepository(dataSource);
+        DBConnection db = new DBConnection(config);
+        PGSimpleDataSource dataSource = db.getDataSource();
 
-        AuditService auditService = new AuditService(auditRepo);
-        UserService userService = new UserService(userRepo, auditService);
-        CatalogService catalogService = new CatalogService(catalogRepo, auditService, userService);
-        MetricsService.getInstance(catalogService);
-        ProductService productService = new ProductService(productRepo, auditService, userService);
-        ProductFilterService.getInstance();
+        try {
+            Migrator migrator = new Migrator(config, db);
+            migrator.migrate();
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to migrate", e);
+        }
+
+        IUserRepository userRepo = new UserRepository(dataSource);
+        ICatalogRepository catalogRepo = new CatalogRepository(dataSource);
+        IProductRepository productRepo = new ProductRepository(dataSource);
+        IAuditRepository auditRepo = new AuditRepository(dataSource);
+
+        IAuditService auditService = new AuditService(auditRepo);
+        IUserService userService = new UserService(userRepo, auditService);
+        ICatalogService catalogService = new CatalogService(catalogRepo, auditService, userService);
+        IProductService productService = new ProductService(productRepo, auditService, userService);
 
         sce.getServletContext().setAttribute("userService", userService);
         sce.getServletContext().setAttribute("catalogService", catalogService);
