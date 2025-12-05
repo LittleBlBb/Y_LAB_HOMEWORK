@@ -64,7 +64,6 @@ public class AuditAspect {
     private String resolveUser(HttpServletRequest request) {
         HttpSession session = request.getSession(false);
         if (session == null) {
-            System.out.println("AUDIT: session = null");
             return "anonymous";
         }
         Object u = session.getAttribute(SessionAttributes.USER);

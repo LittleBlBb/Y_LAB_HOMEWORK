@@ -1,12 +1,12 @@
 package ProductCatalog.servlets;
 
 import ProductCatalog.annotations.Auditable;
+import ProductCatalog.constants.Permission;
 import ProductCatalog.dto.CatalogDTO;
 import ProductCatalog.mappers.CatalogMapper;
 import ProductCatalog.models.Catalog;
-import ProductCatalog.models.Role;
-import ProductCatalog.models.User;
 import ProductCatalog.services.implemetations.CatalogService;
+import ProductCatalog.utils.AccessUtil;
 import ProductCatalog.validators.CatalogValidator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
@@ -14,7 +14,6 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
 
 import java.io.IOException;
 
@@ -46,7 +45,7 @@ public class CatalogServlet extends HttpServlet {
     @Auditable(action = "create new catalog")
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        resp.setContentType("application/json");
+        AccessUtil.checkPermission(req, Permission.CREATE_CATALOG);
 
         CatalogDTO dto = mapper.readValue(req.getInputStream(), CatalogDTO.class);
 
@@ -64,6 +63,7 @@ public class CatalogServlet extends HttpServlet {
 
         boolean created = catalogService.createCatalog(entity);
 
+        resp.setContentType("application/json");
         if(created) {
             resp.setStatus(HttpServletResponse.SC_CREATED);
             mapper.writeValue(resp.getWriter(), CatalogMapper.INSTANCE.toDTO(entity));
@@ -76,12 +76,7 @@ public class CatalogServlet extends HttpServlet {
     @Auditable(action = "delete catalog")
     @Override
     protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        HttpSession session = req.getSession();
-        Object user = session.getAttribute(SessionAttributes.USER);
-        if (!((User) user).getRole().equals(Role.ADMIN)) {
-            resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
-            mapper.writeValue(resp.getWriter(), "You are not allowed to perform this action");
-        }
+        AccessUtil.checkPermission(req, Permission.DELETE_CATALOG);
 
         long id = Long.parseLong(req.getParameter("id"));
         boolean deleted = catalogService.deleteCatalog(id);

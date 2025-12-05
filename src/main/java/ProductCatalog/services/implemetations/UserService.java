@@ -1,6 +1,7 @@
 package ProductCatalog.services.implemetations;
 
-import ProductCatalog.models.Role;
+import ProductCatalog.constants.Permission;
+import ProductCatalog.constants.Role;
 import ProductCatalog.models.User;
 import ProductCatalog.repositories.interfaces.IUserRepository;
 import ProductCatalog.services.interfaces.IAuditService;
@@ -110,6 +111,11 @@ public class UserService implements IUserService {
      */
     public boolean isAdmin() {
         return currentUser != null && Role.ADMIN == currentUser.getRole();
+    }
+
+    public boolean hasPermission(Permission permission) {
+        return currentUser != null &&
+                currentUser.getRole().hasPermission(permission);
     }
 
     public User getCurrentUser() {

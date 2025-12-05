@@ -1,6 +1,8 @@
 package ProductCatalog;
 
+import ProductCatalog.db.Config;
 import ProductCatalog.db.DBConnection;
+import ProductCatalog.db.Migrator;
 import ProductCatalog.repositories.implemetations.AuditRepository;
 import ProductCatalog.repositories.implemetations.CatalogRepository;
 import ProductCatalog.repositories.implemetations.ProductRepository;
@@ -20,14 +22,23 @@ import ProductCatalog.services.interfaces.IUserService;
 import jakarta.servlet.ServletContextEvent;
 import jakarta.servlet.ServletContextListener;
 import jakarta.servlet.annotation.WebListener;
-
-import javax.sql.DataSource;
+import org.postgresql.ds.PGSimpleDataSource;
 
 @WebListener
 public class ContextListener implements ServletContextListener {
     @Override
     public void contextInitialized(ServletContextEvent sce) {
-        DataSource dataSource = DBConnection.getDataSource();
+        Config config = new Config();
+
+        DBConnection db = new DBConnection(config);
+        PGSimpleDataSource dataSource = db.getDataSource();
+
+        try {
+            Migrator migrator = new Migrator(config, db);
+            migrator.migrate();
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to migrate", e);
+        }
 
         IUserRepository userRepo = new UserRepository(dataSource);
         ICatalogRepository catalogRepo = new CatalogRepository(dataSource);

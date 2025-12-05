@@ -28,7 +28,6 @@ public class LoginServlet extends HttpServlet {
     @Auditable(action = "login")
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-
         LoginRequest login = mapper.readValue(req.getInputStream(), LoginRequest.class);
         String username = login.getUsername();
         String password = login.getPassword();

@@ -1,7 +1,7 @@
 package ProductCatalog.repositories.implemetations;
 
 import ProductCatalog.annotations.Performance;
-import ProductCatalog.models.Role;
+import ProductCatalog.constants.Role;
 import ProductCatalog.models.User;
 import ProductCatalog.repositories.interfaces.IUserRepository;
 

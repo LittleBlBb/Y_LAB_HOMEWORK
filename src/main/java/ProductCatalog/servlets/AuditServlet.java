@@ -1,9 +1,11 @@
 package ProductCatalog.servlets;
 
 import ProductCatalog.annotations.Auditable;
+import ProductCatalog.constants.Permission;
 import ProductCatalog.dto.AuditEntryDTO;
 import ProductCatalog.mappers.AuditMapper;
 import ProductCatalog.services.implemetations.AuditService;
+import ProductCatalog.utils.AccessUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -26,6 +28,8 @@ public class AuditServlet extends HttpServlet {
     @Auditable(action = "get all logs")
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        AccessUtil.checkPermission(req, Permission.VIEW_AUDIT);
+
         List<AuditEntryDTO> dtoList = auditService.getAll()
                 .stream().map(AuditMapper.INSTANCE::toDTO)
                 .toList();

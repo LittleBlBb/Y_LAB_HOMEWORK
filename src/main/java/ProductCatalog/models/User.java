@@ -1,5 +1,7 @@
 package ProductCatalog.models;
 
+import ProductCatalog.constants.Role;
+
 public class User {
     private long id;
     private String username;

@@ -1,12 +1,14 @@
 package ProductCatalog.servlets;
 
+import ProductCatalog.constants.Permission;
 import ProductCatalog.constants.Role;
+import ProductCatalog.dto.AuditEntryDTO;
 import ProductCatalog.dto.LoginRequest;
-import ProductCatalog.dto.UserDTO;
+import ProductCatalog.models.AuditEntry;
 import ProductCatalog.models.User;
+import ProductCatalog.services.implemetations.AuditService;
 import ProductCatalog.services.implemetations.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
@@ -16,30 +18,34 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
-class UserServletTest {
+class AuditServletJettyTest {
 
     private static Server server;
-    private static int port = 8081;
+    private static int port = 8082;
     private static UserService mockUserService;
+    private static AuditService mockAuditService;
     private static ObjectMapper mapper = new ObjectMapper();
 
     @BeforeAll
     static void startServer() throws Exception {
         mockUserService = mock(UserService.class);
+        mockAuditService = mock(AuditService.class);
 
         server = new Server(port);
         ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
         context.setContextPath("/");
         context.setAttribute("userService", mockUserService);
+        context.setAttribute("auditService", mockAuditService);
 
         context.addServlet(new ServletHolder(new LoginServlet()), "/login");
-        context.addServlet(new ServletHolder(new UserServlet()), "/users");
+        context.addServlet(new ServletHolder(new AuditServlet()), "/logs");
 
         server.setHandler(context);
         server.start();
@@ -52,9 +58,8 @@ class UserServletTest {
 
     @BeforeEach
     void resetMocks() {
-        reset(mockUserService);
+        reset(mockUserService, mockAuditService);
 
-        // Мок для логина admin
         when(mockUserService.findByUsername("admin"))
                 .thenReturn(new User(1, "admin", "admin", Role.ADMIN));
     }
@@ -75,20 +80,20 @@ class UserServletTest {
         }
 
         int code = connection.getResponseCode();
-        assertEquals(200, code, "Login should return 200");
+        assertEquals(200, code);
 
         String setCookie = connection.getHeaderField("Set-Cookie");
-        return setCookie.split(";")[0]; // JSESSIONID=...
+        return setCookie.split(";")[0];
     }
 
     @Test
-    void testDoGetWithLogin() throws Exception {
-        User user = new User(2, "testuser", "pass", Role.ADMIN);
-        when(mockUserService.getAll()).thenReturn(List.of(user));
+    void testDoGetLogs() throws Exception {
+        AuditEntry entry = new AuditEntry(1, "admin", "login", "successful", LocalDateTime.now());
+        when(mockAuditService.getAll()).thenReturn(List.of(entry));
 
         String sessionCookie = loginAsAdmin();
 
-        URL url = new URL("http://localhost:" + port + "/users");
+        URL url = new URL("http://localhost:" + port + "/logs");
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setRequestMethod("GET");
         connection.setRequestProperty("Cookie", sessionCookie);
@@ -99,31 +104,9 @@ class UserServletTest {
         try (InputStream is = connection.getInputStream()) {
             List<Map<String, Object>> responseList = mapper.readValue(is, List.class);
             assertEquals(1, responseList.size());
-            assertEquals("testuser", responseList.get(0).get("username"));
-        }
-    }
-
-    @Test
-    void testDoPost() throws Exception {
-        UserDTO dto = new UserDTO(0, "newuser", "12345");
-        when(mockUserService.register(any(User.class))).thenReturn(true);
-
-        URL url = new URL("http://localhost:" + port + "/users");
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-        connection.setRequestMethod("POST");
-        connection.setDoOutput(true);
-        connection.setRequestProperty("Content-Type", "application/json");
-
-        try (OutputStream os = connection.getOutputStream()) {
-            mapper.writeValue(os, dto);
-        }
-
-        int code = connection.getResponseCode();
-        assertEquals(201, code);
-
-        try (InputStream is = connection.getInputStream()) {
-            UserDTO response = mapper.readValue(is, UserDTO.class);
-            assertEquals("newuser", response.getUsername());
+            assertEquals("admin", responseList.get(0).get("username"));
+            assertEquals("login", responseList.get(0).get("action"));
+            assertEquals("successful", responseList.get(0).get("details"));
         }
     }
 }

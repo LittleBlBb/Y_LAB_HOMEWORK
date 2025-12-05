@@ -1,16 +1,20 @@
 package ProductCatalog.servlets;
 
 import ProductCatalog.constants.Role;
+import ProductCatalog.dto.CatalogDTO;
 import ProductCatalog.dto.LoginRequest;
-import ProductCatalog.dto.UserDTO;
+import ProductCatalog.models.Catalog;
 import ProductCatalog.models.User;
+import ProductCatalog.services.implemetations.CatalogService;
 import ProductCatalog.services.implemetations.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -22,24 +26,27 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
-class UserServletTest {
+class CatalogServletJettyTest {
 
     private static Server server;
-    private static int port = 8081;
+    private static int port = 8083;
     private static UserService mockUserService;
+    private static CatalogService mockCatalogService;
     private static ObjectMapper mapper = new ObjectMapper();
 
     @BeforeAll
     static void startServer() throws Exception {
         mockUserService = mock(UserService.class);
+        mockCatalogService = mock(CatalogService.class);
 
         server = new Server(port);
         ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
         context.setContextPath("/");
         context.setAttribute("userService", mockUserService);
+        context.setAttribute("catalogService", mockCatalogService);
 
         context.addServlet(new ServletHolder(new LoginServlet()), "/login");
-        context.addServlet(new ServletHolder(new UserServlet()), "/users");
+        context.addServlet(new ServletHolder(new CatalogServlet()), "/catalogs");
 
         server.setHandler(context);
         server.start();
@@ -52,9 +59,8 @@ class UserServletTest {
 
     @BeforeEach
     void resetMocks() {
-        reset(mockUserService);
+        reset(mockUserService, mockCatalogService);
 
-        // Мок для логина admin
         when(mockUserService.findByUsername("admin"))
                 .thenReturn(new User(1, "admin", "admin", Role.ADMIN));
     }
@@ -75,20 +81,20 @@ class UserServletTest {
         }
 
         int code = connection.getResponseCode();
-        assertEquals(200, code, "Login should return 200");
+        assertEquals(200, code);
 
         String setCookie = connection.getHeaderField("Set-Cookie");
-        return setCookie.split(";")[0]; // JSESSIONID=...
+        return setCookie.split(";")[0];
     }
 
     @Test
-    void testDoGetWithLogin() throws Exception {
-        User user = new User(2, "testuser", "pass", Role.ADMIN);
-        when(mockUserService.getAll()).thenReturn(List.of(user));
+    void testDoGetCatalogs() throws Exception {
+        Catalog catalog = new Catalog(1, "Catalog1");
+        when(mockCatalogService.getAll()).thenReturn(List.of(catalog));
 
         String sessionCookie = loginAsAdmin();
 
-        URL url = new URL("http://localhost:" + port + "/users");
+        URL url = new URL("http://localhost:" + port + "/catalogs");
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setRequestMethod("GET");
         connection.setRequestProperty("Cookie", sessionCookie);
@@ -99,20 +105,25 @@ class UserServletTest {
         try (InputStream is = connection.getInputStream()) {
             List<Map<String, Object>> responseList = mapper.readValue(is, List.class);
             assertEquals(1, responseList.size());
-            assertEquals("testuser", responseList.get(0).get("username"));
+            assertEquals("Catalog1", responseList.get(0).get("name"));
         }
     }
 
     @Test
-    void testDoPost() throws Exception {
-        UserDTO dto = new UserDTO(0, "newuser", "12345");
-        when(mockUserService.register(any(User.class))).thenReturn(true);
+    void testDoPostCatalog() throws Exception {
+        CatalogDTO dto = new CatalogDTO(0, "NewCatalog");
+        Catalog entity = new Catalog("NewCatalog");
 
-        URL url = new URL("http://localhost:" + port + "/users");
+        when(mockCatalogService.createCatalog(any(Catalog.class))).thenReturn(true);
+
+        String sessionCookie = loginAsAdmin();
+
+        URL url = new URL("http://localhost:" + port + "/catalogs");
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setRequestMethod("POST");
         connection.setDoOutput(true);
         connection.setRequestProperty("Content-Type", "application/json");
+        connection.setRequestProperty("Cookie", sessionCookie);
 
         try (OutputStream os = connection.getOutputStream()) {
             mapper.writeValue(os, dto);
@@ -122,8 +133,23 @@ class UserServletTest {
         assertEquals(201, code);
 
         try (InputStream is = connection.getInputStream()) {
-            UserDTO response = mapper.readValue(is, UserDTO.class);
-            assertEquals("newuser", response.getUsername());
+            CatalogDTO response = mapper.readValue(is, CatalogDTO.class);
+            assertEquals("NewCatalog", response.getName());
         }
+    }
+
+    @Test
+    void testDoDeleteCatalog() throws Exception {
+        when(mockCatalogService.deleteCatalog(1L)).thenReturn(true);
+
+        String sessionCookie = loginAsAdmin();
+
+        URL url = new URL("http://localhost:" + port + "/catalogs?id=1");
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setRequestMethod("DELETE");
+        connection.setRequestProperty("Cookie", sessionCookie);
+
+        int code = connection.getResponseCode();
+        assertEquals(200, code);
     }
 }

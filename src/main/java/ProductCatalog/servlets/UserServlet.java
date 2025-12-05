@@ -1,11 +1,13 @@
 package ProductCatalog.servlets;
 
 import ProductCatalog.annotations.Auditable;
+import ProductCatalog.constants.Permission;
 import ProductCatalog.dto.UserDTO;
 
 import ProductCatalog.mappers.UserMapper;
 import ProductCatalog.models.User;
 import ProductCatalog.services.implemetations.UserService;
+import ProductCatalog.utils.AccessUtil;
 import ProductCatalog.validators.UserValidator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
@@ -13,8 +15,10 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 import java.io.IOException;
+import java.nio.file.AccessDeniedException;
 import java.util.List;
 import java.util.Map;
 
@@ -31,6 +35,8 @@ public class UserServlet extends HttpServlet {
     @Auditable(action = "get all users")
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        AccessUtil.checkPermission(req, Permission.MANAGE_USERS);
+
         List<UserDTO> dtoList = userService.getAll().stream()
                 .map(UserMapper.INSTANCE::toDTO)
                 .toList();

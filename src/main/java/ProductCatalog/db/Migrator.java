@@ -11,8 +11,16 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 public class Migrator {
-    public static void main(String[] args) {
-        try (Connection connection = DBConnection.getDataSource().getConnection()){
+    private final Config config;
+    private final DBConnection dbConnection;
+
+    public Migrator(Config config, DBConnection dbConnection) {
+        this.config = config;
+        this.dbConnection = dbConnection;
+    }
+
+    public void migrate() throws SQLException, LiquibaseException {
+        try (Connection connection = dbConnection.getDataSource().getConnection()){
             connection.createStatement().execute("CREATE SCHEMA IF NOT EXISTS app;");
             connection.createStatement().execute("CREATE SCHEMA IF NOT EXISTS liquibase;");
             connection.createStatement().execute("SET search_path TO app, public");
@@ -20,18 +28,15 @@ public class Migrator {
                     DatabaseFactory
                             .getInstance()
                             .findCorrectDatabaseImplementation(new JdbcConnection(connection));
-            database.setDefaultSchemaName(Config.getInstance().getDbSchema());
-            database.setLiquibaseSchemaName(Config.getInstance().getLiquibaseServiceSchema());
+            database.setDefaultSchemaName(config.getProperty(ConfigKeys.DB_SCHEMA));
+            database.setLiquibaseSchemaName(config.getProperty(ConfigKeys.LIQUIBASE_SERVICE_SCHEMA));
             Liquibase liquibase = new Liquibase(
-                    Config.getInstance().getLiquibaseChangeLog(),
+                    config.getProperty(ConfigKeys.LIQUIBASE_CHANGELOG),
                     new ClassLoaderResourceAccessor(),
                     database
             );
             liquibase.update("");
             System.out.println("Migration is completed successfully");
-        } catch (SQLException | LiquibaseException e) {
-            System.out.println("Exception in migration: " + e.getMessage());
-            e.printStackTrace();
         }
     }
 }
