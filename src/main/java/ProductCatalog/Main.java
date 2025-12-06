@@ -1,18 +1,29 @@
 package ProductCatalog;
 
-import ProductCatalog.DB.DBConnection;
-import ProductCatalog.Repositories.AuditRepository;
-import ProductCatalog.Repositories.CatalogRepository;
-import ProductCatalog.Repositories.ProductRepository;
-import ProductCatalog.Repositories.UserRepository;
-import ProductCatalog.Services.*;
-import ProductCatalog.UI.ProductCatalogUI;
+import ProductCatalog.db.Config;
+import ProductCatalog.db.DBConnection;
+import ProductCatalog.db.Migrator;
+import ProductCatalog.repositories.AuditRepository;
+import ProductCatalog.repositories.CatalogRepository;
+import ProductCatalog.repositories.ProductRepository;
+import ProductCatalog.repositories.UserRepository;
+import ProductCatalog.services.*;
+import ProductCatalog.ui.ProductCatalogUI;
 import org.postgresql.ds.PGSimpleDataSource;
 
 public class Main {
     public static void main(String[] args) {
+        Config config = new Config();
 
-        PGSimpleDataSource dataSource = DBConnection.getDataSource();
+        DBConnection db = new DBConnection(config);
+        PGSimpleDataSource dataSource = db.getDataSource();
+
+        try {
+            Migrator migrator = new Migrator(config, db);
+            migrator.migrate();
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to migrate", e);
+        }
 
         UserRepository userRepo = new UserRepository(dataSource);
         CatalogRepository catalogRepo = new CatalogRepository(dataSource);
