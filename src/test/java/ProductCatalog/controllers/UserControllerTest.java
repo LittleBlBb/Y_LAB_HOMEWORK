@@ -1,62 +1,89 @@
-//package ProductCatalog.controllers;
-//
-//import ProductCatalog.constants.Role;
-//import ProductCatalog.dto.UserDTO;
-//import ProductCatalog.models.User;
-//import ProductCatalog.services.implementations.UserService;
-//import com.fasterxml.jackson.databind.ObjectMapper;
-//
-//import org.junit.jupiter.api.BeforeEach;
-//import org.junit.jupiter.api.Test;
-//import org.mockito.Mockito;
-//import org.springframework.test.web.servlet.MockMvc;
-//import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-//
-//import java.util.List;
-//
-//import static org.mockito.ArgumentMatchers.any;
-//import static org.mockito.Mockito.when;
-//import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-//import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-//import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-//import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-//import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-//
-//public class UserControllerTest {
-//
-//    private UserService userService;
-//    private MockMvc mockMvc;
-//    private final ObjectMapper mapper = new ObjectMapper();
-//
-//    @BeforeEach
-//    void setUp() {
-//        userService = Mockito.mock(UserService.class);
-//        UserController controller = new UserController(userService);
-//        mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
-//    }
-//
-//    @Test
-//    void testGetAllUsers() throws Exception {
-//        when(userService.getAll())
-//                .thenReturn(List.of(new User(0L, "admin", "admin", Role.ADMIN)));
-//
-//        mockMvc.perform(get("/api/users"))
-//                .andExpect(status().isOk())
-//                .andExpect(jsonPath("$[0].username").value("admin"));
-//    }
-//
-//    @Test
-//    void testRegisterUserSuccess() throws Exception {
-//        UserDTO dto = new UserDTO(0L, "user", "123");
-//
-//        when(userService.register(any())).thenReturn(true);
-//
-//        mockMvc.perform(
-//                        post("/api/users")
-//                                .contentType("application/json")
-//                                .content(mapper.writeValueAsString(dto))
-//                )
-//                .andExpect(status().isOk())
-//                .andExpect(content().string("REGISTERED"));
-//    }
-//}
+package ProductCatalog.controllers;
+
+import ProductCatalog.constants.Permission;
+import ProductCatalog.constants.Role;
+import ProductCatalog.models.User;
+import ProductCatalog.services.implementations.UserService;
+import ProductCatalog.dto.UserDTO;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import java.nio.file.AccessDeniedException;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+class UserControllerTest extends BaseControllerTest {
+
+    private UserService userService;
+    private UserController userController;
+
+    @BeforeEach
+    void setUp() {
+        super.setUpBase();
+        userService = mock(UserService.class);
+        userController = new UserController(userService);
+    }
+
+    @Test
+    void getAllUsers_returnsMappedDTOs_whenUserHasPermission() throws Exception {
+        User u1 = new User(1L, "user1", "pass1", Role.USER);
+        User u2 = new User(2L, "user2", "pass2", Role.USER);
+
+        when(userService.getAll()).thenReturn(List.of(u1, u2));
+
+        var result = userController.getAllUsers(request);
+
+        assertEquals(2, result.size());
+        assertEquals("user1", result.get(0).getUsername());
+        assertEquals("user2", result.get(1).getUsername());
+
+        verify(userService, times(1)).getAll();
+    }
+
+    @Test
+    void getAllUsers_throwsAccessDeniedException_whenUserNotLoggedIn() {
+        assertThrows(AccessDeniedException.class, () -> {
+            userController.getAllUsers(createNotLoggedInRequest());
+        });
+    }
+
+    @Test
+    void getAllUsers_throwsAccessDeniedException_whenUserHasNoPermission() {
+        User normalUser = new User(2L, "user", "pass", Role.USER);
+
+        AccessDeniedException ex = assertThrows(AccessDeniedException.class, () -> {
+            userController.getAllUsers(createUserRequest(normalUser));
+        });
+
+        assertEquals("You do not have permission: " + Permission.MANAGE_USERS, ex.getMessage());
+    }
+
+    @Test
+    void registerUser_returnsRegistered_whenDataValid() {
+        UserDTO dto = new UserDTO(0, "newuser", "pass");
+        when(userService.register(any(User.class))).thenReturn(true);
+
+        String result = userController.registerUser(dto);
+
+        assertEquals("REGISTERED", result);
+        verify(userService, times(1)).register(any(User.class));
+    }
+
+    @Test
+    void registerUser_returnsFailed_whenServiceFails() {
+        UserDTO dto = new UserDTO(0, "newuser", "pass");
+        when(userService.register(any(User.class))).thenReturn(false);
+
+        String result = userController.registerUser(dto);
+
+        assertEquals("FAILED", result);
+        verify(userService, times(1)).register(any(User.class));
+    }
+}

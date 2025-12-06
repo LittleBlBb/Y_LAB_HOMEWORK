@@ -18,7 +18,7 @@ import java.sql.Connection;
 import java.sql.Statement;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public abstract class AbstractRepositoryTest {
+public abstract class BaseRepositoryTest {
     protected PostgreSQLContainer<?> postgres;
     protected DataSource dataSource;
 
