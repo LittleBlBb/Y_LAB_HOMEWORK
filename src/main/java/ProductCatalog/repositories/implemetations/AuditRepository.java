@@ -1,6 +1,8 @@
-package ProductCatalog.repositories;
+package ProductCatalog.repositories.implemetations;
 
+import ProductCatalog.annotations.Performance;
 import ProductCatalog.models.AuditEntry;
+import ProductCatalog.repositories.interfaces.IAuditRepository;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -14,7 +16,7 @@ import java.util.List;
  * Репозиторий для управления журналом аудита.
  * Отвечает за действия с логами в бд
  */
-public class AuditRepository {
+public class AuditRepository implements IAuditRepository {
     private final DataSource dataSource;
 
     private static final String SQL_INSERT = """
@@ -41,6 +43,7 @@ public class AuditRepository {
      * @param entry
      * @return целый лог
      */
+    @Performance
     public AuditEntry save(AuditEntry entry){
         try (Connection connection = dataSource.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(SQL_INSERT)){
@@ -64,6 +67,7 @@ public class AuditRepository {
      * Получает все логи из бд
      * @return список логов
      */
+    @Performance
     public List<AuditEntry> findAll() {
         List<AuditEntry> logsList = new ArrayList<>();
         try(Connection connection = dataSource.getConnection();
@@ -90,6 +94,7 @@ public class AuditRepository {
      * @param id
      * @return найденный лог
      */
+    @Performance
     public AuditEntry findById(long id){
         try (Connection connection = dataSource.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(SQL_FIND_BY_ID)) {

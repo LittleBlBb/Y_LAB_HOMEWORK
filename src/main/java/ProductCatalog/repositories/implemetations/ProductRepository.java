@@ -1,6 +1,8 @@
-package ProductCatalog.repositories;
+package ProductCatalog.repositories.implemetations;
 
+import ProductCatalog.annotations.Performance;
 import ProductCatalog.models.Product;
+import ProductCatalog.repositories.interfaces.IProductRepository;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -14,7 +16,7 @@ import java.util.List;
  * Репозиторий для управления товарами.
  * Отвечает за действия с товарами в бд
  */
-public class ProductRepository {
+public class ProductRepository implements IProductRepository {
     private static final String SQL_FIND_BY_ID = """
                 SELECT id, catalog_id, name, price, brand, category, description
                 FROM app.product
@@ -54,6 +56,7 @@ public class ProductRepository {
      * @param catalogId
      * @return каталог
      */
+    @Performance
     public List<Product> findByCatalogId(long catalogId){
         List<Product> productList = new ArrayList<>();
 
@@ -85,6 +88,7 @@ public class ProductRepository {
      * @param product
      * @return целый товар
      */
+    @Performance
     public Product save(Product product){
         try (Connection connection = dataSource.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(SQL_INSERT)){
@@ -113,6 +117,7 @@ public class ProductRepository {
      * @param product
      * @return true, если обновилось, иначе false.
      */
+    @Performance
     public boolean update(Product product) {
         try (Connection conn = dataSource.getConnection();
              PreparedStatement preparedStatement = conn.prepareStatement(SQL_UPDATE)) {
@@ -137,6 +142,7 @@ public class ProductRepository {
      * @param id
      * @return true, если удалилось, иначе true.
      */
+    @Performance
     public boolean delete(long id) {
         try (Connection conn = dataSource.getConnection();
              PreparedStatement preparedStatement = conn.prepareStatement(SQL_DELETE)) {
@@ -154,6 +160,7 @@ public class ProductRepository {
      * Получает все товары из бд
      * @return список товаров
      */
+    @Performance
     public List<Product> findAll() {
         List<Product> productsList = new ArrayList<>();
 
@@ -184,6 +191,7 @@ public class ProductRepository {
      * @param id
      * @return найденный товар
      */
+    @Performance
     public Product findById(long id){
         try (Connection connection = dataSource.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(SQL_FIND_BY_ID)) {

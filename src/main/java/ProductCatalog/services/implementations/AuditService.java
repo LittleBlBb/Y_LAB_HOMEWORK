@@ -1,7 +1,8 @@
-package ProductCatalog.services;
+package ProductCatalog.services.implementations;
 
 import ProductCatalog.models.AuditEntry;
-import ProductCatalog.repositories.AuditRepository;
+import ProductCatalog.repositories.interfaces.IAuditRepository;
+import ProductCatalog.services.interfaces.IAuditService;
 
 import java.util.List;
 
@@ -9,15 +10,15 @@ import java.util.List;
  * Сервис для управления журналом аудита.
  * Отвечает за запись логов действий пользователей.
  */
-public class AuditService {
-    private final AuditRepository auditRepository;
+public class AuditService implements IAuditService {
+    private final IAuditRepository auditRepository;
 
     /**
      * Создает экземпляр {@code AuditService}.
      *
      * @param auditRepository объект, управляющий журналом аудита из БД
      */
-    public AuditService(AuditRepository auditRepository) {
+    public AuditService(IAuditRepository auditRepository) {
         this.auditRepository = auditRepository;
     }
 

@@ -2,16 +2,20 @@ package ProductCatalog.config;
 
 import ProductCatalog.db.Config;
 import ProductCatalog.db.DBConnection;
-import ProductCatalog.repositories.AuditRepository;
-import ProductCatalog.repositories.CatalogRepository;
-import ProductCatalog.repositories.ProductRepository;
-import ProductCatalog.repositories.UserRepository;
-import ProductCatalog.services.AuditService;
-import ProductCatalog.services.CatalogService;
+import ProductCatalog.repositories.implemetations.AuditRepository;
+import ProductCatalog.repositories.implemetations.CatalogRepository;
+import ProductCatalog.repositories.implemetations.ProductRepository;
+import ProductCatalog.repositories.implemetations.UserRepository;
+import ProductCatalog.repositories.interfaces.IAuditRepository;
+import ProductCatalog.repositories.interfaces.ICatalogRepository;
+import ProductCatalog.repositories.interfaces.IProductRepository;
+import ProductCatalog.repositories.interfaces.IUserRepository;
+import ProductCatalog.services.implementations.AuditService;
+import ProductCatalog.services.implementations.CatalogService;
 import ProductCatalog.services.MetricsService;
 import ProductCatalog.services.ProductFilterService;
-import ProductCatalog.services.ProductService;
-import ProductCatalog.services.UserService;
+import ProductCatalog.services.implementations.ProductService;
+import ProductCatalog.services.implementations.UserService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -36,42 +40,42 @@ public class RootConfig {
     }
 
     @Bean
-    public UserRepository userRepository(DataSource dataSource) {
+    public IUserRepository userRepository(DataSource dataSource) {
         return new UserRepository(dataSource);
     }
 
     @Bean
-    public ProductRepository productRepository(DataSource dataSource) {
+    public IProductRepository productRepository(DataSource dataSource) {
         return new ProductRepository(dataSource);
     }
 
     @Bean
-    public CatalogRepository catalogRepository(DataSource dataSource) {
+    public ICatalogRepository catalogRepository(DataSource dataSource) {
         return new CatalogRepository(dataSource);
     }
 
     @Bean
-    public AuditRepository auditRepository(DataSource dataSource) {
+    public IAuditRepository auditRepository(DataSource dataSource) {
         return new AuditRepository(dataSource);
     }
 
     @Bean
-    public AuditService auditService(AuditRepository auditRepository) {
+    public AuditService auditService(IAuditRepository auditRepository) {
         return new AuditService(auditRepository);
     }
 
     @Bean
-    public UserService userService(UserRepository userRepository, AuditService auditService) {
+    public UserService userService(IUserRepository userRepository, AuditService auditService) {
         return new UserService(userRepository, auditService);
     }
 
     @Bean
-    public CatalogService catalogService(CatalogRepository catalogRepository, AuditService auditService, UserService userService) {
+    public CatalogService catalogService(ICatalogRepository catalogRepository, AuditService auditService, UserService userService) {
         return new CatalogService(catalogRepository, auditService, userService);
     }
 
     @Bean
-    public ProductService productService(ProductRepository productRepository, AuditService auditService, UserService userService) {
+    public ProductService productService(IProductRepository productRepository, AuditService auditService, UserService userService) {
         return new ProductService(productRepository, auditService, userService);
     }
 

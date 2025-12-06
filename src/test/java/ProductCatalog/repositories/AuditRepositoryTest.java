@@ -1,6 +1,7 @@
 package ProductCatalog.repositories;
 
 import ProductCatalog.models.AuditEntry;
+import ProductCatalog.repositories.implemetations.AuditRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

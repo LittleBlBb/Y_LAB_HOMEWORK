@@ -1,6 +1,8 @@
-package ProductCatalog.repositories;
+package ProductCatalog.repositories.implemetations;
 
+import ProductCatalog.annotations.Performance;
 import ProductCatalog.models.Catalog;
+import ProductCatalog.repositories.interfaces.ICatalogRepository;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -14,7 +16,7 @@ import java.util.List;
  * Репозиторий для управления каталогами.
  * Отвечает за действия с каталогами в бд
  */
-public class CatalogRepository {
+public class CatalogRepository implements ICatalogRepository {
     private static final String SQL_FIND_ALL = """
             SELECT id, name FROM app.catalog;
             """;
@@ -44,6 +46,7 @@ public class CatalogRepository {
      * Получает все каталоги из бд
      * @return список каталогов
      */
+    @Performance
     public List<Catalog> findAll() {
         List<Catalog> catalogsList = new ArrayList<>();
 
@@ -68,6 +71,7 @@ public class CatalogRepository {
      * @param catalog
      * @return целый каталог
      */
+    @Performance
     public Catalog save(Catalog catalog){
         try (Connection connection = dataSource.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(SQL_INSERT)) {
@@ -90,6 +94,7 @@ public class CatalogRepository {
      * @param id
      * @return true, если удалилось, иначе false.
      */
+    @Performance
     public boolean delete(long id) {
         try (Connection connection = dataSource.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(SQL_DELETE)){
@@ -107,6 +112,7 @@ public class CatalogRepository {
      * @param id
      * @return каталог
      */
+    @Performance
     public Catalog findById(long id){
         try (Connection connection = dataSource.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(SQL_FIND_BY_ID)) {

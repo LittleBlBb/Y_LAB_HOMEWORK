@@ -1,53 +1,68 @@
 package ProductCatalog.aspects;
 
-import ProductCatalog.services.AuditService;
+import ProductCatalog.annotations.Auditable;
+import ProductCatalog.constants.SessionAttributes;
+import ProductCatalog.models.User;
+import ProductCatalog.services.implementations.AuditService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
-import org.springframework.stereotype.Component;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 
-@Component
+import java.lang.reflect.Method;
+
 public class AuditInterceptor implements MethodInterceptor {
+
+    private final AuditService auditService;
+
+    public AuditInterceptor(AuditService auditService) {
+        this.auditService = auditService;
+    }
 
     @Override
     public Object invoke(MethodInvocation invocation) throws Throwable {
-        ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes();
-        HttpServletRequest request = attributes.getRequest();
+        Method method = invocation.getMethod();
+        Auditable ann = method.getAnnotation(Auditable.class);
 
-        if (request == null) {
+        if (ann == null) {
             return invocation.proceed();
         }
 
-        AuditService auditService = (AuditService) request.getServletContext().getAttribute("auditService");
+        HttpServletRequest request = extractRequest(invocation.getArguments());
+        String username = resolveUser(request);
+        String action = ann.action();
+        String details = request != null ?
+                "URL=" + request.getRequestURI() + ", HTTP=" + request.getMethod() :
+                "no request info";
 
-        String username = "anonymous";
+        try {
+            Object result = invocation.proceed();
+            auditService.save(username, action, details + ", status=OK");
+            return result;
+        } catch (Throwable ex) {
+            auditService.save(username, action, details + ", status=ERROR, message=" + ex.getMessage());
+            throw ex;
+        }
+    }
 
-        HttpSession session = request.getSession(false);
-        if (session != null) {
-            Object u = session.getAttribute("username");
-            if (u != null) {
-                username = u.toString();
+    private HttpServletRequest extractRequest(Object[] args) {
+        if (args == null) return null;
+        for (Object arg : args) {
+            if (arg instanceof HttpServletRequest req) {
+                return req;
             }
         }
+        return null;
+    }
 
-        String action = invocation.getMethod().getName();
-
-        String details = "URL: " + request.getRequestURI() +
-                ", HTTP: " + request.getMethod();
-
-        long start = System.currentTimeMillis();
-        Object result = invocation.proceed();
-        long duration = System.currentTimeMillis() - start;
-
-        details += ", executionTime=" + duration + "ms";
-
-        if (auditService != null) {
-            auditService.save(username, action, details);
+    private String resolveUser(HttpServletRequest request) {
+        if (request == null) return "anonymous";
+        HttpSession session = request.getSession(false);
+        if (session == null) return "anonymous";
+        Object u = session.getAttribute(SessionAttributes.USER);
+        if (u instanceof User user) {
+            return user.getUsername();
         }
-
-        return result;
+        return "anonymous";
     }
 }

@@ -1,13 +1,16 @@
 package ProductCatalog.controllers;
 
 import ProductCatalog.annotations.Auditable;
+import ProductCatalog.constants.Permission;
+import ProductCatalog.utils.AccessUtil;
 import ProductCatalog.validators.ProductValidator;
 import ProductCatalog.dto.ProductDTO;
 import ProductCatalog.mappers.ProductMapper;
 import ProductCatalog.models.Product;
-import ProductCatalog.services.ProductService;
+import ProductCatalog.services.implementations.ProductService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.nio.file.AccessDeniedException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -47,7 +51,7 @@ public class ProductController {
      * @return список товаров в виде {@link ProductDTO}
      */
     @GetMapping
-    @Operation(summary = "getting all products or products by catalogId")
+    @Operation(summary = "get all products or products by catalogId")
     public List<ProductDTO> getProducts(@RequestParam(name="catalogId", required = false) Long catalogId) {
         List<Product> products;
 
@@ -71,10 +75,11 @@ public class ProductController {
      * @param productDTO - DTO товара, который необходимо создать
      * @return строковый статус выполнения операции
      */
-    @Auditable
+    @Auditable(action = "create new product")
     @PostMapping
     @Operation(summary = "create new product")
-    public String createProduct(@RequestBody ProductDTO productDTO) {
+    public String createProduct(@RequestBody ProductDTO productDTO, HttpServletRequest request) throws AccessDeniedException {
+        AccessUtil.checkPermission(request, Permission.CREATE_PRODUCT);
         List<String> errors = ProductValidator.validate(productDTO);
         if (!errors.isEmpty()) {
             return errors.stream().collect(Collectors.joining("\n"));
@@ -96,10 +101,11 @@ public class ProductController {
      * @param id - id товара, который необходимо удалить.
      * @return строковый статус выполнения операции.
      */
-    @Auditable
+    @Auditable(action = "delete product")
     @DeleteMapping
     @Operation(summary = "delete product by id")
-    public String deleteProduct(@RequestParam(name = "id", required = true) Long id) {
+    public String deleteProduct(@RequestParam(name = "id", required = true) Long id, HttpServletRequest request) throws AccessDeniedException {
+        AccessUtil.checkPermission(request, Permission.DELETE_PRODUCT);
         boolean deleted = productService.deleteProduct(id);
 
         if (deleted) {
@@ -117,10 +123,11 @@ public class ProductController {
      * @param productDTO DTO товара, который необходимо обновить
      * @return строковый статус выполнения операции
      */
-    @Auditable
+    @Auditable(action = "edit product")
     @PutMapping
     @Operation(summary = "update product")
-    public String updateProduct(@RequestBody ProductDTO productDTO) {
+    public String updateProduct(@RequestBody ProductDTO productDTO, HttpServletRequest request) throws AccessDeniedException {
+        AccessUtil.checkPermission(request, Permission.EDIT_PRODUCT);
         List<String> errors = ProductValidator.validate(productDTO);
 
         if (!errors.isEmpty()) {

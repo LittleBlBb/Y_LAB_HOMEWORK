@@ -1,13 +1,16 @@
 package ProductCatalog.controllers;
 
 import ProductCatalog.annotations.Auditable;
+import ProductCatalog.constants.Permission;
 import ProductCatalog.models.Catalog;
-import ProductCatalog.services.CatalogService;
+import ProductCatalog.services.implementations.CatalogService;
+import ProductCatalog.utils.AccessUtil;
 import ProductCatalog.validators.CatalogValidator;
 import ProductCatalog.dto.CatalogDTO;
 import ProductCatalog.mappers.CatalogMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,13 +19,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.nio.file.AccessDeniedException;
 import java.util.List;
 import java.util.stream.Collectors;
 
 /**
  * Контроллер для управления каталогами.
  * Предоставляет REST-эндпоинты для получения, создания и удаления каталогов.
- * Использует {@link ProductCatalog.services.CatalogService} для выполнения бизнес-логики и {@link ProductCatalog.mappers.CatalogMapper}
+ * Использует {@link ProductCatalog.services.implementations.CatalogService} для выполнения бизнес-логики и {@link ProductCatalog.mappers.CatalogMapper}
  * для преобразования сущностей в DTO и обратно.
  *
  * Аннотация {@link Auditable} применяется для аудита действий.
@@ -59,10 +63,11 @@ public class CatalogController {
      * @param catalogDTO - DTO каталога, который необходимо создать.
      * @return строковый статус выполнения операции.
      */
-    @Auditable
+    @Auditable(action = "create new catalog")
     @PostMapping
     @Operation(summary = "create new catalog")
-    public String createCatalog(@RequestBody CatalogDTO catalogDTO) {
+    public String createCatalog(@RequestBody CatalogDTO catalogDTO, HttpServletRequest request) throws AccessDeniedException {
+        AccessUtil.checkPermission(request, Permission.CREATE_CATALOG);
         List<String> errors = CatalogValidator.validate(catalogDTO);
         if (!errors.isEmpty()) {
             return errors.stream().collect(Collectors.joining("\n"));
@@ -86,10 +91,11 @@ public class CatalogController {
      * @param id - id каталога, который необходимо удалить
      * @return - строковый статус выполнения операции
      */
-    @Auditable
+    @Auditable(action = "delete catalog")
     @DeleteMapping
     @Operation(summary = "delete catalog by id")
-    public String deleteCatalogById(@RequestParam(name = "id", required = true) Long id) {
+    public String deleteCatalogById(@RequestParam(name = "id", required = true) Long id, HttpServletRequest request) throws AccessDeniedException {
+        AccessUtil.checkPermission(request, Permission.DELETE_CATALOG);
         boolean deleted = catalogService.deleteCatalog(id);
         if(deleted) {
             return "DELETED";

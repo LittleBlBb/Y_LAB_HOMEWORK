@@ -1,7 +1,11 @@
-package ProductCatalog.services;
+package ProductCatalog.services.implementations;
 
 import ProductCatalog.models.Product;
-import ProductCatalog.repositories.ProductRepository;
+import ProductCatalog.repositories.interfaces.IProductRepository;
+import ProductCatalog.services.MetricsService;
+import ProductCatalog.services.interfaces.IAuditService;
+import ProductCatalog.services.interfaces.IProductService;
+import ProductCatalog.services.interfaces.IUserService;
 
 import java.util.List;
 
@@ -9,10 +13,10 @@ import java.util.List;
  * Сервис для управления товарами.
  * Позволяет создавать, изменять, удалять и получать товары из каталогов.
  */
-public class ProductService {
-    private final ProductRepository productRepository;
-    private final AuditService auditService;
-    private final UserService userService;
+public class ProductService implements IProductService {
+    private final IProductRepository productRepository;
+    private final IAuditService auditService;
+    private final IUserService userService;
 
     /**
      * Создает экземпляр {@code ProductService}.
@@ -21,7 +25,7 @@ public class ProductService {
      * @param auditService сервис аудита
      * @param userService сервис пользователей
      */
-    public ProductService(ProductRepository productRepository, AuditService auditService, UserService userService) {
+    public ProductService(IProductRepository productRepository, IAuditService auditService, IUserService userService) {
         this.productRepository = productRepository;
         this.userService = userService;
         this.auditService = auditService;

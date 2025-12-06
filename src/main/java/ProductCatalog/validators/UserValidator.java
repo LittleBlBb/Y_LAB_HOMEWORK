@@ -16,9 +16,6 @@ public class UserValidator {
         if (dto.getPassword() == null || dto.getPassword().isBlank())
             errors.add("password is required.");
 
-        if (dto.getRole() == null || dto.getRole().isBlank())
-            errors.add("role is required.");
-
         return errors;
     }
 }

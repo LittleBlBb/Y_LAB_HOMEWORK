@@ -1,5 +1,7 @@
-package ProductCatalog.repositories;
+package ProductCatalog.repositories.implemetations;
 
+import ProductCatalog.annotations.Performance;
+import ProductCatalog.constants.Role;
 import ProductCatalog.models.User;
 
 import javax.sql.DataSource;
@@ -14,7 +16,7 @@ import java.util.List;
  * Репозиторий для управления пользователями.
  * Отвечает за действия с пользователями в бд
  */
-public class UserRepository {
+public class UserRepository implements ProductCatalog.repositories.interfaces.IUserRepository {
     private static final String SQL_FIND_BY_USERNAME = """
                 SELECT id, username, password, role
                 FROM app.user
@@ -45,6 +47,7 @@ public class UserRepository {
      * @param username
      * @return найденный пользователь
      */
+    @Performance
     public User findByUsername(String username) {
 
         try (Connection connection = dataSource.getConnection();
@@ -53,11 +56,13 @@ public class UserRepository {
             ResultSet resultSet = preparedStatement.executeQuery();
 
             if (resultSet.next()) {
+                String roleStr = resultSet.getString("role");
+                Role role = Role.valueOf(roleStr.toUpperCase());
                 return new User(
                         resultSet.getLong("id"),
                         resultSet.getString("username"),
                         resultSet.getString("password"),
-                        resultSet.getString("role")
+                        role
                 );
             }
         } catch (SQLException exception) {
@@ -71,13 +76,14 @@ public class UserRepository {
      * @param user
      * @return целый пользователь
      */
+    @Performance
     public User save(User user){
         try (Connection connection = dataSource.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(SQL_INSERT)){
 
             preparedStatement.setString(1, user.getUsername());
             preparedStatement.setString(2, user.getPassword());
-            preparedStatement.setString(3, user.getRole());
+            preparedStatement.setString(3, user.getRole().toString());
 
             ResultSet resultSet = preparedStatement.executeQuery();
 
@@ -96,6 +102,7 @@ public class UserRepository {
      * Получает всех пользователей из бд
      * @return список пользователей
      */
+    @Performance
     public List<User> findAll() {
         List<User> usersList = new ArrayList<>();
 
@@ -104,11 +111,13 @@ public class UserRepository {
 
             ResultSet resultSet = preparedStatement.executeQuery();
             while(resultSet.next()){
+                String roleStr = resultSet.getString("role");
+                Role role = Role.valueOf(roleStr.toUpperCase());
                 usersList.add(new User(
                         resultSet.getLong("id"),
                         resultSet.getString("username"),
                         resultSet.getString("password"),
-                        resultSet.getString("role")
+                        role
                 ));
 
             }
@@ -123,6 +132,7 @@ public class UserRepository {
      * @param id
      * @return найденный пользователь
      */
+    @Performance
     public User findById(long id){
         try (Connection connection = dataSource.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(SQL_FIND_BY_ID)) {
@@ -130,11 +140,13 @@ public class UserRepository {
                 ResultSet resultSet = preparedStatement.executeQuery();
 
                 if(resultSet.next()){
+                    String roleStr = resultSet.getString("role");
+                    Role role = Role.valueOf(roleStr.toUpperCase());
                     return new User(
                             resultSet.getLong("id"),
                             resultSet.getString("username"),
                             resultSet.getString("password"),
-                            resultSet.getString("role")
+                            role
                     );
                 }
         } catch (SQLException exception){

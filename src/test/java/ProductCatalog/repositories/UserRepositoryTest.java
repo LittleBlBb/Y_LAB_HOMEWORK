@@ -1,6 +1,8 @@
 package ProductCatalog.repositories;
 
+import ProductCatalog.constants.Role;
 import ProductCatalog.models.User;
+import ProductCatalog.repositories.implemetations.UserRepository;
 import org.junit.jupiter.api.*;
 
 
@@ -16,14 +18,14 @@ public class UserRepositoryTest extends AbstractRepositoryTest {
 
     @Test
     public void testInsertAndFind() {
-        User savedUser = new User("testUser", "testPassword", "user");
+        User savedUser = new User("testUser", "testPassword", Role.USER);
         userRepository.save(savedUser);
 
         User fetchedUser = userRepository.findById(savedUser.getId());
 
         Assertions.assertArrayEquals(
-                new String[]{"testUser", "testPassword", "user"},
-                new String[]{fetchedUser.getUsername(), fetchedUser.getPassword(), fetchedUser.getRole()}
+                new String[]{"testUser", "testPassword"},
+                new String[]{fetchedUser.getUsername(), fetchedUser.getPassword()}
         );
     }
 }
