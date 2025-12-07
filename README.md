@@ -18,7 +18,7 @@
 - **Maven**: 3.8+ для сборки и тестирования.
 - **Docker**: Для запуска PostgreSQL в контейнере.
 - **PostgreSQL**: Версия 16+.
-- **apache-tomcat**: Версия 10.
+- **apache-tomcat**: Версия 9.
 - **Дополнительно**: Для тестов требуется Docker (Testcontainers использует контейнеры для изоляции).
 
 ## Установка и запуск
@@ -112,16 +112,23 @@ mvn clean package
 Если запускаете в apache-tomcat:
 Страница Swagger будет доступна по адресу:
 ```
-http://localhost:8080/ProductCatalog-1.0-SNAPSHOT/swagger-ui/index.html
+http://localhost:8080/ProductCatalog-1.0-SNAPSHOT/swagger-ui.html
 ```
 
 Также можно будет обратиться к следующим эндпоинтам:
 - `http://localhost:8080/ProductCatalog-1.0-SNAPSHOT/api/products` - отображение всех товаров
 - `http://localhost:8080/ProductCatalog-1.0-SNAPSHOT/api/catalogs` - отображение всех каталогов
-- `http://localhost:8080/ProductCatalog-1.0-SNAPSHOT/api/logs` - отображение всех логов
-- `http://localhost:8080/ProductCatalog-1.0-SNAPSHOT/api/users` - отображение всех пользователей
+- `http://localhost:8080/ProductCatalog-1.0-SNAPSHOT/api/logs` - отображение всех логов (работает, если у вашего пользователя есть разрешение)
+- `http://localhost:8080/ProductCatalog-1.0-SNAPSHOT/api/users` - отображение всех пользователей (работает, если у вашего пользователя есть разрешение)
 
-Также можно протестировать все GET, POST, PUT, DELETE в свагере.
+Также можно протестировать все GET, POST, PUT, DELETE в свагере (работает, если у вашего пользователя есть разрешение).
+
+Чтобы проверить работу методов с особыми разрешениями необходимо залогиниться с помощью
+login: admin
+password: admin
+
+если вы не залогинетесь или у вас не будет необходимых прав и попробуете воспользоваться например методом GET `http://localhost:8080/ProductCatalog-1.0-SNAPSHOT/api/logs`
+то вам придет соответствующий ответ
 
 ### 6. Запуск тестов
 
