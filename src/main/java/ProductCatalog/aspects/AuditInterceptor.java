@@ -4,11 +4,11 @@ import ProductCatalog.annotations.Auditable;
 import ProductCatalog.constants.SessionAttributes;
 import ProductCatalog.models.User;
 import ProductCatalog.services.implementations.AuditService;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import java.lang.reflect.Method;
 
 public class AuditInterceptor implements MethodInterceptor {

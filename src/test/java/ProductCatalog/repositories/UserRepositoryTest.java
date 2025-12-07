@@ -3,8 +3,10 @@ package ProductCatalog.repositories;
 import ProductCatalog.constants.Role;
 import ProductCatalog.models.User;
 import ProductCatalog.repositories.implemetations.UserRepository;
-import org.junit.jupiter.api.*;
-
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class UserRepositoryTest extends BaseRepositoryTest {
