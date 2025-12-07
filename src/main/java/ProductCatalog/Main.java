@@ -4,7 +4,6 @@ import ProductCatalog.db.Config;
 import ProductCatalog.db.DBConnection;
 import ProductCatalog.db.Migrator;
 import ProductCatalog.performance.starter.EnablePerformanceLogging;
-import org.postgresql.ds.PGSimpleDataSource;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
@@ -17,7 +16,6 @@ public class Main {
         Config config = new Config();
 
         DBConnection db = new DBConnection(config);
-        PGSimpleDataSource dataSource = db.getDataSource();
 
         try {
             Migrator migrator = new Migrator(config, db);
