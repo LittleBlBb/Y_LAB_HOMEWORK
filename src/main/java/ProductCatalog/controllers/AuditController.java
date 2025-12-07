@@ -1,6 +1,5 @@
 package ProductCatalog.controllers;
 
-import ProductCatalog.audit.annotations.Auditable;
 import ProductCatalog.constants.Permission;
 import ProductCatalog.audit.services.implementations.AuditService;
 import ProductCatalog.dto.AuditEntryDTO;

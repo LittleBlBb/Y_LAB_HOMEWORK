@@ -26,13 +26,6 @@ public class Main {
             throw new RuntimeException("Failed to migrate", e);
         }
 
-
-        var context = SpringApplication.run(Main.class, args);
-        System.out.println("Beans:");
-        for (String name : context.getBeanDefinitionNames()) {
-            if (name.toLowerCase().contains("product")) {
-                System.out.println(name);
-            }
-        }
+        SpringApplication.run(Main.class, args);
     }
 }

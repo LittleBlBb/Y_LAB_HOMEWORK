@@ -2,10 +2,7 @@ package ProductCatalog.services.implementations;
 
 import ProductCatalog.models.Product;
 import ProductCatalog.repositories.interfaces.IProductRepository;
-import ProductCatalog.services.MetricsService;
-import ProductCatalog.services.interfaces.IAuditService;
 import ProductCatalog.services.interfaces.IProductService;
-import ProductCatalog.services.interfaces.IUserService;
 
 import java.util.List;
 
@@ -15,20 +12,14 @@ import java.util.List;
  */
 public class ProductService implements IProductService {
     private final IProductRepository productRepository;
-    private final IAuditService auditService;
-    private final IUserService userService;
 
     /**
      * Создает экземпляр {@code ProductService}.
      *
      * @param productRepository объект, управляющий товарами из БД
-     * @param auditService сервис аудита
-     * @param userService сервис пользователей
      */
-    public ProductService(IProductRepository productRepository, IAuditService auditService, IUserService userService) {
+    public ProductService(IProductRepository productRepository) {
         this.productRepository = productRepository;
-        this.userService = userService;
-        this.auditService = auditService;
     }
 
     /**

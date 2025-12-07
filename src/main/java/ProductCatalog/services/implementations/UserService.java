@@ -3,7 +3,6 @@ package ProductCatalog.services.implementations;
 import ProductCatalog.constants.Role;
 import ProductCatalog.models.User;
 import ProductCatalog.repositories.interfaces.IUserRepository;
-import ProductCatalog.services.interfaces.IAuditService;
 import ProductCatalog.services.interfaces.IUserService;
 
 import java.util.List;
@@ -14,18 +13,15 @@ import java.util.List;
  */
 public class UserService implements IUserService {
     private final IUserRepository userRepository;
-    private final IAuditService auditService;
     private User currentUser;
 
     /**
      * Создает экземпляр {@code UserService}.
      *
      * @param userRepository объект, управляющий пользователями из БД
-     * @param auditService сервис аудита
      */
-    public UserService(IUserRepository userRepository, IAuditService auditService) {
+    public UserService(IUserRepository userRepository) {
         this.userRepository = userRepository;
-        this.auditService = auditService;
     }
 
     public List<User> getAll() {

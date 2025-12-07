@@ -65,18 +65,18 @@ public class RootConfig {
     }
 
     @Bean
-    public UserService userService(IUserRepository userRepository, AuditService auditService) {
-        return new UserService(userRepository, auditService);
+    public UserService userService(IUserRepository userRepository) {
+        return new UserService(userRepository);
     }
 
     @Bean
-    public CatalogService catalogService(ICatalogRepository catalogRepository, AuditService auditService, UserService userService) {
-        return new CatalogService(catalogRepository, auditService, userService);
+    public CatalogService catalogService(ICatalogRepository catalogRepository) {
+        return new CatalogService(catalogRepository);
     }
 
     @Bean
-    public ProductService productService(IProductRepository productRepository, AuditService auditService, UserService userService) {
-        return new ProductService(productRepository, auditService, userService);
+    public ProductService productService(IProductRepository productRepository) {
+        return new ProductService(productRepository);
     }
 
     @Bean

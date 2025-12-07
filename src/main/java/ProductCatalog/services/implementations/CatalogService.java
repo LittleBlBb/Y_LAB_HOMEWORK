@@ -2,9 +2,7 @@ package ProductCatalog.services.implementations;
 
 import ProductCatalog.models.Catalog;
 import ProductCatalog.repositories.interfaces.ICatalogRepository;
-import ProductCatalog.services.interfaces.IAuditService;
 import ProductCatalog.services.interfaces.ICatalogService;
-import ProductCatalog.services.interfaces.IUserService;
 
 import java.util.List;
 
@@ -14,21 +12,15 @@ import java.util.List;
  * а также фиксирует действия в журнале аудита.
  */
 public class CatalogService implements ICatalogService {
-    private final IAuditService auditService;
     private final ICatalogRepository catalogRepository;
-    private final IUserService userService;
 
     /**
      * Создает экземпляр {@code CatalogService}.
      *
      * @param catalogRepository  объект, управляющий каталогами из БД
-     * @param auditService сервис аудита
-     * @param userService  сервис пользователей
      */
-    public CatalogService(ICatalogRepository catalogRepository, IAuditService auditService, IUserService userService) {
+    public CatalogService(ICatalogRepository catalogRepository) {
         this.catalogRepository = catalogRepository;
-        this.auditService = auditService;
-        this.userService = userService;
     }
 
     /**
