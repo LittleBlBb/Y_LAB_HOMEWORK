@@ -1,6 +1,6 @@
-package ProductCatalog.aspects;
+package ProductCatalog.performance.aspects;
 
-import ProductCatalog.annotations.Performance;
+import ProductCatalog.performance.annotations.Performance;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 

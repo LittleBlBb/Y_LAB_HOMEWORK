@@ -1,6 +1,6 @@
 package ProductCatalog.controllers;
 
-import ProductCatalog.annotations.Auditable;
+import ProductCatalog.audit.annotations.Auditable;
 import ProductCatalog.constants.Permission;
 import ProductCatalog.utils.AccessUtil;
 import ProductCatalog.validators.ProductValidator;
@@ -75,7 +75,7 @@ public class ProductController {
      * @param productDTO - DTO товара, который необходимо создать
      * @return строковый статус выполнения операции
      */
-    @Auditable(action = "create new product")
+//    @Auditable(action = "create new product")
     @PostMapping
     @Operation(summary = "create new product")
     public String createProduct(@RequestBody ProductDTO productDTO, HttpServletRequest request) throws AccessDeniedException {
@@ -101,7 +101,7 @@ public class ProductController {
      * @param id - id товара, который необходимо удалить.
      * @return строковый статус выполнения операции.
      */
-    @Auditable(action = "delete product")
+//    @Auditable(action = "delete product")
     @DeleteMapping
     @Operation(summary = "delete product by id")
     public String deleteProduct(@RequestParam(name = "id", required = true) Long id, HttpServletRequest request) throws AccessDeniedException {
@@ -123,7 +123,7 @@ public class ProductController {
      * @param productDTO DTO товара, который необходимо обновить
      * @return строковый статус выполнения операции
      */
-    @Auditable(action = "edit product")
+//    @Auditable(action = "edit product")
     @PutMapping
     @Operation(summary = "update product")
     public String updateProduct(@RequestBody ProductDTO productDTO, HttpServletRequest request) throws AccessDeniedException {

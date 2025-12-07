@@ -48,13 +48,6 @@ public class CatalogService implements ICatalogService {
      */
     public boolean createCatalog(Catalog catalog) {
         catalogRepository.save(catalog);
-        auditService.save(
-                userService.getCurrentUser() != null
-                        ? userService.getCurrentUser().getUsername()
-                        : "anonymous",
-                "CREATE_CATALOG",
-                "Создан новый каталог: " + catalog.getName()
-        );
         return true;
     }
 
@@ -72,16 +65,6 @@ public class CatalogService implements ICatalogService {
         }
 
         boolean deleted = catalogRepository.delete(id);
-
-        if (deleted) {
-            auditService.save(
-                    userService.getCurrentUser() != null
-                            ? userService.getCurrentUser().getUsername()
-                            : "anonymous",
-                    "DELETE_CATALOG",
-                    "Удалён каталог: " + catalog.getName()
-            );
-        }
         return deleted;
     }
 

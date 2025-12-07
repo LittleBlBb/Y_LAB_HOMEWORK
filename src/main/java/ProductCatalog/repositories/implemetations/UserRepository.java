@@ -1,6 +1,6 @@
 package ProductCatalog.repositories.implemetations;
 
-import ProductCatalog.annotations.Performance;
+import ProductCatalog.performance.annotations.Performance;
 import ProductCatalog.constants.Role;
 import ProductCatalog.models.User;
 

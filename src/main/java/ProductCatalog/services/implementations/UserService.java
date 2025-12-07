@@ -46,8 +46,6 @@ public class UserService implements IUserService {
         User newUser = new User(username, password, Role.USER);
         userRepository.save(newUser);
 
-        auditService.save(username, "REGISTER", "Регистрация нового пользователя");
-
         return true;
     }
     /**
@@ -61,7 +59,6 @@ public class UserService implements IUserService {
             return false;
         }
         userRepository.save(user);
-        auditService.save(user.getUsername(), "REGISTER", "Регистрация нового пользователя");
         return true;
     }
 
@@ -76,11 +73,8 @@ public class UserService implements IUserService {
         User user = userRepository.findByUsername(username);
         if (user != null && user.getPassword().equals(password)) {
             currentUser = user;
-            auditService.save(username, "LOGIN", "Успешный вход");
             return true;
         }
-
-        auditService.save(username, "LOGIN_FAILED", "Неудачная попытка входа");
         return false;
     }
 
@@ -88,9 +82,6 @@ public class UserService implements IUserService {
      * Выходит из текущего аккаунта.
      */
     public void logout() {
-        if (currentUser != null) {
-            auditService.save(currentUser.getUsername(), "LOGOUT", "Выход из системы");
-        }
         currentUser = null;
     }
 

@@ -5,7 +5,7 @@ import ProductCatalog.constants.Role;
 import ProductCatalog.models.User;
 import ProductCatalog.dto.AuditEntryDTO;
 import ProductCatalog.models.AuditEntry;
-import ProductCatalog.services.implementations.AuditService;
+import ProductCatalog.audit.services.implementations.AuditService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

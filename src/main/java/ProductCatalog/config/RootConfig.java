@@ -2,7 +2,7 @@ package ProductCatalog.config;
 
 import ProductCatalog.db.Config;
 import ProductCatalog.db.DBConnection;
-import ProductCatalog.repositories.implemetations.AuditRepository;
+import ProductCatalog.audit.repositories.implementations.AuditRepository;
 import ProductCatalog.repositories.implemetations.CatalogRepository;
 import ProductCatalog.repositories.implemetations.ProductRepository;
 import ProductCatalog.repositories.implemetations.UserRepository;
@@ -10,7 +10,7 @@ import ProductCatalog.repositories.interfaces.IAuditRepository;
 import ProductCatalog.repositories.interfaces.ICatalogRepository;
 import ProductCatalog.repositories.interfaces.IProductRepository;
 import ProductCatalog.repositories.interfaces.IUserRepository;
-import ProductCatalog.services.implementations.AuditService;
+import ProductCatalog.audit.services.implementations.AuditService;
 import ProductCatalog.services.implementations.CatalogService;
 import ProductCatalog.services.MetricsService;
 import ProductCatalog.services.ProductFilterService;

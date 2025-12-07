@@ -2,7 +2,7 @@ package ProductCatalog.ui;
 
 import ProductCatalog.models.AuditEntry;
 import ProductCatalog.models.Product;
-import ProductCatalog.services.implementations.AuditService;
+import ProductCatalog.audit.services.implementations.AuditService;
 import ProductCatalog.services.implementations.CatalogService;
 import ProductCatalog.services.MetricsService;
 import ProductCatalog.services.ProductFilterService;

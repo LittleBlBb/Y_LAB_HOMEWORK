@@ -1,6 +1,6 @@
-package ProductCatalog.repositories.implemetations;
+package ProductCatalog.audit.repositories.implementations;
 
-import ProductCatalog.annotations.Performance;
+import ProductCatalog.performance.annotations.Performance;
 import ProductCatalog.models.AuditEntry;
 import ProductCatalog.repositories.interfaces.IAuditRepository;
 

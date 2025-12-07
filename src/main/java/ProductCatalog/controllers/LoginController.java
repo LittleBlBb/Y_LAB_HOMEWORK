@@ -1,5 +1,6 @@
 package ProductCatalog.controllers;
 
+import ProductCatalog.audit.annotations.Auditable;
 import ProductCatalog.constants.SessionAttributes;
 import ProductCatalog.dto.LoginRequest;
 import ProductCatalog.models.User;
@@ -26,6 +27,7 @@ public class LoginController {
         this.userService = userService;
     }
 
+    @Auditable(action = "login")
     @PostMapping
     @Operation(summary = "login")
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest, HttpSession session) {

@@ -3,18 +3,15 @@ package ProductCatalog;
 import ProductCatalog.db.Config;
 import ProductCatalog.db.DBConnection;
 import ProductCatalog.db.Migrator;
-import ProductCatalog.repositories.implemetations.AuditRepository;
-import ProductCatalog.repositories.implemetations.CatalogRepository;
-import ProductCatalog.repositories.implemetations.ProductRepository;
-import ProductCatalog.repositories.implemetations.UserRepository;
-import ProductCatalog.services.*;
-import ProductCatalog.services.implementations.AuditService;
-import ProductCatalog.services.implementations.CatalogService;
-import ProductCatalog.services.implementations.ProductService;
-import ProductCatalog.services.implementations.UserService;
-import ProductCatalog.ui.ProductCatalogUI;
+import ProductCatalog.performance.starter.EnablePerformanceLogging;
 import org.postgresql.ds.PGSimpleDataSource;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.EnableAspectJAutoProxy;
 
+@SpringBootApplication
+@EnableAspectJAutoProxy(proxyTargetClass = true)
+@EnablePerformanceLogging
 public class Main {
     public static void main(String[] args) {
         Config config = new Config();
@@ -29,19 +26,13 @@ public class Main {
             throw new RuntimeException("Failed to migrate", e);
         }
 
-        UserRepository userRepo = new UserRepository(dataSource);
-        CatalogRepository catalogRepo = new CatalogRepository(dataSource);
-        ProductRepository productRepo = new ProductRepository(dataSource);
-        AuditRepository auditRepo = new AuditRepository(dataSource);
 
-
-        AuditService auditService = new AuditService(auditRepo);
-        UserService userService = new UserService(userRepo, auditService);
-        CatalogService catalogService = new CatalogService(catalogRepo, auditService, userService);
-        MetricsService.getInstance(catalogService);
-        ProductService productService = new ProductService(productRepo, auditService, userService);
-
-        ProductCatalogUI ui = new ProductCatalogUI(catalogService, productService, userService, auditService);
-        ui.run();
+        var context = SpringApplication.run(Main.class, args);
+        System.out.println("Beans:");
+        for (String name : context.getBeanDefinitionNames()) {
+            if (name.toLowerCase().contains("product")) {
+                System.out.println(name);
+            }
+        }
     }
 }

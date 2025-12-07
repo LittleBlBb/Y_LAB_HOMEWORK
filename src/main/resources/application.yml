@@ -9,3 +9,7 @@ db:
   name: postgres
   port: 15532
   schema: app
+
+spring:
+  liquibase:
+    enabled: false

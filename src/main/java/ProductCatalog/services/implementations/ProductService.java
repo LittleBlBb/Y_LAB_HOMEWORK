@@ -60,15 +60,7 @@ public class ProductService implements IProductService {
             return false;
         }
 
-        long start = System.currentTimeMillis();
         boolean deleted = productRepository.delete(id);
-        if (deleted) {
-            auditService.save(userService.getCurrentUser() != null
-                            ? userService.getCurrentUser().getUsername()
-                            : "anonymous",
-                    "DELETE_PRODUCT", "Удалён товар: " + product.getName());
-            MetricsService.getInstance().displayMetrics("Удаление товара", start);
-        }
         return deleted;
     }
 
@@ -79,15 +71,8 @@ public class ProductService implements IProductService {
      * @return {@code true}, если обновление успешно
      */
     public boolean updateProduct(Product newProduct) {
-        long start = System.currentTimeMillis();
         boolean updated = productRepository.update(newProduct);
-        if (updated){
-            auditService.save(userService.getCurrentUser() != null
-                    ? userService.getCurrentUser().getUsername()
-                    : "anonymous",
-                    "UPDATE_PRODUCT", "Изменён товар: " + newProduct.getName());
-            MetricsService.getInstance().displayMetrics("Изменение товара", start);
-        }
+
         return updated;
     }
 
@@ -98,14 +83,7 @@ public class ProductService implements IProductService {
      * @return {@code true}, если товар успешно добавлен
      */
     public boolean createProduct(Product product) {
-        long start = System.currentTimeMillis();
-        productRepository.save(product);
-        String username = userService.getCurrentUser() != null
-                ? userService.getCurrentUser().getUsername()
-                : "anonymous";
-        auditService.save(username, "CREATE_PRODUCT", "Добавлен товар: " + product.getName());
-        MetricsService.getInstance().displayMetrics("Добавление товара", start);
-        return true;
+        return productRepository.save(product) == null ? false : true;
     }
 
     public Product findById(long id) {

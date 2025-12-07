@@ -1,6 +1,6 @@
 package ProductCatalog.controllers;
 
-import ProductCatalog.annotations.Auditable;
+import ProductCatalog.audit.annotations.Auditable;
 import ProductCatalog.constants.Permission;
 import ProductCatalog.models.User;
 import ProductCatalog.services.implementations.UserService;

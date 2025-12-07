@@ -1,8 +1,8 @@
 package ProductCatalog.controllers;
 
-import ProductCatalog.annotations.Auditable;
+import ProductCatalog.audit.annotations.Auditable;
 import ProductCatalog.constants.Permission;
-import ProductCatalog.services.implementations.AuditService;
+import ProductCatalog.audit.services.implementations.AuditService;
 import ProductCatalog.dto.AuditEntryDTO;
 import ProductCatalog.mappers.AuditMapper;
 import ProductCatalog.utils.AccessUtil;
@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 /**
  * Контроллер для управления Журналом аудита.
  * Предоставляет REST-эндпоинт для получения пользователей.
- * Использует {@link ProductCatalog.services.implementations.AuditService} для выполнения бизнес-логики и {@link ProductCatalog.mappers.AuditMapper}
+ * Использует {@link ProductCatalog.audit.services.implementations.AuditService} для выполнения бизнес-логики и {@link ProductCatalog.mappers.AuditMapper}
  * для преобразования сущностей в DTO и обратно.
  *
  */
