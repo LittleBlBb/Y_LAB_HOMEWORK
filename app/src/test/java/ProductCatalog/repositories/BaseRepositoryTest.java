@@ -35,7 +35,7 @@ public abstract class BaseRepositoryTest {
         config.override(ConfigKeys.DB_PORT, String.valueOf(postgres.getFirstMappedPort()));
         config.override(ConfigKeys.DB_NAME, postgres.getDatabaseName());
         config.override(ConfigKeys.DB_USERNAME, postgres.getUsername());
-        config.override(ConfigKeys.DB_PASSWORD, postgres.getPassword());
+        config.override(ConfigKeys.DB_PASSWORD,  postgres.getPassword());
 
         DBConnection dbConnection = new DBConnection(config);
         dataSource = dbConnection.getDataSource();

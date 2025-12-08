@@ -1,7 +1,7 @@
 package ProductCatalog.controllers;
 
-import ProductCatalog.constants.Permission;
 import ProductCatalog.audit.services.implementations.AuditService;
+import ProductCatalog.constants.Permission;
 import ProductCatalog.dto.AuditEntryDTO;
 import ProductCatalog.mappers.AuditMapper;
 import ProductCatalog.utils.AccessUtil;
