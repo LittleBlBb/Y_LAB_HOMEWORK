@@ -30,7 +30,7 @@ cd Y_LAB_HOMEWORK
 
 ### 2. Настройка конфигурации
 
-Файл `src/main/resources/application.yml` содержит настройки БД. По умолчанию:
+Файл `app/src/main/resources/application.yml` содержит настройки БД. По умолчанию:
 
 ```
 liquibase:
@@ -119,9 +119,10 @@ mvn test
 - Требования: Docker должен быть запущен, так как Testcontainers создает контейнеры на лету.
 
 ## Структура проекта
-- `src/main/java/ProductCatalog/audit`: Модуль аудита
-- `src/main/java/ProductCatalog/performance`: Модуль метрик производительности
-- `src/main/java/ProductCatalog/`: Модели, Репозитории, Сервисы, Контроллеры, валидаторы, UI, DB и прочее.
-- `src/main/resources/`: `application.yml` (конфиг), Liquibase changelogs.
-- `src/test/java/`: Unit-тесты для репозиториев.
+- `audit-module`: Модуль аудита
+- `performance-module`: Модуль метрик производительности
+- `core-module`: Константы, Модели, Репозитории, Сервисы, валидаторы и прочее.
+- `app`: Модуль приложения.
+- `app/src/main/resources/`: `application.yml` (конфиг), Liquibase changelogs.
+- `app/src/test/java/`: Unit-тесты для репозиториев и контроллеров.
 - `docker-compose.yml`: Для PostgreSQL.
