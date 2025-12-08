@@ -6,18 +6,19 @@ import ProductCatalog.dto.LoginRequest;
 import ProductCatalog.models.User;
 import ProductCatalog.services.implementations.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.HttpSession;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpSession;
+
 @RestController
 @RequestMapping("/api/login")
-@Tag(name = "login", description = "login to acc")
+@Api(tags = "login")
 public class LoginController {
 
     private final UserService userService;
@@ -29,7 +30,7 @@ public class LoginController {
 
     @Auditable(action = "login")
     @PostMapping
-    @Operation(summary = "login")
+    @ApiOperation("login")
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest, HttpSession session) {
         String username = loginRequest.getUsername();
         String password = loginRequest.getPassword();
