@@ -1,4 +1,4 @@
-package ProductCatalog.services.implemetations;
+package ProductCatalog.services.implementations;
 
 import ProductCatalog.models.Product;
 import ProductCatalog.repositories.interfaces.IProductRepository;
@@ -37,7 +37,7 @@ public class ProductService implements IProductService {
      * @return
      */
     public List<Product> getProducts(long catalogId){
-        return productRepository.findByCatalog(catalogId);
+        return productRepository.findByCatalogId(catalogId);
     }
 
 

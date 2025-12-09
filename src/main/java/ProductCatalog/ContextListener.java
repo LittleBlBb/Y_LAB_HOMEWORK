@@ -11,18 +11,19 @@ import ProductCatalog.repositories.interfaces.IAuditRepository;
 import ProductCatalog.repositories.interfaces.ICatalogRepository;
 import ProductCatalog.repositories.interfaces.IProductRepository;
 import ProductCatalog.repositories.interfaces.IUserRepository;
-import ProductCatalog.services.implemetations.AuditService;
-import ProductCatalog.services.implemetations.CatalogService;
-import ProductCatalog.services.implemetations.ProductService;
-import ProductCatalog.services.implemetations.UserService;
+import ProductCatalog.services.implementations.AuditService;
+import ProductCatalog.services.implementations.CatalogService;
+import ProductCatalog.services.implementations.ProductService;
+import ProductCatalog.services.implementations.UserService;
 import ProductCatalog.services.interfaces.IAuditService;
 import ProductCatalog.services.interfaces.ICatalogService;
 import ProductCatalog.services.interfaces.IProductService;
 import ProductCatalog.services.interfaces.IUserService;
-import jakarta.servlet.ServletContextEvent;
-import jakarta.servlet.ServletContextListener;
-import jakarta.servlet.annotation.WebListener;
 import org.postgresql.ds.PGSimpleDataSource;
+
+import javax.servlet.ServletContextEvent;
+import javax.servlet.ServletContextListener;
+import javax.servlet.annotation.WebListener;
 
 @WebListener
 public class ContextListener implements ServletContextListener {

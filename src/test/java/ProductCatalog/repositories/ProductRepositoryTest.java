@@ -10,7 +10,7 @@ import org.junit.jupiter.api.TestInstance;
 import java.util.List;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class ProductRepositoryTest extends AbstractRepositoryTest{
+public class ProductRepositoryTest extends BaseRepositoryTest {
 
     private ProductRepository productRepository;
 

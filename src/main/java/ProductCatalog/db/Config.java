@@ -11,13 +11,30 @@ public class Config {
     private final Properties properties = new Properties();
 
     public Config() {
-        try (InputStream input = getClass().getClassLoader().getResourceAsStream("application.properties")) {
+        try (InputStream input = getClass().getClassLoader().getResourceAsStream("application.yml")) {
             if (input == null) {
-                throw new RuntimeException("application.properties file not found");
+                throw new RuntimeException("application.yml file not found");
             }
-            properties.load(input);
+            Yaml yaml = new Yaml();
+            @SuppressWarnings("unchecked")
+            Map<String, Object> yamlMap = yaml.load(input);
+            flattenMap(yamlMap, "", properties);
         } catch (IOException e) {
             throw new RuntimeException("Failed to load config file", e);
+        }
+    }
+
+    private void flattenMap(Map<String, Object> map, String prefix, Properties properties) {
+        for (Map.Entry<String, Object> entry : map.entrySet()) {
+            String key = prefix.isEmpty() ? entry.getKey() : prefix + "." + entry.getKey();
+            Object value = entry.getValue();
+            if (value instanceof Map) {
+                @SuppressWarnings("unchecked")
+                Map<String, Object> nestedMap = (Map<String, Object>) value;
+                flattenMap(nestedMap, key, properties);
+            } else {
+                properties.put(key, value.toString());
+            }
         }
     }
 

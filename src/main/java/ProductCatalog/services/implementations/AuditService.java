@@ -1,4 +1,4 @@
-package ProductCatalog.services.implemetations;
+package ProductCatalog.services.implementations;
 
 import ProductCatalog.models.AuditEntry;
 import ProductCatalog.repositories.interfaces.IAuditRepository;

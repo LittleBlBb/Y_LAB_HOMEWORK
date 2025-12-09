@@ -11,7 +11,7 @@ import org.junit.jupiter.api.TestInstance;
 import java.util.List;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class CatalogRepositoryTest extends AbstractRepositoryTest{
+public class CatalogRepositoryTest extends BaseRepositoryTest {
     private CatalogRepository catalogRepository;
 
     @BeforeEach

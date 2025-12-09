@@ -1,4 +1,4 @@
-package ProductCatalog.services.implemetations;
+package ProductCatalog.services.implementations;
 
 import ProductCatalog.models.Catalog;
 import ProductCatalog.repositories.interfaces.ICatalogRepository;

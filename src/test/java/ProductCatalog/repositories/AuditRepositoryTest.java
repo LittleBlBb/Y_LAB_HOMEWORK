@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class AuditRepositoryTest extends AbstractRepositoryTest {
+public class AuditRepositoryTest extends BaseRepositoryTest {
 
     private AuditRepository auditRepository;
 

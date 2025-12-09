@@ -2,14 +2,15 @@ package ProductCatalog.aspects;
 
 import ProductCatalog.annotations.Auditable;
 import ProductCatalog.models.User;
-import ProductCatalog.services.implemetations.AuditService;
+import ProductCatalog.services.implementations.AuditService;
 import ProductCatalog.servlets.SessionAttributes;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.reflect.MethodSignature;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 @Aspect
 public class AuditAspect {

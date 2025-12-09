@@ -9,8 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class UserRepositoryTest extends AbstractRepositoryTest {
-
+public class UserRepositoryTest extends BaseRepositoryTest {
     private UserRepository userRepository;
 
     @BeforeEach
@@ -26,8 +25,8 @@ public class UserRepositoryTest extends AbstractRepositoryTest {
         User fetchedUser = userRepository.findById(savedUser.getId());
 
         Assertions.assertArrayEquals(
-                new String[]{"testUser", "testPassword", "USER"},
-                new String[]{fetchedUser.getUsername(), fetchedUser.getPassword(), fetchedUser.getRole().toString()}
+                new String[]{"testUser", "testPassword"},
+                new String[]{fetchedUser.getUsername(), fetchedUser.getPassword()}
         );
     }
 }

@@ -3,9 +3,9 @@ package ProductCatalog.utils;
 import ProductCatalog.constants.Permission;
 import ProductCatalog.models.User;
 import ProductCatalog.servlets.SessionAttributes;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import java.nio.file.AccessDeniedException;
 
 public class AccessUtil {

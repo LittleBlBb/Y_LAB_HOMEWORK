@@ -1,0 +1,11 @@
+liquibase:
+  changeLog: db/changelog/changelog.xml
+  serviceSchema: liquibase
+
+db:
+  host: localhost
+  username: catalog
+  password: password
+  name: postgres
+  port: 15532
+  schema: app

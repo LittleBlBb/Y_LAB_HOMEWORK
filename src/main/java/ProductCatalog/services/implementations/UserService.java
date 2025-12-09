@@ -1,4 +1,4 @@
-package ProductCatalog.services.implemetations;
+package ProductCatalog.services.implementations;
 
 import ProductCatalog.constants.Permission;
 import ProductCatalog.constants.Role;
@@ -122,6 +122,7 @@ public class UserService implements IUserService {
         return currentUser;
     }
 
+    @Override
     public User findByUsername(String username) {
         return userRepository.findByUsername(username);
     }

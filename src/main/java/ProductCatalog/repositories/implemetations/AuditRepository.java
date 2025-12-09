@@ -12,23 +12,41 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Репозиторий для управления журналом аудита.
+ * Отвечает за действия с логами в бд
+ */
 public class AuditRepository implements IAuditRepository {
     private final DataSource dataSource;
+
+    private static final String SQL_INSERT = """
+            INSERT INTO app.audit_log (username, action, details, timestamp)
+            VALUES (?, ?, ?, NOW())
+            RETURNING id;
+            """;
+
+    private static final String SQL_FIND_ALL = """
+            SELECT * FROM app.audit_log;
+            """;
+
+    private static final String SQL_FIND_BY_ID = """
+            SELECT * FROM app.audit_log
+            WHERE id = ?;
+            """;
 
     public AuditRepository(DataSource dataSource) {
         this.dataSource = dataSource;
     }
 
+    /**
+     * Сохраняет лог в бд
+     * @param entry
+     * @return целый лог
+     */
     @Performance
     public AuditEntry save(AuditEntry entry){
-        final String SQL = """
-                INSERT INTO app.audit_log (username, action, details, timestamp)
-                VALUES (?, ?, ?, NOW())
-                RETURNING id
-                """;
-
         try (Connection connection = dataSource.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(SQL)){
+             PreparedStatement preparedStatement = connection.prepareStatement(SQL_INSERT)){
             preparedStatement.setString(1, entry.getUsername());
             preparedStatement.setString(2, entry.getAction());
             preparedStatement.setString(3, entry.getDetails());
@@ -45,13 +63,15 @@ public class AuditRepository implements IAuditRepository {
         }
     }
 
+    /**
+     * Получает все логи из бд
+     * @return список логов
+     */
     @Performance
     public List<AuditEntry> findAll() {
         List<AuditEntry> logsList = new ArrayList<>();
-        final String SQL = "SELECT * FROM app.audit_log";
-
         try(Connection connection = dataSource.getConnection();
-            PreparedStatement preparedStatement = connection.prepareStatement(SQL);
+            PreparedStatement preparedStatement = connection.prepareStatement(SQL_FIND_ALL);
             ResultSet resultSet = preparedStatement.executeQuery()){
 
             while (resultSet.next()){
@@ -70,15 +90,15 @@ public class AuditRepository implements IAuditRepository {
         return logsList;
     }
 
+    /**
+     * Ищет лог по id в бд
+     * @param id
+     * @return найденный лог
+     */
     @Performance
     public AuditEntry findById(long id){
-        final String SQL = """
-                SELECT * FROM app.audit_log
-                WHERE id = ?
-                """;
-
         try (Connection connection = dataSource.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(SQL)) {
+             PreparedStatement preparedStatement = connection.prepareStatement(SQL_FIND_BY_ID)) {
             preparedStatement.setLong(1, id);
             ResultSet resultSet = preparedStatement.executeQuery();
 

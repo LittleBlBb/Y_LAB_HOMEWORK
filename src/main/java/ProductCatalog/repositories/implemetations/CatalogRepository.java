@@ -12,20 +12,47 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Репозиторий для управления каталогами.
+ * Отвечает за действия с каталогами в бд
+ */
 public class CatalogRepository implements ICatalogRepository {
     private final DataSource dataSource;
+
+    private static final String SQL_FIND_ALL = """
+            SELECT id, name FROM app.catalog;
+            """;
+
+    private static final String SQL_FIND_BY_ID = """
+                SELECT id, name FROM app.catalog
+                WHERE id = ?
+                """;
+
+    private static final String SQL_DELETE = """
+            DELETE FROM app.catalog WHERE id = ?;
+            """;
+
+    private static final String SQL_INSERT = """
+            INSERT INTO app.catalog (name)
+            VALUES (?)
+            RETURNING id;
+            """;
 
     public CatalogRepository(DataSource dataSource){
         this.dataSource = dataSource;
     }
 
+
+    /**
+     * Получает все каталоги из бд
+     * @return список каталогов
+     */
     @Performance
     public List<Catalog> findAll() {
         List<Catalog> catalogsList = new ArrayList<>();
-        final String SQL = "SELECT id, name FROM app.catalog;";
 
         try(Connection connection = dataSource.getConnection();
-            PreparedStatement preparedStatement = connection.prepareStatement(SQL);
+            PreparedStatement preparedStatement = connection.prepareStatement(SQL_FIND_ALL);
             ResultSet resultSet = preparedStatement.executeQuery()){
 
             while (resultSet.next()){
@@ -41,16 +68,16 @@ public class CatalogRepository implements ICatalogRepository {
         return catalogsList;
     }
 
+
+    /**
+     * Сохраняет каталог в бд
+     * @param catalog
+     * @return целый каталог
+     */
     @Performance
     public Catalog save(Catalog catalog){
-        final String SQL = """
-            INSERT INTO app.catalog (name)
-            VALUES (?)
-            RETURNING id
-            """;
-
         try (Connection connection = dataSource.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(SQL)) {
+             PreparedStatement preparedStatement = connection.prepareStatement(SQL_INSERT)) {
 
             preparedStatement.setString(1, catalog.getName());
             ResultSet resultSet = preparedStatement.executeQuery();
@@ -65,11 +92,15 @@ public class CatalogRepository implements ICatalogRepository {
         }
     }
 
+    /**
+     * Удаляет каталог из бд
+     * @param id
+     * @return true, если удалилось, иначе false.
+     */
     @Performance
     public boolean delete(long id) {
-        final String SQL = "DELETE FROM app.catalog WHERE id = ?";
         try (Connection connection = dataSource.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(SQL)) {
+             PreparedStatement preparedStatement = connection.prepareStatement(SQL_DELETE)){
 
             preparedStatement.setLong(1, id);
             return preparedStatement.executeUpdate() > 0;
@@ -79,15 +110,15 @@ public class CatalogRepository implements ICatalogRepository {
         }
     }
 
+    /**
+     * Ищет каталог по id в бд
+     * @param id
+     * @return каталог
+     */
     @Performance
     public Catalog findById(long id){
-        final String SQL = """
-                SELECT id, name FROM app.catalog
-                WHERE id = ?
-                """;
-
         try (Connection connection = dataSource.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(SQL)) {
+             PreparedStatement preparedStatement = connection.prepareStatement(SQL_FIND_BY_ID)) {
             preparedStatement.setLong(1, id);
             ResultSet resultSet = preparedStatement.executeQuery();
 
