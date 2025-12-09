@@ -77,8 +77,9 @@ public class ProductRepository implements IProductRepository {
                         resultSet.getString("category")
                 ));
             }
-        }catch (SQLException exception){
-            System.out.println(exception.getMessage());
+        }catch (SQLException exception) {
+            throw new RuntimeException("Ошибка при чтении products: " +
+                    exception.getMessage(), exception);
         }
         return productList;
     }
@@ -107,9 +108,9 @@ public class ProductRepository implements IProductRepository {
             }
             return product;
         }catch (SQLException exception){
-            System.out.println(exception.getMessage());
+            System.err.println("Ошибка при записи в products: " + exception.getMessage());
+            return null;
         }
-        return null;
     }
 
     /**
@@ -132,9 +133,9 @@ public class ProductRepository implements IProductRepository {
             return preparedStatement.executeUpdate() > 0;
 
         } catch (SQLException exception) {
-            System.out.println(exception.getMessage());
+            System.err.println("Ошибка при удалении product: " + exception.getMessage());
+            return false;
         }
-        return false;
     }
 
     /**

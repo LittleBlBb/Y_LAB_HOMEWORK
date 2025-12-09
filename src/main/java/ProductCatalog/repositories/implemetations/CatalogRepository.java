@@ -17,6 +17,8 @@ import java.util.List;
  * Отвечает за действия с каталогами в бд
  */
 public class CatalogRepository implements ICatalogRepository {
+    private final DataSource dataSource;
+
     private static final String SQL_FIND_ALL = """
             SELECT id, name FROM app.catalog;
             """;
@@ -36,11 +38,10 @@ public class CatalogRepository implements ICatalogRepository {
             RETURNING id;
             """;
 
-    private final DataSource dataSource;
-
     public CatalogRepository(DataSource dataSource){
         this.dataSource = dataSource;
     }
+
 
     /**
      * Получает все каталоги из бд
@@ -60,11 +61,13 @@ public class CatalogRepository implements ICatalogRepository {
                         resultSet.getString("name")
                 ));
             }
-        } catch (SQLException exception){
-            System.out.println(exception.getMessage());
+        } catch (SQLException exception) {
+            throw new RuntimeException("Ошибка при чтении catalogs: " +
+                    exception.getMessage(), exception);
         }
         return catalogsList;
     }
+
 
     /**
      * Сохраняет каталог в бд
@@ -83,10 +86,10 @@ public class CatalogRepository implements ICatalogRepository {
                 catalog.setId(resultSet.getLong("id"));
             }
             return catalog;
-        } catch (SQLException exception){
-            System.out.println(exception.getMessage());
+        } catch (SQLException exception) {
+            System.err.println("Ошибка при записи в catalogs: " + exception.getMessage());
+            return null;
         }
-        return null;
     }
 
     /**
@@ -101,10 +104,10 @@ public class CatalogRepository implements ICatalogRepository {
 
             preparedStatement.setLong(1, id);
             return preparedStatement.executeUpdate() > 0;
-        } catch (SQLException exception){
-            System.out.println(exception.getMessage());
+        } catch (SQLException exception) {
+            System.err.println("Ошибка при удалении catalog: " + exception.getMessage());
+            return false;
         }
-        return false;
     }
 
     /**
@@ -125,8 +128,9 @@ public class CatalogRepository implements ICatalogRepository {
                         resultSet.getString("name")
                 );
             }
-        } catch (SQLException exception){
-            System.out.println(exception.getMessage());
+        } catch (SQLException exception) {
+            throw new RuntimeException("Ошибка при чтении catalogs: " +
+                    exception.getMessage(), exception);
         }
         return null;
     }

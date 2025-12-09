@@ -92,10 +92,10 @@ public class UserRepository implements ProductCatalog.repositories.interfaces.IU
             }
 
             return user;
-        } catch (SQLException exception){
-            System.out.println(exception.getMessage());
+        } catch (SQLException exception) {
+            System.err.println("Ошибка при удалении: " + exception.getMessage());
+            return null;
         }
-        return null;
     }
 
     /**
@@ -121,8 +121,9 @@ public class UserRepository implements ProductCatalog.repositories.interfaces.IU
                 ));
 
             }
-        } catch (SQLException e){
-            System.out.println(e.getMessage());
+        } catch (SQLException exception) {
+            throw new RuntimeException("Ошибка при чтении users: " +
+                    exception.getMessage(), exception);
         }
         return usersList;
     }
@@ -149,8 +150,9 @@ public class UserRepository implements ProductCatalog.repositories.interfaces.IU
                             role
                     );
                 }
-        } catch (SQLException exception){
-            System.out.println(exception.getMessage());
+        } catch (SQLException exception) {
+            throw new RuntimeException("Ошибка при чтении users: " +
+                    exception.getMessage(), exception);
         }
         return null;
     }

@@ -57,10 +57,10 @@ public class AuditRepository implements IAuditRepository {
                 entry.setId(resultSet.getLong("id"));
             }
             return entry;
-        } catch (SQLException exception){
-            System.out.println(exception.getMessage());
+        } catch (SQLException exception) {
+            System.err.println("Ошибка при записи в audit_logs: " + exception.getMessage());
+            return null;
         }
-        return null;
     }
 
     /**
@@ -83,8 +83,9 @@ public class AuditRepository implements IAuditRepository {
                         resultSet.getTimestamp("timestamp").toLocalDateTime()
                 ));
             }
-        } catch (SQLException exception){
-            System.out.println(exception.getMessage());
+        } catch (SQLException exception) {
+            throw new RuntimeException("Ошибка при чтении audit_logs: " +
+                    exception.getMessage(), exception);
         }
         return logsList;
     }
@@ -110,8 +111,9 @@ public class AuditRepository implements IAuditRepository {
                         resultSet.getTimestamp("timestamp").toLocalDateTime()
                 );
             }
-        } catch (SQLException exception){
-            System.out.println(exception.getMessage());
+        } catch (SQLException exception) {
+            throw new RuntimeException("Ошибка при чтении audit_logs: " +
+                    exception.getMessage(), exception);
         }
         return null;
     }

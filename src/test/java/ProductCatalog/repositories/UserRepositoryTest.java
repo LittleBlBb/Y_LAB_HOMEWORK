@@ -10,7 +10,6 @@ import org.junit.jupiter.api.TestInstance;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class UserRepositoryTest extends BaseRepositoryTest {
-
     private UserRepository userRepository;
 
     @BeforeEach

@@ -1,5 +1,6 @@
 package ProductCatalog.services.implementations;
 
+import ProductCatalog.constants.Permission;
 import ProductCatalog.constants.Role;
 import ProductCatalog.models.User;
 import ProductCatalog.repositories.interfaces.IUserRepository;
@@ -109,7 +110,12 @@ public class UserService implements IUserService {
      * @return {@code true}, если роль пользователя — admin
      */
     public boolean isAdmin() {
-        return currentUser != null && Role.ADMIN.equals(currentUser.getRole());
+        return currentUser != null && Role.ADMIN == currentUser.getRole();
+    }
+
+    public boolean hasPermission(Permission permission) {
+        return currentUser != null &&
+                currentUser.getRole().hasPermission(permission);
     }
 
     public User getCurrentUser() {
