@@ -58,7 +58,7 @@ public class MetricsService {
      * @return количество продуктов
      */
     public int getTotalCatalogCount() {
-        List<Catalog> catalogs = catalogService.getAllCatalogs();
+        List<Catalog> catalogs = catalogService.getAll();
         return catalogs != null ? catalogs.size() : 0;
     }
 

@@ -66,9 +66,27 @@ public class AuditRepository {
     }
 
     public AuditEntry findById(long id){
-        List<AuditEntry> logsList = this.findAll();
-        for (AuditEntry a : logsList){
-            if (a.getId() == id) return a;
+        final String SQL = """
+                SELECT * FROM app.audit_log
+                WHERE id = ?
+                """;
+
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(SQL)) {
+            preparedStatement.setLong(1, id);
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            if(resultSet.next()){
+                return new AuditEntry(
+                        resultSet.getLong("id"),
+                        resultSet.getString("username"),
+                        resultSet.getString("action"),
+                        resultSet.getString("details"),
+                        resultSet.getTimestamp("timestamp").toLocalDateTime()
+                );
+            }
+        } catch (SQLException exception){
+            System.out.println(exception.getMessage());
         }
         return null;
     }
