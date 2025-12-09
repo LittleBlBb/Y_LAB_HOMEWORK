@@ -5,13 +5,21 @@ import ProductCatalog.Repositories.AuditRepository;
 import ProductCatalog.Repositories.CatalogRepository;
 import ProductCatalog.Repositories.ProductRepository;
 import ProductCatalog.Repositories.UserRepository;
-import ProductCatalog.Services.*;
-import ProductCatalog.UI.ProductCatalogUI;
+import ProductCatalog.Services.AuditService;
+import ProductCatalog.Services.CatalogService;
+import ProductCatalog.Services.MetricsService;
+import ProductCatalog.Services.ProductFilterService;
+import ProductCatalog.Services.ProductService;
+import ProductCatalog.Services.UserService;
+import jakarta.servlet.ServletContextEvent;
+import jakarta.servlet.ServletContextListener;
+import jakarta.servlet.annotation.WebListener;
 import org.postgresql.ds.PGSimpleDataSource;
 
-public class Main {
-    public static void main(String[] args) {
-
+@WebListener
+public class ContextListener implements ServletContextListener {
+    @Override
+    public void contextInitialized(ServletContextEvent sce) {
         PGSimpleDataSource dataSource = DBConnection.getDataSource();
 
         UserRepository userRepo = new UserRepository(dataSource);
@@ -19,14 +27,16 @@ public class Main {
         ProductRepository productRepo = new ProductRepository(dataSource);
         AuditRepository auditRepo = new AuditRepository(dataSource);
 
-
         AuditService auditService = new AuditService(auditRepo);
         UserService userService = new UserService(userRepo, auditService);
         CatalogService catalogService = new CatalogService(catalogRepo, auditService, userService);
         MetricsService.getInstance(catalogService);
         ProductService productService = new ProductService(productRepo, auditService, userService);
+        ProductFilterService.getInstance();
 
-        ProductCatalogUI ui = new ProductCatalogUI(catalogService, productService, userService, auditService);
-        ui.run();
+        sce.getServletContext().setAttribute("userService", userService);
+        sce.getServletContext().setAttribute("catalogService", catalogService);
+        sce.getServletContext().setAttribute("productService", productService);
+        sce.getServletContext().setAttribute("auditService", auditService);
     }
 }
