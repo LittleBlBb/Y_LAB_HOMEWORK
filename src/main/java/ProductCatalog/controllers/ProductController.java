@@ -2,6 +2,8 @@ package ProductCatalog.controllers;
 
 import ProductCatalog.annotations.Auditable;
 import ProductCatalog.constants.Permission;
+import ProductCatalog.mappers.CatalogMapper;
+import ProductCatalog.models.AuditEntry;
 import ProductCatalog.utils.AccessUtil;
 import ProductCatalog.validators.ProductValidator;
 import ProductCatalog.dto.ProductDTO;
@@ -10,6 +12,8 @@ import ProductCatalog.models.Product;
 import ProductCatalog.services.implementations.ProductService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -78,20 +82,27 @@ public class ProductController {
     @Auditable(action = "create new product")
     @PostMapping
     @ApiOperation("create new product")
-    public String createProduct(@RequestBody ProductDTO productDTO, HttpServletRequest request) throws AccessDeniedException {
+    public ResponseEntity createProduct(@RequestBody ProductDTO productDTO,
+                                        HttpServletRequest request) throws AccessDeniedException {
         AccessUtil.checkPermission(request, Permission.CREATE_PRODUCT);
         List<String> errors = ProductValidator.validate(productDTO);
         if (!errors.isEmpty()) {
-            return errors.stream().collect(Collectors.joining("\n"));
+            return ResponseEntity
+                    .badRequest()
+                    .body(errors);
         }
 
-        boolean created = productService.createProduct(ProductMapper.INSTANCE.toEntity(productDTO));
+        Product entity = ProductMapper.INSTANCE.toEntity(productDTO);
+        Product saved = productService.createProduct(entity);
 
-        if (created) {
-            return "CREATED";
-        } else {
-            return "FAILED";
+        if (saved == null){
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error creating product");
         }
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(ProductMapper.INSTANCE.toDTO(saved));
     }
 
     /**
@@ -104,15 +115,14 @@ public class ProductController {
     @Auditable(action = "delete product")
     @DeleteMapping
     @ApiOperation("delete product by id")
-    public String deleteProduct(@RequestParam(name = "id", required = true) Long id, HttpServletRequest request) throws AccessDeniedException {
+    public ResponseEntity<Void> deleteProduct(@RequestParam(name = "id", required = true) Long id,
+                                              HttpServletRequest request) throws AccessDeniedException {
         AccessUtil.checkPermission(request, Permission.DELETE_PRODUCT);
         boolean deleted = productService.deleteProduct(id);
-
-        if (deleted) {
-            return "DELETED";
-        } else {
-            return "FAILED";
+        if (!deleted) {
+            return ResponseEntity.notFound().build();
         }
+        return ResponseEntity.noContent().build();
     }
 
     /**
@@ -126,20 +136,21 @@ public class ProductController {
     @Auditable(action = "edit product")
     @PutMapping
     @ApiOperation("update product")
-    public String updateProduct(@RequestBody ProductDTO productDTO, HttpServletRequest request) throws AccessDeniedException {
+    public ResponseEntity<?> updateProduct(@RequestBody ProductDTO productDTO, HttpServletRequest request) throws AccessDeniedException {
         AccessUtil.checkPermission(request, Permission.EDIT_PRODUCT);
         List<String> errors = ProductValidator.validate(productDTO);
 
         if (!errors.isEmpty()) {
-            return errors.stream().collect(Collectors.joining("\n"));
+            return ResponseEntity.badRequest().body(errors);
         }
 
-        boolean updated = productService.updateProduct(ProductMapper.INSTANCE.toEntity(productDTO));
+        Product entity = ProductMapper.INSTANCE.toEntity(productDTO);
+        boolean updated = productService.updateProduct(entity);
 
-        if (updated) {
-            return "UPDATED";
-        } else {
-            return "FAILED";
+        if (!updated) {
+            return ResponseEntity.notFound().build();
         }
+
+        return ResponseEntity.ok(ProductMapper.INSTANCE.toDTO(entity));
     }
 }

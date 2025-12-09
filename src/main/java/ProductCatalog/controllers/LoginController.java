@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpSession;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/login")
@@ -21,7 +22,6 @@ import javax.servlet.http.HttpSession;
 public class LoginController {
 
     private final UserService userService;
-    private final ObjectMapper mapper = new ObjectMapper();
 
     public LoginController(UserService userService) {
         this.userService = userService;
@@ -29,18 +29,22 @@ public class LoginController {
 
     @PostMapping
     @ApiOperation("login")
-    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest, HttpSession session) {
+    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest,
+                                   HttpSession session) {
         String username = loginRequest.getUsername();
-        String password = loginRequest.getPassword();
 
-        User user = userService.findByUsername(username);
+        User user = userService.findByUsername(loginRequest.getUsername());
         if (user == null) {
-            return ResponseEntity.badRequest().body("User with username " + username + " not found");
+            return ResponseEntity.status(404)
+                    .body(Map.of("error", "User not found"));
         }
-        if (!password.equals(user.getPassword())) {
-            return ResponseEntity.badRequest().body("Invalid username or password");
+
+        boolean valid = userService.checkPassword(user, loginRequest.getPassword());
+        if (!valid) {
+            return ResponseEntity.status(401)
+                    .body(Map.of("error", "Invalid username or password"));
         }
         session.setAttribute(SessionAttributes.USER, user);
-        return ResponseEntity.ok("Login successful");
+        return ResponseEntity.ok(Map.of("message", "Login successful"));
     }
 }

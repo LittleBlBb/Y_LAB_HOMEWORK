@@ -1,9 +1,9 @@
 package ProductCatalog.aspects;
 
 import ProductCatalog.annotations.Auditable;
+import ProductCatalog.constants.SessionAttributes;
 import ProductCatalog.models.User;
 import ProductCatalog.services.implementations.AuditService;
-import ProductCatalog.servlets.SessionAttributes;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;

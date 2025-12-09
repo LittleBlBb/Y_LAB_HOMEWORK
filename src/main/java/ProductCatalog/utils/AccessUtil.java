@@ -1,8 +1,8 @@
 package ProductCatalog.utils;
 
 import ProductCatalog.constants.Permission;
+import ProductCatalog.constants.SessionAttributes;
 import ProductCatalog.models.User;
-import ProductCatalog.servlets.SessionAttributes;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;

@@ -203,7 +203,7 @@ public class ProductCatalogUI {
 
         Product p = new Product(0, catalogId, n, price, d, b, c);
 
-        if (productService.createProduct(p))
+        if (productService.createProduct(p) != null)
             System.out.println("Добавлено.");
         else
             System.out.println("Ошибка!");

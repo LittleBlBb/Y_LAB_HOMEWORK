@@ -26,11 +26,11 @@ public class AuditService implements IAuditService {
      * Добавляет новую запись в журнал аудита.
      *
      * @param username имя пользователя, выполнившего действие
-     * @param action   название действия
-     * @param details  дополнительные детали действия
+     * @param action название действия
+     * @param details дополнительные детали действия
      */
-    public void save(String username, String action, String details) {
-        auditRepository.save(new AuditEntry(username, action, details));
+    public AuditEntry save(String username, String action, String details) {
+        return auditRepository.save(new AuditEntry(username, action, details));
     }
 
     public List<AuditEntry> getAll() {

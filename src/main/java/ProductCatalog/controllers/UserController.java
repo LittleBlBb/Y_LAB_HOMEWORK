@@ -10,6 +10,7 @@ import ProductCatalog.dto.UserDTO;
 import ProductCatalog.mappers.UserMapper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -64,18 +65,18 @@ public class UserController {
     @Auditable(action = "registration")
     @PostMapping
     @ApiOperation("register new user")
-    public String registerUser(@RequestBody UserDTO userDTO) {
+    public ResponseEntity<?> registerUser(@RequestBody UserDTO userDTO) {
         List<String> errors = UserValidator.validate(userDTO);
         if (!errors.isEmpty()) {
-            return errors.stream().collect(Collectors.joining("\n"));
+            return ResponseEntity.badRequest().body(errors);
         }
+
         User entity = UserMapper.INSTANCE.toEntity(userDTO);
         boolean created = userService.register(entity);
 
-        if (created){
-            return "REGISTERED";
-        } else {
-           return "FAILED";
+        if (!created){
+            return ResponseEntity.badRequest().body("Failed to create user");
         }
+        return ResponseEntity.ok("Registered successfully");
     }
 }
