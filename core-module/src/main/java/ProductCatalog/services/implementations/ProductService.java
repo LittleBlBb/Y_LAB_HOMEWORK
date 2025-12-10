@@ -1,0 +1,83 @@
+package ProductCatalog.services.implementations;
+
+import ProductCatalog.models.Product;
+import ProductCatalog.repositories.interfaces.IProductRepository;
+import ProductCatalog.services.interfaces.IProductService;
+
+import java.util.List;
+
+/**
+ * Сервис для управления товарами.
+ * Позволяет создавать, изменять, удалять и получать товары из каталогов.
+ */
+public class ProductService implements IProductService {
+    private final IProductRepository productRepository;
+
+    /**
+     * Создает экземпляр {@code ProductService}.
+     *
+     * @param productRepository объект, управляющий товарами из БД
+     */
+    public ProductService(IProductRepository productRepository) {
+        this.productRepository = productRepository;
+    }
+
+    /**
+     *
+     * @param catalogId id каталога, продукты которого ищем
+     * @return
+     */
+    public List<Product> getProducts(long catalogId){
+        return productRepository.findByCatalogId(catalogId);
+    }
+
+
+    /**
+     * Возвращает все товары из БД
+     * @return
+     */
+    public List<Product> getAll(){
+        return productRepository.findAll();
+    }
+
+    /**
+     *
+     * @param id id товара, который удаляем
+     * @return
+     */
+    public boolean deleteProduct(long id) {
+        Product product = productRepository.findById(id);
+        if (product == null){
+            return false;
+        }
+
+        boolean deleted = productRepository.delete(id);
+        return deleted;
+    }
+
+    /**
+     * Обновляет информацию о товаре.
+     *
+     * @param newProduct новый товар
+     * @return {@code true}, если обновление успешно
+     */
+    public boolean updateProduct(Product newProduct) {
+        boolean updated = productRepository.update(newProduct);
+
+        return updated;
+    }
+
+    /**
+     * Создает новый товар в указанном каталоге.
+     *
+     * @param product товар для добавления
+     * @return {@code true}, если товар успешно добавлен
+     */
+    public boolean createProduct(Product product) {
+        return productRepository.save(product) == null ? false : true;
+    }
+
+    public Product findById(long id) {
+        return productRepository.findById(id);
+    }
+}
