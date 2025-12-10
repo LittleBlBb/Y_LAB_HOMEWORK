@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Configuration;
 public class OpenApiConfig {
 
     @Bean
-    public OpenAPI customOpenAPI() {
+    public OpenAPI productCatalogOpenAPI() {
         return new OpenAPI()
                 .info(new Info()
                         .title("Product Catalog API")

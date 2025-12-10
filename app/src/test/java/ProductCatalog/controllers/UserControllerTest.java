@@ -2,22 +2,20 @@ package ProductCatalog.controllers;
 
 import ProductCatalog.constants.Permission;
 import ProductCatalog.constants.Role;
+import ProductCatalog.dto.UserDTO;
 import ProductCatalog.models.User;
 import ProductCatalog.services.implementations.UserService;
-import ProductCatalog.dto.UserDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 import java.nio.file.AccessDeniedException;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 class UserControllerTest extends BaseControllerTest {
 
@@ -31,6 +29,9 @@ class UserControllerTest extends BaseControllerTest {
         userController = new UserController(userService);
     }
 
+    // ---------------------------------------------------------
+    // GET ALL USERS
+    // ---------------------------------------------------------
     @Test
     void getAllUsers_returnsMappedDTOs_whenUserHasPermission() throws Exception {
         User u1 = new User(1L, "user1", "pass1", Role.USER);
@@ -43,47 +44,65 @@ class UserControllerTest extends BaseControllerTest {
         assertEquals(2, result.size());
         assertEquals("user1", result.get(0).getUsername());
         assertEquals("user2", result.get(1).getUsername());
-
-        verify(userService, times(1)).getAll();
+        verify(userService).getAll();
     }
 
     @Test
-    void getAllUsers_throwsAccessDeniedException_whenUserNotLoggedIn() {
-        assertThrows(AccessDeniedException.class, () -> {
-            userController.getAllUsers(createNotLoggedInRequest());
-        });
+    void getAllUsers_throwsAccessDenied_whenUserNotLoggedIn() {
+        assertThrows(AccessDeniedException.class, () ->
+                userController.getAllUsers(createNotLoggedInRequest())
+        );
     }
 
     @Test
-    void getAllUsers_throwsAccessDeniedException_whenUserHasNoPermission() {
+    void getAllUsers_throwsAccessDenied_whenNoPermission() {
         User normalUser = new User(2L, "user", "pass", Role.USER);
 
-        AccessDeniedException ex = assertThrows(AccessDeniedException.class, () -> {
-            userController.getAllUsers(createUserRequest(normalUser));
-        });
+        AccessDeniedException ex = assertThrows(AccessDeniedException.class, () ->
+                userController.getAllUsers(createUserRequest(normalUser))
+        );
 
         assertEquals("You do not have permission: " + Permission.MANAGE_USERS, ex.getMessage());
     }
 
+    // ---------------------------------------------------------
+    // REGISTER USER
+    // ---------------------------------------------------------
     @Test
-    void registerUser_returnsRegistered_whenDataValid() {
+    void registerUser_returns200_whenSuccess() {
         UserDTO dto = new UserDTO(0, "newuser", "pass");
+
         when(userService.register(any(User.class))).thenReturn(true);
 
-        String result = userController.registerUser(dto);
+        ResponseEntity<?> result = userController.registerUser(dto);
 
-        assertEquals("REGISTERED", result);
-        verify(userService, times(1)).register(any(User.class));
+        assertEquals(HttpStatus.OK, result.getStatusCode());
+        assertEquals("Registered successfully", result.getBody());
+        verify(userService).register(any(User.class));
     }
 
     @Test
-    void registerUser_returnsFailed_whenServiceFails() {
+    void registerUser_returns400_whenValidationFails() {
+        UserDTO dto = new UserDTO(0, "", ""); // обе строки пустые → должны быть ошибки
+
+        ResponseEntity<?> result = userController.registerUser(dto);
+
+        assertEquals(HttpStatus.BAD_REQUEST, result.getStatusCode());
+        assertTrue(result.getBody() instanceof List);
+        assertFalse(((List<?>) result.getBody()).isEmpty());
+        verify(userService, never()).register(any(User.class));
+    }
+
+    @Test
+    void registerUser_returns400_whenServiceFails() {
         UserDTO dto = new UserDTO(0, "newuser", "pass");
+
         when(userService.register(any(User.class))).thenReturn(false);
 
-        String result = userController.registerUser(dto);
+        ResponseEntity<?> result = userController.registerUser(dto);
 
-        assertEquals("FAILED", result);
-        verify(userService, times(1)).register(any(User.class));
+        assertEquals(HttpStatus.BAD_REQUEST, result.getStatusCode());
+        assertEquals("Failed to create user", result.getBody());
+        verify(userService).register(any(User.class));
     }
 }

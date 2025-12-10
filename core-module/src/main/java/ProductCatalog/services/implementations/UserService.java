@@ -107,4 +107,11 @@ public class UserService implements IUserService {
     public User findByUsername(String username) {
         return userRepository.findByUsername(username);
     }
+
+    public boolean checkPassword(User user, String password){
+        if (user.getPassword().equals(password)){
+            return true;
+        }
+        return false;
+    }
 }

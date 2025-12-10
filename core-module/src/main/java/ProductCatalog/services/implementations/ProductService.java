@@ -73,8 +73,8 @@ public class ProductService implements IProductService {
      * @param product товар для добавления
      * @return {@code true}, если товар успешно добавлен
      */
-    public boolean createProduct(Product product) {
-        return productRepository.save(product) == null ? false : true;
+    public Product createProduct(Product product) {
+        return productRepository.save(product);
     }
 
     public Product findById(long id) {

@@ -2,23 +2,21 @@ package ProductCatalog.controllers;
 
 import ProductCatalog.constants.Permission;
 import ProductCatalog.constants.Role;
+import ProductCatalog.dto.ProductDTO;
 import ProductCatalog.models.Product;
 import ProductCatalog.models.User;
 import ProductCatalog.services.implementations.ProductService;
-import ProductCatalog.dto.ProductDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 import java.nio.file.AccessDeniedException;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 class ProductControllerTest extends BaseControllerTest {
 
@@ -44,7 +42,6 @@ class ProductControllerTest extends BaseControllerTest {
         assertEquals(2, result.size());
         assertEquals("Product1", result.get(0).getName());
         assertEquals("Product2", result.get(1).getName());
-
         verify(productService, times(1)).getAll();
     }
 
@@ -59,99 +56,141 @@ class ProductControllerTest extends BaseControllerTest {
 
         assertEquals(1, result.size());
         assertEquals("Product1", result.get(0).getName());
-
         verify(productService, times(1)).getProducts(catalogId);
     }
 
     @Test
-    void createProduct_returnsCreated_whenUserHasPermission() throws Exception {
+    void createProduct_returnsCreatedDTO_whenUserHasPermission() throws Exception {
         ProductDTO dto = new ProductDTO(0, 1L, "NewProduct", 10.0, "Desc", "Brand", "Category");
-        when(productService.createProduct(any(Product.class))).thenReturn(true);
 
-        String result = productController.createProduct(dto, request);
+        Product saved = new Product(1L, 1L, "NewProduct", 10.0, "Brand", "Category", "Desc");
+        when(productService.createProduct(any(Product.class))).thenReturn(saved);
 
-        assertEquals("CREATED", result);
+        ResponseEntity result = productController.createProduct(dto, request);
+
+        assertEquals(HttpStatus.CREATED, result.getStatusCode());
+        assertNotNull(result.getBody());
         verify(productService, times(1)).createProduct(any(Product.class));
     }
 
     @Test
-    void createProduct_throwsAccessDeniedException_whenUserNotLoggedIn() {
+    void createProduct_returns500_whenServiceReturnsNull() throws Exception {
         ProductDTO dto = new ProductDTO(0, 1L, "NewProduct", 10.0, "Desc", "Brand", "Category");
-        assertThrows(AccessDeniedException.class, () -> {
-            productController.createProduct(dto, createNotLoggedInRequest());
-        });
+
+        when(productService.createProduct(any(Product.class))).thenReturn(null);
+
+        ResponseEntity result = productController.createProduct(dto, request);
+
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, result.getStatusCode());
+        assertEquals("Error creating product", result.getBody());
     }
 
     @Test
-    void createProduct_throwsAccessDeniedException_whenUserHasNoPermission() {
+    void createProduct_throwsAccessDenied_whenNotLoggedIn() {
+        ProductDTO dto = new ProductDTO(0, 1L, "NewProduct", 10.0, "Desc", "Brand", "Category");
+
+        assertThrows(AccessDeniedException.class, () ->
+                productController.createProduct(dto, createNotLoggedInRequest())
+        );
+    }
+
+    @Test
+    void createProduct_throwsAccessDenied_whenNoPermission() {
         User normalUser = new User(2L, "user", "pass", Role.USER);
         ProductDTO dto = new ProductDTO(0, 1L, "NewProduct", 10.0, "Desc", "Brand", "Category");
 
-        AccessDeniedException ex = assertThrows(AccessDeniedException.class, () -> {
-            productController.createProduct(dto, createUserRequest(normalUser));
-        });
+        AccessDeniedException ex = assertThrows(AccessDeniedException.class, () ->
+                productController.createProduct(dto, createUserRequest(normalUser))
+        );
 
         assertEquals("You do not have permission: " + Permission.CREATE_PRODUCT, ex.getMessage());
     }
 
     @Test
-    void updateProduct_returnsUpdated_whenUserHasPermission() throws Exception {
+    void updateProduct_returnsUpdatedDTO_whenUserHasPermission() throws Exception {
         ProductDTO dto = new ProductDTO(1L, 1L, "UpdatedProduct", 15.0, "Desc", "Brand", "Category");
+
         when(productService.updateProduct(any(Product.class))).thenReturn(true);
 
-        String result = productController.updateProduct(dto, request);
+        ResponseEntity<?> result = productController.updateProduct(dto, request);
 
-        assertEquals("UPDATED", result);
-        verify(productService, times(1)).updateProduct(any(Product.class));
+        assertEquals(HttpStatus.OK, result.getStatusCode());
+        assertNotNull(result.getBody());
+        verify(productService).updateProduct(any(Product.class));
     }
 
     @Test
-    void updateProduct_throwsAccessDeniedException_whenUserNotLoggedIn() {
+    void updateProduct_returns404_whenUpdateFailed() throws Exception {
         ProductDTO dto = new ProductDTO(1L, 1L, "UpdatedProduct", 15.0, "Desc", "Brand", "Category");
-        assertThrows(AccessDeniedException.class, () -> {
-            productController.updateProduct(dto, createNotLoggedInRequest());
-        });
+
+        when(productService.updateProduct(any(Product.class))).thenReturn(false);
+
+        ResponseEntity<?> result = productController.updateProduct(dto, request);
+
+        assertEquals(HttpStatus.NOT_FOUND, result.getStatusCode());
     }
 
     @Test
-    void updateProduct_throwsAccessDeniedException_whenUserHasNoPermission() {
+    void updateProduct_throwsAccessDenied_whenNotLoggedIn() {
+        ProductDTO dto = new ProductDTO(1L, 1L, "UpdatedProduct", 15.0, "Desc", "Brand", "Category");
+
+        assertThrows(AccessDeniedException.class, () ->
+                productController.updateProduct(dto, createNotLoggedInRequest())
+        );
+    }
+
+    @Test
+    void updateProduct_throwsAccessDenied_whenNoPermission() {
         User normalUser = new User(2L, "user", "pass", Role.USER);
         ProductDTO dto = new ProductDTO(1L, 1L, "UpdatedProduct", 15.0, "Desc", "Brand", "Category");
 
-        AccessDeniedException ex = assertThrows(AccessDeniedException.class, () -> {
-            productController.updateProduct(dto, createUserRequest(normalUser));
-        });
+        AccessDeniedException ex = assertThrows(AccessDeniedException.class, () ->
+                productController.updateProduct(dto, createUserRequest(normalUser))
+        );
 
         assertEquals("You do not have permission: " + Permission.EDIT_PRODUCT, ex.getMessage());
     }
 
     @Test
-    void deleteProduct_returnsDeleted_whenUserHasPermission() throws Exception {
-        Long productId = 1L;
-        when(productService.deleteProduct(productId)).thenReturn(true);
+    void deleteProduct_returns204_whenDeleted() throws Exception {
+        Long id = 1L;
 
-        String result = productController.deleteProduct(productId, request);
+        when(productService.deleteProduct(id)).thenReturn(true);
 
-        assertEquals("DELETED", result);
-        verify(productService, times(1)).deleteProduct(productId);
+        ResponseEntity<Void> response = productController.deleteProduct(id, request);
+
+        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
+        verify(productService).deleteProduct(id);
     }
 
     @Test
-    void deleteProduct_throwsAccessDeniedException_whenUserNotLoggedIn() {
-        Long productId = 1L;
-        assertThrows(AccessDeniedException.class, () -> {
-            productController.deleteProduct(productId, createNotLoggedInRequest());
-        });
+    void deleteProduct_returns404_whenNotDeleted() throws Exception {
+        Long id = 1L;
+
+        when(productService.deleteProduct(id)).thenReturn(false);
+
+        ResponseEntity<Void> response = productController.deleteProduct(id, request);
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     }
 
     @Test
-    void deleteProduct_throwsAccessDeniedException_whenUserHasNoPermission() {
+    void deleteProduct_throwsAccessDenied_whenNotLoggedIn() {
+        Long id = 1L;
+
+        assertThrows(AccessDeniedException.class, () ->
+                productController.deleteProduct(id, createNotLoggedInRequest())
+        );
+    }
+
+    @Test
+    void deleteProduct_throwsAccessDenied_whenNoPermission() {
         User normalUser = new User(2L, "user", "pass", Role.USER);
-        Long productId = 1L;
+        Long id = 1L;
 
-        AccessDeniedException ex = assertThrows(AccessDeniedException.class, () -> {
-            productController.deleteProduct(productId, createUserRequest(normalUser));
-        });
+        AccessDeniedException ex = assertThrows(AccessDeniedException.class, () ->
+                productController.deleteProduct(id, createUserRequest(normalUser))
+        );
 
         assertEquals("You do not have permission: " + Permission.DELETE_PRODUCT, ex.getMessage());
     }

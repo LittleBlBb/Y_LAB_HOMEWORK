@@ -8,15 +8,16 @@ import ProductCatalog.utils.AccessUtil;
 import ProductCatalog.validators.UserValidator;
 import ProductCatalog.dto.UserDTO;
 import ProductCatalog.mappers.UserMapper;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.http.HttpServletRequest;
 import java.nio.file.AccessDeniedException;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -30,7 +31,7 @@ import java.util.stream.Collectors;
  */
 @RestController
 @RequestMapping("/api/users")
-@Api(tags = "users")
+@Tag(name = "users", description = "operations with users")
 public class UserController {
     private final UserService userService;
 
@@ -44,7 +45,7 @@ public class UserController {
      */
     @Auditable(action = "get all users")
     @GetMapping
-    @ApiOperation("get all users")
+    @Operation(summary = "get all users")
     public List<UserDTO> getAllUsers(HttpServletRequest request) throws AccessDeniedException {
         AccessUtil.checkPermission(request, Permission.MANAGE_USERS);
         return userService.getAll().stream()
@@ -63,19 +64,19 @@ public class UserController {
      */
     @Auditable(action = "registration")
     @PostMapping
-    @ApiOperation("register new user")
-    public String registerUser(@RequestBody UserDTO userDTO) {
+    @Operation(summary = "register new user")
+    public ResponseEntity<?> registerUser(@RequestBody UserDTO userDTO) {
         List<String> errors = UserValidator.validate(userDTO);
         if (!errors.isEmpty()) {
-            return errors.stream().collect(Collectors.joining("\n"));
+            return ResponseEntity.badRequest().body(errors);
         }
+
         User entity = UserMapper.INSTANCE.toEntity(userDTO);
         boolean created = userService.register(entity);
 
-        if (created){
-            return "REGISTERED";
-        } else {
-           return "FAILED";
+        if (!created){
+            return ResponseEntity.badRequest().body("Failed to create user");
         }
+        return ResponseEntity.ok("Registered successfully");
     }
 }

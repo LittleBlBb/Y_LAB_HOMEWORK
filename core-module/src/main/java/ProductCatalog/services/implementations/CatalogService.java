@@ -38,9 +38,8 @@ public class CatalogService implements ICatalogService {
      * @param catalog объект каталога для добавления
      * @return {@code true}, если каталог успешно создан
      */
-    public boolean createCatalog(Catalog catalog) {
-        catalogRepository.save(catalog);
-        return true;
+    public Catalog createCatalog(Catalog catalog) {
+        return catalogRepository.save(catalog);
     }
 
     /**

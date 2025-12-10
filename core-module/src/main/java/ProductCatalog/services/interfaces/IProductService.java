@@ -5,7 +5,7 @@ import ProductCatalog.models.Product;
 import java.util.List;
 
 public interface IProductService {
-    boolean createProduct(Product product);
+    Product createProduct(Product product);
     boolean updateProduct(Product product);
     boolean deleteProduct(long id);
     Product findById(long id);

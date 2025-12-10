@@ -8,17 +8,15 @@ import ProductCatalog.services.implementations.CatalogService;
 import ProductCatalog.dto.CatalogDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 import java.nio.file.AccessDeniedException;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 class CatalogControllerTest extends BaseControllerTest {
 
@@ -51,17 +49,35 @@ class CatalogControllerTest extends BaseControllerTest {
     @Test
     void createCatalog_returnsCreated_whenUserHasPermission() throws Exception {
         CatalogDTO dto = new CatalogDTO(0, "NewCatalog");
-        when(catalogService.createCatalog(any(Catalog.class))).thenReturn(true);
+        Catalog saved = new Catalog(1L, "NewCatalog");
 
-        String result = catalogController.createCatalog(dto, request);
+        when(catalogService.createCatalog(any(Catalog.class))).thenReturn(saved);
 
-        assertEquals("CREATED", result);
+        ResponseEntity<?> response = catalogController.createCatalog(dto, request);
+
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+        assertTrue(response.getBody() instanceof CatalogDTO);
+        assertEquals("NewCatalog", ((CatalogDTO) response.getBody()).getName());
+
         verify(catalogService, times(1)).createCatalog(any(Catalog.class));
+    }
+
+    @Test
+    void createCatalog_returns500_whenServiceReturnsNull() throws Exception {
+        CatalogDTO dto = new CatalogDTO(0, "NewCatalog");
+
+        when(catalogService.createCatalog(any(Catalog.class))).thenReturn(null);
+
+        ResponseEntity<?> response = catalogController.createCatalog(dto, request);
+
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+        assertEquals("Error creating product", response.getBody());
     }
 
     @Test
     void createCatalog_throwsAccessDeniedException_whenUserNotLoggedIn() {
         CatalogDTO dto = new CatalogDTO(0, "NewCatalog");
+
         assertThrows(AccessDeniedException.class, () -> {
             catalogController.createCatalog(dto, createNotLoggedInRequest());
         });
@@ -79,21 +95,33 @@ class CatalogControllerTest extends BaseControllerTest {
         assertEquals("You do not have permission: " + Permission.CREATE_CATALOG, ex.getMessage());
     }
 
-
     @Test
-    void deleteCatalogById_returnsDeleted_whenUserHasPermission() throws Exception {
+    void deleteCatalogById_returns204_whenUserHasPermission() throws Exception {
         Long catalogId = 1L;
+
         when(catalogService.deleteCatalog(catalogId)).thenReturn(true);
 
-        String result = catalogController.deleteCatalogById(catalogId, request);
+        ResponseEntity<Void> response = catalogController.deleteCatalogById(catalogId, request);
 
-        assertEquals("DELETED", result);
+        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
         verify(catalogService, times(1)).deleteCatalog(catalogId);
+    }
+
+    @Test
+    void deleteCatalogById_returns404_whenCatalogNotFound() throws Exception {
+        Long catalogId = 1L;
+
+        when(catalogService.deleteCatalog(catalogId)).thenReturn(false);
+
+        ResponseEntity<Void> response = catalogController.deleteCatalogById(catalogId, request);
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     }
 
     @Test
     void deleteCatalogById_throwsAccessDeniedException_whenUserNotLoggedIn() {
         Long catalogId = 1L;
+
         assertThrows(AccessDeniedException.class, () -> {
             catalogController.deleteCatalogById(catalogId, createNotLoggedInRequest());
         });

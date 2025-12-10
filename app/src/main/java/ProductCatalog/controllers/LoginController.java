@@ -6,19 +6,22 @@ import ProductCatalog.dto.LoginRequest;
 import ProductCatalog.models.User;
 import ProductCatalog.services.implementations.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.http.HttpSession;
+import javax.swing.plaf.SeparatorUI;
+import java.util.Map;
+
 
 @RestController
 @RequestMapping("/api/login")
-@Api(tags = "login")
+@Tag(name = "login", description = "login")
 public class LoginController {
 
     private final UserService userService;
@@ -30,19 +33,23 @@ public class LoginController {
 
     @Auditable(action = "login")
     @PostMapping
-    @ApiOperation("login")
-    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest, HttpSession session) {
+    @Operation(summary = "login")
+    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest,
+                                   HttpSession session) {
         String username = loginRequest.getUsername();
-        String password = loginRequest.getPassword();
 
-        User user = userService.findByUsername(username);
+        User user = userService.findByUsername(loginRequest.getUsername());
         if (user == null) {
-            return ResponseEntity.badRequest().body("User with username " + username + " not found");
+            return ResponseEntity.status(404)
+                    .body(Map.of("error", "User not found"));
         }
-        if (!password.equals(user.getPassword())) {
-            return ResponseEntity.badRequest().body("Invalid username or password");
+
+        boolean valid = userService.checkPassword(user, loginRequest.getPassword());
+        if (!valid) {
+            return ResponseEntity.status(401)
+                    .body(Map.of("error", "Invalid username or password"));
         }
         session.setAttribute(SessionAttributes.USER, user);
-        return ResponseEntity.ok("Login successful");
+        return ResponseEntity.ok(Map.of("message", "Login successful"));
     }
 }
